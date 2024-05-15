@@ -30,11 +30,13 @@ environment:
 dependencies:
   bloc: ^8.1.4
   cupertino_icons: ^1.0.6
+  equatable: ^2.0.5
   flutter:
     sdk: flutter
   flutter_bloc: ^8.1.5
   http: ^1.2.1
   url_launcher: ^6.2.6
+  uuid: ^4.4.0
 
 dev_dependencies:
   flutter_lints: ^3.0.0
