@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
-import 'package:code_store/modules/firebase_authentication/authentication_repository.dart';
+import 'package:code_store/modules/authentication/authentication_enums.dart';
+import 'package:code_store/modules/authentication/authentication_repository.dart';
 import 'package:equatable/equatable.dart';
 part 'login_event.dart';
 part 'login_state.dart';

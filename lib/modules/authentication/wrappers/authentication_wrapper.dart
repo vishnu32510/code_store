@@ -1,8 +1,8 @@
 import 'package:code_store/firebase_options.dart';
-import 'package:code_store/modules/firebase_authentication/app_bloc/app_bloc.dart';
-import 'package:code_store/modules/firebase_authentication/authentication_repository.dart';
-import 'package:code_store/modules/firebase_authentication/login_bloc/login_bloc.dart';
-import 'package:code_store/modules/firebase_authentication/user_repository.dart';
+import 'package:code_store/modules/authentication/authentication_bloc/authentication_bloc.dart';
+import 'package:code_store/modules/authentication/authentication_repository.dart';
+import 'package:code_store/modules/authentication/login_bloc/login_bloc.dart';
+import 'package:code_store/modules/authentication/user_repository.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -51,7 +51,7 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
       value: _authenticationRepository,
       child: MultiBlocProvider(providers: [
         BlocProvider(
-          create: (context) => AppBloc(
+          create: (context) => AuthenticationBloc(
               authenticationRepository: _authenticationRepository, userRepository: _userRepository),
         ),
         BlocProvider(

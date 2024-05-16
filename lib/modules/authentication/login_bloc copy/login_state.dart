@@ -1,7 +1,5 @@
 part of 'login_bloc.dart';
 
-enum FormzSubmissionStatus {initial, failure, success, inProgress}
-
 final class LoginState extends Equatable {
   const LoginState({
     this.status = FormzSubmissionStatus.initial,

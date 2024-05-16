@@ -1,16 +1,11 @@
 import 'dart:async';
-import 'package:code_store/modules/firebase_authentication/cache.dart';
-import 'package:code_store/modules/firebase_authentication/user.dart';
+import 'package:code_store/modules/authentication/authentication_enums.dart';
+import 'package:code_store/modules/authentication/cache.dart';
+import 'package:code_store/modules/authentication/user.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:meta/meta.dart';
-
-enum AuthenticationStatus {
-  unknown,
-  authenticated,
-  unauthenticated,
-}
 
 abstract class AuthenticationRepository {}
 

@@ -1,20 +1,20 @@
 import 'dart:async';
-
 import 'package:bloc/bloc.dart';
-import 'package:code_store/modules/firebase_authentication/authentication_repository.dart';
-import 'package:code_store/modules/firebase_authentication/user.dart';
-import 'package:code_store/modules/firebase_authentication/user_repository.dart';
+import 'package:code_store/modules/authentication/authentication_enums.dart';
+import 'package:code_store/modules/authentication/authentication_repository.dart';
+import 'package:code_store/modules/authentication/user.dart';
+import 'package:code_store/modules/authentication/user_repository.dart';
 import 'package:equatable/equatable.dart';
 
-part 'app_event.dart';
-part 'app_state.dart';
+part 'authentication_event.dart';
+part 'authentication_state.dart';
 
-class AppBloc extends Bloc<AppEvent, AppState> {
-  AppBloc({required AuthenticationRepository authenticationRepository,
+class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> {
+  AuthenticationBloc({required AuthenticationRepository authenticationRepository,
   required UserRepository userRepository,})
       : _authenticationRepository = authenticationRepository,
       _userRepository = userRepository,
-        super(const AppState.unknown()
+        super(const AuthenticationState.unknown()
           // authenticationRepository.currentUser.isNotEmpty
           //     ? AppState.authenticated(authenticationRepository.currentUser)
           //     : const AppState.unauthenticated(),
@@ -40,40 +40,40 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   late StreamSubscription<AuthenticationStatus>
       _authenticationStatusSubscription;
 
-  void _onUserChanged(_FirebaseAuthenticationUserChanged event, Emitter<AppState> emit) {
+  void _onUserChanged(_FirebaseAuthenticationUserChanged event, Emitter<AuthenticationState> emit) {
     emit(
       event.user.isNotEmpty
-          ? AppState.authenticated(event.user)
-          : const AppState.unauthenticated(),
+          ? AuthenticationState.authenticated(event.user)
+          : const AuthenticationState.unauthenticated(),
     );
   }
 
-  void _onLogoutRequested(FirebaseAuthentcationLogoutRequested event, Emitter<AppState> emit) {
+  void _onLogoutRequested(FirebaseAuthentcationLogoutRequested event, Emitter<AuthenticationState> emit) {
     unawaited((_authenticationRepository as FirebaseAuthenticationRepository).logOut());
   }
 
    Future<void> _onAuthenticationStatusChanged(
     _CredentialAuthenticationStatusChanged event,
-    Emitter<AppState> emit,
+    Emitter<AuthenticationState> emit,
   ) async {
     switch (event.status) {
       case AuthenticationStatus.unauthenticated:
-        return emit(const AppState.unauthenticated());
+        return emit(const AuthenticationState.unauthenticated());
       case AuthenticationStatus.authenticated:
         final user = await _tryGetUser();
         return emit(
           user != null
-              ? AppState.authenticated(user)
-              : const AppState.unauthenticated(),
+              ? AuthenticationState.authenticated(user)
+              : const AuthenticationState.unauthenticated(),
         );
       case AuthenticationStatus.unknown:
-        return emit(const AppState.unknown());
+        return emit(const AuthenticationState.unknown());
     }
   }
 
   void _onAuthenticationLogoutRequested(
     CredentialAuthenticationLogoutRequested event,
-    Emitter<AppState> emit,
+    Emitter<AuthenticationState> emit,
   ) {
     (_authenticationRepository as CredentialAuthenticationRepository).logOut();
   }

@@ -1,7 +1,7 @@
 import 'package:code_store/bloc_observer.dart';
 import 'package:code_store/core/utils/app_constants.dart';
 import 'package:code_store/firebase_options.dart';
-import 'package:code_store/modules/firebase_authentication/authentication.dart';
+import 'package:code_store/modules/authentication/authentication.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -89,7 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   {
                     BlocProvider.of<ThemeBloc>(context)
                         .add(ThemeEventChange(ThemeEventType.system));
-                    context.read<AppBloc>().add(const FirebaseAuthentcationLogoutRequested());
+                    context.read<AuthenticationBloc>().add(const FirebaseAuthentcationLogoutRequested());
                   }
                 },
                 tooltip: 'Increment',

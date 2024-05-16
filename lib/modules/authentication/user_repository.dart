@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:code_store/modules/firebase_authentication/user.dart';
+import 'package:code_store/modules/authentication/user.dart';
 import 'package:uuid/uuid.dart';
 
 class UserRepository {
