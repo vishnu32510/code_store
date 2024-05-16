@@ -2,26 +2,25 @@ import 'package:bloc/bloc.dart';
 import 'package:code_store/modules/authentication/authentication_enums.dart';
 import 'package:code_store/modules/authentication/authentication_repository.dart';
 import 'package:equatable/equatable.dart';
-part 'login_event.dart';
-part 'login_state.dart';
+part 'signup_event.dart';
+part 'signup_state.dart';
 
-class LoginBloc extends Bloc<LoginEvent, LoginState> {
-  LoginBloc({
+class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
+  SignUpBloc({
     required AuthenticationRepository authenticationRepository,
   })  : _authenticationRepository = authenticationRepository,
-        super(const LoginState()) {
-    on<LoginUsernameChanged>(_onUsernameChanged);
-    on<LoginPasswordChanged>(_onPasswordChanged);
-    on<FirebaseLoginWithCredentials>(_loginWithCredentials);
-    on<FirebaseLoginWithGoogle>(_logInWithGoogle);
-    on<CredentialLoginSubmitted>(_onSubmitted);
+        super(const SignUpState()) {
+    on<SignUpUsernameChanged>(_onUsernameChanged);
+    on<SignUpPasswordChanged>(_onPasswordChanged);
+    on<FirebaseSignUpWithCredentials>(_signupWithCredentials);
+    on<CredentialSignUpSubmitted>(_onSubmitted);
   }
 
   final AuthenticationRepository _authenticationRepository;
 
   void _onUsernameChanged(
-    LoginUsernameChanged event,
-    Emitter<LoginState> emit,
+    SignUpUsernameChanged event,
+    Emitter<SignUpState> emit,
   ) {
     final username = event.username;
     emit(
@@ -33,8 +32,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   }
 
   void _onPasswordChanged(
-    LoginPasswordChanged event,
-    Emitter<LoginState> emit,
+    SignUpPasswordChanged event,
+    Emitter<SignUpState> emit,
   ) {
     final password = event.password;
     emit(
@@ -45,19 +44,19 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     );
   }
 
-  Future<void> _loginWithCredentials(
-    FirebaseLoginWithCredentials event,
-    Emitter<LoginState> emit,
+  Future<void> _signupWithCredentials(
+    FirebaseSignUpWithCredentials event,
+    Emitter<SignUpState> emit,
   ) async {
     if (!state.isValid) return;
     emit(state.copyWith(status: FormzSubmissionStatus.inProgress));
     try {
-      await (_authenticationRepository as FirebaseAuthenticationRepository).logInWithEmailAndPassword(
+      await (_authenticationRepository as FirebaseAuthenticationRepository).signUp(
         email: state.username,
         password: state.password,
       );
       emit(state.copyWith(status: FormzSubmissionStatus.success));
-    } on LogInWithEmailAndPasswordFailure catch (e) {
+    } on SignUpWithEmailAndPasswordFailure catch (e) {
       emit(
         state.copyWith(
           errorMessage: e.message,
@@ -69,36 +68,17 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     }
   }
 
-  Future<void> _logInWithGoogle(
-      FirebaseLoginWithGoogle event, 
-      Emitter<LoginState> emit
-      ) async {
-      emit(state.copyWith(status: FormzSubmissionStatus.inProgress));
-      try {
-        await (_authenticationRepository as FirebaseAuthenticationRepository).logInWithGoogle();
-        emit(state.copyWith(status: FormzSubmissionStatus.success));
-      } on LogInWithGoogleFailure catch (e) {
-        emit(
-          state.copyWith(
-            errorMessage: e.message,
-            status: FormzSubmissionStatus.failure,
-          ),
-        );
-      } catch (_) {
-        emit(state.copyWith(status: FormzSubmissionStatus.failure));
-      }
-    }
-
-    Future<void> _onSubmitted(
-    CredentialLoginSubmitted event,
-    Emitter<LoginState> emit,
+  Future<void> _onSubmitted(
+    CredentialSignUpSubmitted event,
+    Emitter<SignUpState> emit,
   ) async {
     if (state.isValid) {
       emit(state.copyWith(status: FormzSubmissionStatus.inProgress));
       try {
-        await (_authenticationRepository as CredentialAuthenticationRepository).logIn(
+        await (_authenticationRepository as CredentialAuthenticationRepository).signUp(
           username: state.username,
           password: state.password,
+          email: state.email,
         );
         emit(state.copyWith(status: FormzSubmissionStatus.success));
       } catch (_) {
