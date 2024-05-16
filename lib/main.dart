@@ -1,16 +1,20 @@
 import 'package:code_store/bloc_observer.dart';
 import 'package:code_store/core/utils/app_constants.dart';
+import 'package:code_store/firebase_options.dart';
 import 'package:code_store/modules/firebase_authentication/authentication.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'modules/theme/theme.dart';
 
 Future<void> main() async {
-  
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   Bloc.observer = SimpleBlocObserver();
 
-
-  runApp(const ThemeWrapper(child: AuthenticationWrapper(child: MyApp())));
+  runApp(const ThemeWrapper(child: AuthenticationWrapper(firebase: true, child: MyApp())));
 }
 
 class MyApp extends StatefulWidget {
@@ -73,8 +77,9 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               FloatingActionButton(
                 onPressed: () {
-                  BlocProvider.of<ThemeBloc>(context).add(ThemeEventChange(ThemeEventType.darkMode));
-                  context.read<LoginBloc>().add(const CredentialLoginSubmitted());
+                  BlocProvider.of<ThemeBloc>(context)
+                      .add(ThemeEventChange(ThemeEventType.darkMode));
+                  context.read<LoginBloc>().add(const FirebaseLoginWithGoogle());
                 },
                 tooltip: 'Increment',
                 child: const Icon(Icons.add),
@@ -84,7 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   {
                     BlocProvider.of<ThemeBloc>(context)
                         .add(ThemeEventChange(ThemeEventType.system));
-                    context.read<AppBloc>().add(CredentialAuthenticationLogoutRequested());
+                    context.read<AppBloc>().add(const FirebaseAuthentcationLogoutRequested());
                   }
                 },
                 tooltip: 'Increment',

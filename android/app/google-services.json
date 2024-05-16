@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "377191190351",
+    "project_id": "code-store001",
+    "storage_bucket": "code-store001.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:377191190351:android:0582b14a5a7d26c9a1bf3a",
+        "android_client_info": {
+          "package_name": "com.example.codeStore"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "377191190351-gr9skl6dv66qisc0s52mbpcf748jol0s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDbWXYkHRWNMPZQFon5m-uhhglAccgAFY4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "377191190351-gr9skl6dv66qisc0s52mbpcf748jol0s.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "377191190351-8qohu5cm10nceeg0cfrhie4an5iruunb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.codeStore"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

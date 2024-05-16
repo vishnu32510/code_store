@@ -25,6 +25,7 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
   void initState() {
     super.initState();
     _isFirebase = widget.firebase;
+    // initialiseFirebase();
     _authenticationRepository =
         _isFirebase ? FirebaseAuthenticationRepository() : CredentialAuthenticationRepository();
     _userRepository = UserRepository();
@@ -33,10 +34,9 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
   Future<void> initialiseFirebase() async {
     if (_isFirebase) {
       WidgetsFlutterBinding.ensureInitialized();
-      await Firebase.initializeApp();
       await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-);
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
     }
   }
 
