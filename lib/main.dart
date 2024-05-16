@@ -1,24 +1,16 @@
+import 'package:code_store/bloc_observer.dart';
 import 'package:code_store/core/utils/app_constants.dart';
-import 'package:code_store/modules/authentication/signup_bloc/signup_bloc.dart';
-import 'package:code_store/modules/authentication/wrappers/auhentication_wrapper.dart';
-import 'package:code_store/modules/authentication/authentication_bloc/authentication_bloc.dart';
-import 'package:code_store/modules/authentication/wrappers/authentication_listner_wrapper.dart';
+import 'package:code_store/modules/firebase_authentication/authentication.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'modules/theme/theme.dart';
 
-void main() {
-  /// `runApp(const MyApp());` is the entry point of a Flutter application. It tells Flutter to start
-  /// running the app by creating an instance of the `MyApp` widget and rendering it on the screen. In
-  /// this case, `MyApp` is a stateless widget that represents the root of the application. The `const`
-  /// keyword is used to create a compile-time constant widget, which can help with performance
-  /// optimizations.
-  /// `runApp(const MyApp());` is the entry point of a Flutter application. It tells Flutter to start
-  /// running the app by creating an instance of the `MyApp` widget and rendering it on the screen. In
-  /// this case, `MyApp` is a stateless widget that represents the root of the application. The `const`
-  /// keyword is used to create a compile-time constant widget, which can help with performance
-  /// optimizations.
-  runApp(const ThemeWrapper(child: MyApp()));
+Future<void> main() async {
+  
+  Bloc.observer = SimpleBlocObserver();
+
+
+  runApp(const ThemeWrapper(child: AuthenticationWrapper(child: MyApp())));
 }
 
 class MyApp extends StatefulWidget {
@@ -35,18 +27,15 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return BlocBuilder<ThemeBloc, ThemeState>(
       builder: (context, state) {
-        return AuthenticationWrapper(
+        return MaterialApp(
           navigatorKey: _navigatorKey,
-          child: MaterialApp(
-            navigatorKey: _navigatorKey,
-            title: AppConstants.appTitle,
-            theme: state.themeData,
-            themeAnimationCurve: Curves.easeIn,
-            themeAnimationDuration: const Duration(milliseconds: 500),
-            themeMode: state.themeMode,
-            darkTheme: DarkThemeState.darkTheme.themeData,
-            home: const MyHomePage(title: 'Flutter Demo Home Page'),
-          ),
+          title: AppConstants.appTitle,
+          theme: state.themeData,
+          themeAnimationCurve: Curves.easeIn,
+          themeAnimationDuration: const Duration(milliseconds: 500),
+          themeMode: state.themeMode,
+          darkTheme: DarkThemeState.darkTheme.themeData,
+          home: const MyHomePage(title: 'Flutter Demo Home Page'),
         );
       },
     );
@@ -85,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
               FloatingActionButton(
                 onPressed: () {
                   BlocProvider.of<ThemeBloc>(context).add(ThemeEventChange(ThemeEventType.darkMode));
-                  context.read<SignupBloc>().add(const SignupSubmitted());
+                  context.read<LoginBloc>().add(const CredentialLoginSubmitted());
                 },
                 tooltip: 'Increment',
                 child: const Icon(Icons.add),
@@ -95,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   {
                     BlocProvider.of<ThemeBloc>(context)
                         .add(ThemeEventChange(ThemeEventType.system));
-                    context.read<AuthenticationBloc>().add(AuthenticationLogoutRequested());
+                    context.read<AppBloc>().add(CredentialAuthenticationLogoutRequested());
                   }
                 },
                 tooltip: 'Increment',
