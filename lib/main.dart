@@ -56,9 +56,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  void _light() {
-    BlocProvider.of<ThemeBloc>(context).add(ThemeEventChange(ThemeEventType.lightMode));
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,8 +74,6 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               FloatingActionButton(
                 onPressed: () {
-                  BlocProvider.of<ThemeBloc>(context)
-                      .add(ThemeEventChange(ThemeEventType.darkMode));
                   context.read<LoginBloc>().add(const FirebaseLoginWithGoogle());
                 },
                 tooltip: 'Increment',
@@ -87,8 +82,6 @@ class _MyHomePageState extends State<MyHomePage> {
               FloatingActionButton(
                 onPressed: () {
                   {
-                    BlocProvider.of<ThemeBloc>(context)
-                        .add(ThemeEventChange(ThemeEventType.system));
                     context.read<AuthenticationBloc>().add(const FirebaseAuthentcationLogoutRequested());
                   }
                 },
@@ -99,7 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: _light,
+          onPressed: (){},
           tooltip: 'Increment',
           child: const Icon(Icons.add),
         ), // This trailing comma makes auto-formatting nicer for build methods.
