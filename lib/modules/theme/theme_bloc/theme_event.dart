@@ -4,12 +4,6 @@ part of 'theme_bloc.dart';
 abstract class ThemeEvent {}
 
 class ThemeEventChange extends ThemeEvent {
-  final ThemeEventType currentTheme;
+  final ThemeType currentTheme;
   ThemeEventChange(this.currentTheme);
-}
-
-enum ThemeEventType {
-  darkMode, // Event for toggling to dark theme
-  lightMode, // Event for toggling to light theme
-  system, // Event for toggling to light theme
 }
