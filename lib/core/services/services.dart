@@ -17,16 +17,16 @@ class HttpServices extends Services {
   late final Dio _dio;
 
   HttpServices({Dio? dio}) {
-    _dio = dio ?? Dio(
-      BaseOptions(
-        connectTimeout: const Duration(seconds: 20),
-        receiveTimeout: const Duration(seconds: 20),
-        sendTimeout: const Duration(seconds: 20),
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-      ),
-    );
+    _dio =
+        dio ??
+        Dio(
+          BaseOptions(
+            connectTimeout: const Duration(seconds: 20),
+            receiveTimeout: const Duration(seconds: 20),
+            sendTimeout: const Duration(seconds: 20),
+            headers: {'Content-Type': 'application/json; charset=UTF-8'},
+          ),
+        );
 
     // Common Interceptors for Logging and Global Lifecycle Handling
     _dio.interceptors.add(
@@ -48,7 +48,9 @@ class HttpServices extends Services {
           return handler.next(options);
         },
         onResponse: (response, handler) {
-          debugPrint('<-- ${response.statusCode} ${response.requestOptions.uri}');
+          debugPrint(
+            '<-- ${response.statusCode} ${response.requestOptions.uri}',
+          );
           if (response.data != null) {
             debugPrint('Response: ${response.data}');
           }
@@ -228,5 +230,3 @@ class HttpServices extends Services {
     }
   }
 }
-
-
