@@ -72,9 +72,7 @@ class AmoledThemeState extends ThemeState {
   });
 
   static ThemeState get amoledTheme => ThemeState(
-    themeData: ThemeData.dark(
-      useMaterial3: true,
-    ).copyWith(
+    themeData: ThemeData.dark(useMaterial3: true).copyWith(
       scaffoldBackgroundColor: Colors.black,
       colorScheme: const ColorScheme.dark(
         surface: Colors.black,

@@ -32,9 +32,9 @@ class ThemeChangeDropdownButton extends StatelessWidget {
                 }).toList(),
             onChanged: (ThemeType? newValue) {
               if (newValue != null) {
-                BlocProvider.of<ThemeBloc>(context).add(
-                  ThemeEventChange(newValue),
-                );
+                BlocProvider.of<ThemeBloc>(
+                  context,
+                ).add(ThemeEventChange(newValue));
               }
             },
           ),
