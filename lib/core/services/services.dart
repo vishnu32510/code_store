@@ -1,9 +1,6 @@
 import 'dart:async';
-import 'dart:io';
-
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert' as convert;
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 enum ServiceError {
   unknownError,
@@ -17,150 +14,219 @@ enum ServiceError {
 abstract class Services {}
 
 class HttpServices extends Services {
-  Future postMethod(String url, var body) async {
-    var bo = convert.jsonEncode(body);
-    try {
-      var data = await http
-          .post(
-            Uri.parse(url),
-            body: bo,
-            headers: <String, String>{
-              // 'Authorization': 'Bearer $token',
-              'Content-Type': 'application/json; charset=UTF-8',
-            },
-          )
-          .timeout(const Duration(seconds: 20));
-      debugPrint(data.body);
-      if (data.statusCode == 200 || data.statusCode == 201) {
-        var response = convert.jsonDecode(data.body);
-        debugPrint(response.toString());
-        return response;
-      } else if (data.statusCode == 400 || data.statusCode == 404) {
-        var response = convert.jsonDecode(data.body);
-        debugPrint(response);
-        return ServiceError.clientError;
-      } else if (data.statusCode == 500) {
-        var response = convert.jsonDecode(data.body);
-        debugPrint(response);
-        return ServiceError.serverError;
-      } else {
+  late final Dio _dio;
+
+  HttpServices({Dio? dio}) {
+    _dio = dio ?? Dio(
+      BaseOptions(
+        connectTimeout: const Duration(seconds: 20),
+        receiveTimeout: const Duration(seconds: 20),
+        sendTimeout: const Duration(seconds: 20),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      ),
+    );
+
+    // Common Interceptors for Logging and Global Lifecycle Handling
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          // TODO: Uncomment and adapt to dynamically inject your Bearer Auth Token
+          /*
+          final token = await getIt<AuthLocalStorageService>().getToken();
+          if (token != null) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+          */
+
+          debugPrint('--> ${options.method} ${options.uri}');
+          debugPrint('Headers: ${options.headers}');
+          if (options.data != null) {
+            debugPrint('Body: ${options.data}');
+          }
+          return handler.next(options);
+        },
+        onResponse: (response, handler) {
+          debugPrint('<-- ${response.statusCode} ${response.requestOptions.uri}');
+          if (response.data != null) {
+            debugPrint('Response: ${response.data}');
+          }
+          return handler.next(response);
+        },
+        onError: (DioException e, handler) {
+          debugPrint('<-- ERROR: ${e.message} for ${e.requestOptions.uri}');
+          if (e.response != null) {
+            debugPrint('Error Status: ${e.response?.statusCode}');
+            debugPrint('Error Data: ${e.response?.data}');
+          }
+          return handler.next(e);
+        },
+      ),
+    );
+  }
+
+  // Map DioExceptions to our standard ServiceError
+  dynamic _handleError(DioException e) {
+    switch (e.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+        return ServiceError.timeoutError;
+      case DioExceptionType.connectionError:
+        return ServiceError.socketError;
+      case DioExceptionType.badResponse:
+        final statusCode = e.response?.statusCode;
+        if (statusCode == 400 || statusCode == 404) {
+          return ServiceError.clientError;
+        } else if (statusCode == 500) {
+          return ServiceError.serverError;
+        }
         return ServiceError.unknownResponseError;
-      }
-    } on TimeoutException catch (_) {
-      return ServiceError.timeoutError;
-    } on SocketException catch (_) {
-      return ServiceError.socketError;
-    } on Exception catch (_) {
+      default:
+        // Handle SocketException wrapped inside other error types
+        if (e.error != null && e.error.toString().contains('SocketException')) {
+          return ServiceError.socketError;
+        }
+        return ServiceError.unknownError;
+    }
+  }
+
+  Future postMethod(
+    String url,
+    dynamic body, {
+    Options? options,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final response = await _dio.post(
+        url,
+        data: body,
+        options: options,
+        cancelToken: cancelToken,
+      );
+      return response.data;
+    } on DioException catch (e) {
+      return _handleError(e);
+    } catch (_) {
       return ServiceError.unknownError;
     }
   }
 
-  Future putMethod(String url, var body) async {
+  Future putMethod(
+    String url,
+    dynamic body, {
+    Options? options,
+    CancelToken? cancelToken,
+  }) async {
     try {
-      var data = await http
-          .put(
-            Uri.parse(url),
-            body: body,
-            headers: <String, String>{
-              // 'Authorization': 'Bearer $token',
-              // 'Content-Type': 'application/json; charset=UTF-8'
-            },
-          )
-          .timeout(const Duration(seconds: 20));
-      debugPrint(data.body);
-      if (data.statusCode == 200) {
-        var response = convert.jsonDecode(data.body);
-        debugPrint(response);
-        return response;
-      } else if (data.statusCode == 400 || data.statusCode == 404) {
-        var response = convert.jsonDecode(data.body);
-        debugPrint(response);
-        return ServiceError.clientError;
-      } else if (data.statusCode == 500) {
-        var response = convert.jsonDecode(data.body);
-        debugPrint(response);
-        return ServiceError.serverError;
-      } else {
-        return ServiceError.unknownResponseError;
-      }
-    } on TimeoutException catch (_) {
-      return ServiceError.timeoutError;
-    } on SocketException catch (_) {
-      return ServiceError.socketError;
-    } on Exception catch (_) {
+      final response = await _dio.put(
+        url,
+        data: body,
+        options: options,
+        cancelToken: cancelToken,
+      );
+      return response.data;
+    } on DioException catch (e) {
+      return _handleError(e);
+    } catch (_) {
       return ServiceError.unknownError;
     }
   }
 
-  Future deleteMethod(String url) async {
+  Future deleteMethod(
+    String url, {
+    Options? options,
+    CancelToken? cancelToken,
+  }) async {
     try {
-      var data = await http
-          .delete(
-            Uri.parse(url),
-            headers: <String, String>{
-              // 'Authorization': 'Bearer $token',
-              // 'Content-Type': 'application/json; charset=UTF-8'
-            },
-          )
-          .timeout(const Duration(seconds: 20));
-      debugPrint(data.body);
-      if (data.statusCode == 200 || data.statusCode == 204) {
-        var response = convert.jsonDecode(data.body);
-        debugPrint(response.toString());
-        return response;
-      } else if (data.statusCode == 400 || data.statusCode == 404) {
-        var response = convert.jsonDecode(data.body);
-        debugPrint(response);
-        return ServiceError.clientError;
-      } else if (data.statusCode == 500) {
-        var response = convert.jsonDecode(data.body);
-        debugPrint(response);
-        return ServiceError.serverError;
-      } else {
-        return ServiceError.unknownResponseError;
-      }
-    } on TimeoutException catch (_) {
-      return ServiceError.timeoutError;
-    } on SocketException catch (_) {
-      return ServiceError.socketError;
-    } on Exception catch (_) {
+      final response = await _dio.delete(
+        url,
+        options: options,
+        cancelToken: cancelToken,
+      );
+      return response.data;
+    } on DioException catch (e) {
+      return _handleError(e);
+    } catch (_) {
       return ServiceError.unknownError;
     }
   }
 
-  Future getMethod(String url) async {
+  Future getMethod(
+    String url, {
+    Options? options,
+    CancelToken? cancelToken,
+  }) async {
     try {
-      var data = await http
-          .get(
-            Uri.parse(url),
-            headers: <String, String>{
-              // 'Authorization': 'Bearer $token',
-              // 'Content-Type': 'application/json; charset=UTF-8'
-            },
-          )
-          .timeout(const Duration(seconds: 20));
-      debugPrint(data.body);
-      if (data.statusCode == 200) {
-        var response = convert.jsonDecode(data.body);
-        debugPrint(response.toString());
-        return response;
-      } else if (data.statusCode == 400 || data.statusCode == 404) {
-        var response = convert.jsonDecode(data.body);
-        debugPrint(response);
-        return ServiceError.clientError;
-      } else if (data.statusCode == 500) {
-        var response = convert.jsonDecode(data.body);
-        debugPrint(response);
-        return ServiceError.serverError;
-      } else {
-        return ServiceError.unknownResponseError;
-      }
-    } on TimeoutException catch (_) {
-      return ServiceError.timeoutError;
-    } on SocketException catch (_) {
-      return ServiceError.socketError;
-    } on Exception catch (_) {
+      final response = await _dio.get(
+        url,
+        options: options,
+        cancelToken: cancelToken,
+      );
+      return response.data;
+    } on DioException catch (e) {
+      return _handleError(e);
+    } catch (_) {
+      return ServiceError.unknownError;
+    }
+  }
+
+  /// Downloads a file from the server with progress tracking.
+  Future downloadFile(
+    String url,
+    String savePath, {
+    ProgressCallback? onReceiveProgress,
+    Options? options,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final response = await _dio.download(
+        url,
+        savePath,
+        onReceiveProgress: onReceiveProgress,
+        options: options,
+        cancelToken: cancelToken,
+      );
+      return response.data;
+    } on DioException catch (e) {
+      return _handleError(e);
+    } catch (_) {
+      return ServiceError.unknownError;
+    }
+  }
+
+  /// Uploads a file using multipart form-data with progress tracking.
+  Future uploadFile(
+    String url,
+    String filePath, {
+    String fileKey = 'file',
+    Map<String, dynamic>? additionalFields,
+    ProgressCallback? onSendProgress,
+    Options? options,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final fileName = filePath.split('/').last;
+      final formData = FormData.fromMap({
+        fileKey: await MultipartFile.fromFile(filePath, filename: fileName),
+        if (additionalFields != null) ...additionalFields,
+      });
+
+      final response = await _dio.post(
+        url,
+        data: formData,
+        onSendProgress: onSendProgress,
+        options: options,
+        cancelToken: cancelToken,
+      );
+      return response.data;
+    } on DioException catch (e) {
+      return _handleError(e);
+    } catch (_) {
       return ServiceError.unknownError;
     }
   }
 }
+
+
