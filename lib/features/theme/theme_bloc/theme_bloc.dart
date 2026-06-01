@@ -18,6 +18,9 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
         case ThemeType.system:
           emit(SystemThemeState.systemTheme);
           break;
+        case ThemeType.amoledMode:
+          emit(AmoledThemeState.amoledTheme);
+          break;
       }
     });
   }

@@ -63,3 +63,26 @@ class SystemThemeState extends ThemeState {
     themeEventType: ThemeType.system,
   );
 }
+
+class AmoledThemeState extends ThemeState {
+  const AmoledThemeState({
+    required super.themeData,
+    required super.themeMode,
+    required super.themeEventType,
+  });
+
+  static ThemeState get amoledTheme => ThemeState(
+    themeData: ThemeData.dark(
+      useMaterial3: true,
+    ).copyWith(
+      scaffoldBackgroundColor: Colors.black,
+      colorScheme: const ColorScheme.dark(
+        surface: Colors.black,
+        primary: Color(0xff9936E2),
+        secondary: Color(0xff00E5FF),
+      ),
+    ),
+    themeMode: ThemeMode.dark,
+    themeEventType: ThemeType.amoledMode,
+  );
+}

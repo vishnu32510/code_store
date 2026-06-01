@@ -31,19 +31,10 @@ class ThemeChangeDropdownButton extends StatelessWidget {
                   );
                 }).toList(),
             onChanged: (ThemeType? newValue) {
-              switch (newValue) {
-                case ThemeType.darkMode:
-                  BlocProvider.of<ThemeBloc>(
-                    context,
-                  ).add(ThemeEventChange(ThemeType.darkMode));
-                case ThemeType.lightMode:
-                  BlocProvider.of<ThemeBloc>(
-                    context,
-                  ).add(ThemeEventChange(ThemeType.lightMode));
-                default:
-                  BlocProvider.of<ThemeBloc>(
-                    context,
-                  ).add(ThemeEventChange(ThemeType.system));
+              if (newValue != null) {
+                BlocProvider.of<ThemeBloc>(context).add(
+                  ThemeEventChange(newValue),
+                );
               }
             },
           ),
