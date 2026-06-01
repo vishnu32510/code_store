@@ -1,0 +1,58 @@
+# frozen_string_literal: true
+
+default_platform(:android)
+
+def repo_root
+  File.expand_path("../..", __dir__)
+end
+
+def play_json_key
+  path = ENV["PLAY_SERVICE_ACCOUNT_JSON_PATH"]
+  UI.user_error!("Set PLAY_SERVICE_ACCOUNT_JSON_PATH to your Play Console API JSON key file") unless path
+  File.expand_path(path)
+end
+
+def release_aab
+  File.join(repo_root, "build/app/outputs/bundle/release/app-release.aab")
+end
+
+platform :android do
+  desc "Build release AAB and upload to Internal testing track."
+  lane :internal do
+    Dir.chdir(repo_root) do
+      sh("flutter pub get")
+      sh("flutter build appbundle --release")
+    end
+
+    UI.user_error!("AAB not found — configure release signing in android/app/build.gradle.kts") unless File.file?(release_aab)
+
+    upload_to_play_store(
+      track: "internal",
+      aab: release_aab,
+      json_key: play_json_key,
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: false
+    )
+  end
+
+  desc "Upload the same AAB to Production (rolled out gradually)."
+  lane :production do
+    Dir.chdir(repo_root) do
+      sh("flutter pub get")
+      sh("flutter build appbundle --release")
+    end
+
+    UI.user_error!("AAB not found — configure release signing in android/app/build.gradle.kts") unless File.file?(release_aab)
+
+    upload_to_play_store(
+      track: "production",
+      rollout: "0.1",
+      aab: release_aab,
+      json_key: play_json_key,
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: false
+    )
+  end
+end

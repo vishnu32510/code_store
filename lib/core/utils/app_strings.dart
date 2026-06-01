@@ -1,3 +1,1 @@
-abstract class AppStrings {
-  
-}
+abstract class AppStrings {}

@@ -1,0 +1,86 @@
+# Fastlane → TestFlight (`ios_beta`) or App Store submit (`ios_submit_review`).
+# Secrets: MATCH_GIT_URL, MATCH_PASSWORD, optional MATCH_GIT_BASIC_AUTHORIZATION (private HTTPS clone).
+name: Store release (iOS)
+
+concurrency:
+  group: store-release-ios-${{ github.ref }}
+  cancel-in-progress: false
+
+on:
+  workflow_dispatch:
+    inputs:
+      lane:
+        description: "Fastlane iOS lane"
+        required: true
+        type: choice
+        options:
+          - ios_beta
+          - ios_submit_review
+
+env:
+  LC_ALL: en_US.UTF-8
+  LANG: en_US.UTF-8
+
+jobs:
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+
+      - name: Install gems (root Gemfile)
+        run: bundle install
+
+      - name: CocoaPods (required for flutter build ipa)
+        run: |
+          gem install cocoapods
+          echo "$(ruby -e 'puts Gem.user_dir')/bin" >> "$GITHUB_PATH"
+          pod --version
+          flutter pub get
+          cd ios
+          pod install --repo-update
+
+      - name: Validate iOS release secrets
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_KEY_CONTENT }}
+        run: |
+          test -n "$APP_STORE_CONNECT_KEY_ID" || (echo "Missing APP_STORE_CONNECT_KEY_ID" && exit 1)
+          test -n "$APP_STORE_CONNECT_ISSUER_ID" || (echo "Missing APP_STORE_CONNECT_ISSUER_ID" && exit 1)
+          test -n "$APP_STORE_CONNECT_KEY_CONTENT" || (echo "Missing APP_STORE_CONNECT_KEY_CONTENT" && exit 1)
+
+      - name: Validate iOS match secrets (TestFlight only)
+        if: ${{ inputs.lane == 'ios_beta' }}
+        env:
+          MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+        run: |
+          test -n "$MATCH_GIT_URL" || (echo "Missing MATCH_GIT_URL (private git URL for fastlane match)" && exit 1)
+          test -n "$MATCH_PASSWORD" || (echo "Missing MATCH_PASSWORD (match encryption passphrase)" && exit 1)
+
+      - name: Run Fastlane (iOS)
+        working-directory: ios
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_KEY_CONTENT }}
+          APP_STORE_CONNECT_KEY_IS_BASE64: "1"
+          MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+        run: |
+          if [ "${{ inputs.lane }}" = "ios_beta" ]; then
+            bundle exec fastlane beta
+          else
+            bundle exec fastlane submit_review
+          fi

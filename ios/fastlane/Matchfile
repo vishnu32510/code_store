@@ -1,0 +1,14 @@
+# frozen_string_literal: true
+
+# Private Git repo URL for encrypted certs/profiles (HTTPS or SSH).
+# Override: export MATCH_GIT_URL=... or replace the placeholder below.
+_u = ENV["MATCH_GIT_URL"]&.strip
+git_url((_u && !_u.empty?) ? _u : "https://github.com/YOUR_ORG/ios-certificates.git")
+
+# Match the default branch of your certificates repo (GitHub uses main).
+git_branch(ENV["MATCH_GIT_BRANCH"].to_s.empty? ? "main" : ENV["MATCH_GIT_BRANCH"])
+
+storage_mode("git")
+
+app_identifier(["com.example.codeStore"])
+team_id("YOUR_TEAM_ID")

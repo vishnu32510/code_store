@@ -70,8 +70,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '377191190351',
     projectId: 'code-store001',
     storageBucket: 'code-store001.appspot.com',
-    iosClientId: '377191190351-8qohu5cm10nceeg0cfrhie4an5iruunb.apps.googleusercontent.com',
+    iosClientId:
+        '377191190351-8qohu5cm10nceeg0cfrhie4an5iruunb.apps.googleusercontent.com',
     iosBundleId: 'com.example.codeStore',
   );
-
 }

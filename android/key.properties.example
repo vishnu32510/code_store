@@ -1,0 +1,7 @@
+# Copy to android/key.properties and fill real values for release signing.
+# Alias must match the one used when creating the keystore (e.g. keytool -alias upload).
+storePassword=YOUR_STORE_PASSWORD
+keyPassword=YOUR_KEY_PASSWORD
+keyAlias=upload
+# Path is relative to android/app/ (Gradle module), not android/.
+storeFile=../../keystore/upload-keystore.jks

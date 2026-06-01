@@ -3,5 +3,5 @@ enum DeviceType {
   ipad,
   smallScreenLaptop,
   largeScreenDesktop,
-  extraLargeTV
+  extraLargeTV,
 }

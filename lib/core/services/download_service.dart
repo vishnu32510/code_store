@@ -1,46 +1,24 @@
-// import 'package:dio/dio.dart';
-// import 'package:open_file/open_file.dart';
-// import 'package:path_provider/path_provider.dart';
-// import 'package:permission_handler/permission_handler.dart';
-// import 'package:portfolio_flutter/core/services/services.dart';
-// import 'package:universal_html/html.dart' as html;
+import 'package:code_store/core/services/services.dart';
+import 'package:flutter/foundation.dart';
+import 'package:gal/gal.dart';
 
-// abstract class DownloadService extends Services {
-//   Future<void> download({required String url});
-// }
+class DownloadService extends Services {
+  /// Saves [bytes] as an image to the device gallery/photos app.
+  /// Returns null on success and an error message on failure.
+  static Future<String?> saveToGallery(
+    Uint8List bytes, {
+    String prefix = 'codestore',
+  }) async {
+    if (kIsWeb) {
+      return 'Saving to gallery is not supported on web.';
+    }
 
-// class WebDownloadService implements DownloadService {
-//   @override
-//   Future<void> download({required String url}) async {
-//     html.window.open(url, "Resume");
-//   }
-// }
-
-// class MobileDownloadService implements DownloadService {
-//   @override
-//   Future<void> download({required String url}) async {
-//     // requests permission for downloading the file
-//     bool hasPermission = await _requestWritePermission();
-//     if (!hasPermission) return;
-
-//     // gets the directory where we will download the file.
-//     var dir = await getApplicationDocumentsDirectory();
-
-//     // You should put the name you want for the file here.
-//     // Take in account the extension.
-//     String fileName = 'myFile';
-
-//     // downloads the file
-//     Dio dio = Dio();
-//     await dio.download(url, "${dir.path}/$fileName");
-
-//     // opens the file
-//     OpenFile.open("${dir.path}/$fileName", type: 'application/pdf');
-//   }
-
-//   // requests storage permission
-//   Future<bool> _requestWritePermission() async {
-//     await Permission.storage.request();
-//     return await Permission.storage.request().isGranted;
-//   }
-// }
+    try {
+      final name = '${prefix}_${DateTime.now().millisecondsSinceEpoch}';
+      await Gal.putImageBytes(bytes, name: name);
+      return null;
+    } catch (_) {
+      return 'Could not save. Please try again.';
+    }
+  }
+}

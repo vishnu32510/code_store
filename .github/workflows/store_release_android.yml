@@ -1,0 +1,98 @@
+# Fastlane → Play Internal (on push) or Internal / Production (manual).
+# Android: release signing via GitHub secrets.
+name: Store release (Android)
+
+concurrency:
+  group: store-release-android-${{ github.ref }}
+  cancel-in-progress: false
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      lane:
+        description: "Fastlane Android lane"
+        required: true
+        type: choice
+        options:
+          - android_internal
+          - android_production
+
+env:
+  LC_ALL: en_US.UTF-8
+  LANG: en_US.UTF-8
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+
+      - name: Install gems (root Gemfile)
+        run: bundle install
+
+      - name: Validate Android release secrets
+        env:
+          PLAY_JSON_B64: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON_B64 }}
+          KS_B64: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_B64 }}
+          SP: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          KP: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          test -n "$PLAY_JSON_B64" || (echo "Missing PLAY_SERVICE_ACCOUNT_JSON_B64" && exit 1)
+          test -n "$KS_B64" || (echo "Missing ANDROID_UPLOAD_KEYSTORE_B64" && exit 1)
+          test -n "$SP" || (echo "Missing ANDROID_STORE_PASSWORD" && exit 1)
+          test -n "$KP" || (echo "Missing ANDROID_KEY_PASSWORD" && exit 1)
+          test -n "$ALIAS" || (echo "Missing ANDROID_KEY_ALIAS" && exit 1)
+
+      - name: Write Android upload keystore and key.properties
+        env:
+          ANDROID_UPLOAD_KEYSTORE_B64: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_B64 }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          mkdir -p keystore
+          echo "$ANDROID_UPLOAD_KEYSTORE_B64" | base64 -d > keystore/upload-keystore.jks
+          {
+            echo "storePassword=${ANDROID_STORE_PASSWORD}"
+            echo "keyPassword=${ANDROID_KEY_PASSWORD}"
+            echo "keyAlias=${ANDROID_KEY_ALIAS}"
+            echo "storeFile=../../keystore/upload-keystore.jks"
+          } > android/key.properties
+
+      - name: Write Play service account JSON
+        env:
+          PLAY_JSON_B64: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON_B64 }}
+        run: |
+          echo "$PLAY_JSON_B64" | base64 -d > "${{ runner.temp }}/play.json"
+
+      - name: Run Fastlane (Android)
+        working-directory: android
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON_PATH: ${{ runner.temp }}/play.json
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            bundle exec fastlane internal
+          elif [ "${{ inputs.lane }}" = "android_internal" ]; then
+            bundle exec fastlane internal
+          else
+            bundle exec fastlane production
+          fi

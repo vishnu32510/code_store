@@ -1,0 +1,5 @@
+# App Store Connect app identifier (matches Xcode Runner target).
+app_identifier("com.example.codeStore")
+
+# Apple Developer Team ID (from Xcode → Signing & Capabilities).
+team_id("YOUR_TEAM_ID")
