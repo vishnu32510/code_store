@@ -75,4 +75,22 @@ The template utilizes **`dio`** for HTTP networking, registered via `GetIt` insi
   * **File Downloads:** Use `downloadFile` with a `onReceiveProgress` callback for downloading files with UI progress bars.
   * **File Uploads:** Use `uploadFile` with multipart `FormData` and `onSendProgress` for progress-tracked uploads.
 
+---
+
+## 6. Release Documents (GitHub Pages)
+
+A complete set of static release pages is structured inside the `docs/` folder:
+* **`docs/privacy.html`**: Premium modern dark-mode Privacy Policy page.
+* **`docs/terms.html`**: Premium modern dark-mode Terms of Use page.
+* **`docs/support.html`**: Premium modern dark-mode Support and FAQ page.
+
+### How to Publish to GitHub Pages:
+1. Push your repository to GitHub.
+2. Go to **Settings > Pages**.
+3. Under **Build and deployment**, select **Deploy from a branch**.
+4. Set the branch to `main` and change the folder option from `/ (root)` to **`/docs`**.
+5. Save. Your pages will be published automatically at:
+   `https://<your-username>.github.io/<your-repo-name>/`
+
+
 
