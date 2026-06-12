@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:code_store/features/authentication/authentication_enums.dart';
-import 'package:code_store/features/authentication/authentication_repository.dart';
-import 'package:code_store/features/authentication/user.dart';
+import '../authentication_enums.dart';
+import '../authentication_repository.dart';
+import '../user.dart';
 import 'package:equatable/equatable.dart';
 
 part 'authentication_event.dart';

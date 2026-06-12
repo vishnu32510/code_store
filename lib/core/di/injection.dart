@@ -1,6 +1,6 @@
-import 'package:code_store/core/config/global_keys.dart';
-import 'package:code_store/core/services/services_barrel.dart';
-import 'package:code_store/features/theme/theme_bloc/theme_bloc.dart';
+import '../config/global_keys.dart';
+import '../services/services_barrel.dart';
+import '../../features/theme/theme_bloc/theme_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 

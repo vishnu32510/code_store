@@ -1,6 +1,6 @@
-import 'package:code_store/features/authentication/authentication_bloc/authentication_bloc.dart';
-import 'package:code_store/features/flashlight/flashlight_screen.dart';
-import 'package:code_store/features/theme/theme.dart';
+import '../authentication/authentication_bloc/authentication_bloc.dart';
+import '../flashlight/flashlight_screen.dart';
+import '../theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

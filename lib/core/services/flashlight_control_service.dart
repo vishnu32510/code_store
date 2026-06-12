@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:code_store/core/services/services_barrel.dart';
+import 'services_barrel.dart';
 import 'package:flutter/foundation.dart';
 import 'package:torch_light/torch_light.dart';
 

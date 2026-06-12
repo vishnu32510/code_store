@@ -1,6 +1,6 @@
-import 'package:code_store/core/di/injection.dart';
-import 'package:code_store/features/flashlight/flashlight_screen.dart';
-import 'package:code_store/features/home/home_screen.dart';
+import '../di/injection.dart';
+import '../../features/flashlight/flashlight_screen.dart';
+import '../../features/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 

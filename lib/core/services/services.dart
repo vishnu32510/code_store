@@ -32,7 +32,7 @@ class HttpServices extends Services {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          // TODO: Uncomment and adapt to dynamically inject your Bearer Auth Token
+          // Uncomment and adapt to dynamically inject your Bearer Auth Token
           /*
           final token = await getIt<AuthLocalStorageService>().getToken();
           if (token != null) {

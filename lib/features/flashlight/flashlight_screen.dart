@@ -1,5 +1,5 @@
-import 'package:code_store/core/di/injection.dart';
-import 'package:code_store/core/services/services_barrel.dart';
+import '../../core/di/injection.dart';
+import '../../core/services/services_barrel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

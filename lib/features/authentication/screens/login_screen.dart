@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:code_store/core/di/injection.dart';
-import 'package:code_store/core/services/services_barrel.dart';
-import 'package:code_store/features/authentication/authentication_bloc/authentication_bloc.dart';
-import 'package:code_store/features/authentication/authentication_enums.dart';
-import 'package:code_store/features/authentication/login_bloc/login_bloc.dart';
+import '../../../core/di/injection.dart';
+import '../../../core/services/services_barrel.dart';
+import '../authentication_bloc/authentication_bloc.dart';
+import '../authentication_enums.dart';
+import '../login_bloc/login_bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';

@@ -1,4 +1,4 @@
-import 'package:code_store/core/services/services.dart';
+import 'services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:gal/gal.dart';
 

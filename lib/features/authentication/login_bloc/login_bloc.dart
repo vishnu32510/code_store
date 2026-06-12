@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
-import 'package:code_store/features/authentication/authentication_enums.dart';
-import 'package:code_store/features/authentication/authentication_repository.dart';
+import '../authentication_enums.dart';
+import '../authentication_repository.dart';
 import 'package:equatable/equatable.dart';
 
 part 'login_event.dart';
