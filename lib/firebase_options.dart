@@ -52,7 +52,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '377191190351',
     projectId: 'code-store001',
     authDomain: 'code-store001.firebaseapp.com',
-    storageBucket: 'code-store001.appspot.com',
+    storageBucket: 'code-store001.firebasestorage.app',
     measurementId: 'G-W4B41SLERN',
   );
 
@@ -61,7 +61,7 @@ class DefaultFirebaseOptions {
     appId: '1:377191190351:android:0582b14a5a7d26c9a1bf3a',
     messagingSenderId: '377191190351',
     projectId: 'code-store001',
-    storageBucket: 'code-store001.appspot.com',
+    storageBucket: 'code-store001.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -69,9 +69,9 @@ class DefaultFirebaseOptions {
     appId: '1:377191190351:ios:d63a2a638e3cfcb2a1bf3a',
     messagingSenderId: '377191190351',
     projectId: 'code-store001',
-    storageBucket: 'code-store001.appspot.com',
-    iosClientId:
-        '377191190351-8qohu5cm10nceeg0cfrhie4an5iruunb.apps.googleusercontent.com',
+    storageBucket: 'code-store001.firebasestorage.app',
+    iosClientId: '377191190351-8qohu5cm10nceeg0cfrhie4an5iruunb.apps.googleusercontent.com',
     iosBundleId: 'com.example.codeStore',
   );
+
 }

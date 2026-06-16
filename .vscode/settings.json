@@ -1,3 +1,4 @@
 {
-    "dart.flutterSdkPath": "~/warehouse/flutter"
+    "dart.flutterSdkPath": "~/warehouse/flutter",
+    "java.configuration.updateBuildConfiguration": "interactive"
 }

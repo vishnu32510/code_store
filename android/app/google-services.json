@@ -2,7 +2,7 @@
   "project_info": {
     "project_number": "377191190351",
     "project_id": "code-store001",
-    "storage_bucket": "code-store001.appspot.com"
+    "storage_bucket": "code-store001.firebasestorage.app"
   },
   "client": [
     {
