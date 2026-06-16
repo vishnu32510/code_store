@@ -22,12 +22,12 @@ Future<void> main() async {
   Bloc.observer = SimpleBlocObserver();
   setupDI();
   runApp(
-    const AuthenticationWrapper(child: ThemeWrapper(child: CodeStoreApp())),
+    const AuthenticationWrapper(child: ThemeWrapper(child: MyApp())),
   );
 }
 
-class CodeStoreApp extends StatelessWidget {
-  const CodeStoreApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +43,11 @@ class CodeStoreApp extends StatelessWidget {
           darkTheme: DarkThemeState.darkTheme.themeData,
           themeAnimationCurve: Curves.easeIn,
           themeAnimationDuration: const Duration(milliseconds: 500),
+          builder: (context, child) {
+            return AuthenticationListenerWrapper(
+              child: child ?? const SizedBox.shrink(),
+            );
+          },
         );
       },
     );

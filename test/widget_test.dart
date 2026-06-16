@@ -11,6 +11,6 @@ import 'package:code_store/main.dart';
 
 void main() {
   test('CodeStoreApp is constructible', () {
-    expect(const CodeStoreApp(), isNotNull);
+    expect(const MyApp(), isNotNull);
   });
 }

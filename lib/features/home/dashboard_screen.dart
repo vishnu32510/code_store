@@ -1,29 +1,23 @@
 import '../authentication/authentication_bloc/authentication_bloc.dart';
-import '../flashlight/flashlight_screen.dart';
 import '../theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
-class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+class DashboardScreen extends StatelessWidget {
+  const DashboardScreen({super.key, required this.navigationShell});
 
-  static const String routeName = '/dashboard';
-
-  @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
-}
-
-class _DashboardScreenState extends State<DashboardScreen> {
-  int _currentTab = 0;
+  final StatefulNavigationShell navigationShell;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final currentTab = navigationShell.currentIndex;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_currentTab == 0 ? 'Dashboard' : 'Flashlight Controls'),
+        title: Text(currentTab == 0 ? 'Dashboard' : 'Feature Placeholder'),
         centerTitle: true,
         actions: [
           IconButton(
@@ -50,10 +44,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: const Icon(Icons.info_outline_rounded, size: 28),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      body: IndexedStack(
-        index: _currentTab,
-        children: const [_DashboardProfileView(), FlashlightScreen()],
-      ),
+      body: navigationShell,
       bottomNavigationBar: BottomAppBar(
         height: 64,
         color: colors.surfaceContainer,
@@ -66,35 +57,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Semantics(
               label: "Home Dashboard",
               button: true,
-              selected: _currentTab == 0,
+              selected: currentTab == 0,
               child: IconButton(
                 icon: Icon(
                   Icons.dashboard_rounded,
                   color:
-                      _currentTab == 0
+                      currentTab == 0
                           ? colors.primary
                           : colors.onSurfaceVariant.withValues(alpha: 0.65),
                   size: 28,
                 ),
-                onPressed: () => setState(() => _currentTab = 0),
+                onPressed: () => navigationShell.goBranch(0),
               ),
             ),
             const SizedBox(width: 48), // spacer for central FAB
             // Tab 1 button
             Semantics(
-              label: "Flashlight Demo",
+              label: "Feature 2",
               button: true,
-              selected: _currentTab == 1,
+              selected: currentTab == 1,
               child: IconButton(
                 icon: Icon(
-                  Icons.flashlight_on_rounded,
+                  Icons.widgets_rounded,
                   color:
-                      _currentTab == 1
+                      currentTab == 1
                           ? colors.primary
                           : colors.onSurfaceVariant.withValues(alpha: 0.65),
                   size: 28,
                 ),
-                onPressed: () => setState(() => _currentTab = 1),
+                onPressed: () => navigationShell.goBranch(1),
               ),
             ),
           ],
@@ -245,8 +236,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 }
 
-class _DashboardProfileView extends StatelessWidget {
-  const _DashboardProfileView();
+class DashboardProfileView extends StatelessWidget {
+  const DashboardProfileView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -294,7 +285,7 @@ class _DashboardProfileView extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    email,
+                    email.isNotEmpty ? email : 'User',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
