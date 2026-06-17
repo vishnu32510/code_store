@@ -110,13 +110,13 @@ class _LoginScreenState extends State<LoginScreen>
 
                         SizedBox(height: isSmallScreen ? 14 : 20),
 
-                        // Social login buttons based on Platform
-                        (kIsWeb || Platform.isIOS || Platform.isMacOS)
+                        // iOS: email + Google + Apple; other platforms: email + Google
+                        (!kIsWeb && Platform.isIOS)
                             ? _buildRoundedSocialLoginButtonsForiOS(
                               context,
                               isSmallScreen,
                             )
-                            : _buildSocialLoginButtonsForAndroid(
+                            : _buildSocialLoginButtonsForOtherPlatforms(
                               context,
                               isSmallScreen,
                             ),
@@ -322,7 +322,7 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  Widget _buildSocialLoginButtonsForAndroid(
+  Widget _buildSocialLoginButtonsForOtherPlatforms(
     BuildContext context,
     bool isSmallScreen,
   ) {
