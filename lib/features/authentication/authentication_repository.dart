@@ -23,8 +23,7 @@ class FirebaseAuthenticationRepository extends AuthenticationRepository {
   final firebase_auth.FirebaseAuth _firebaseAuth;
   GoogleSignIn? _googleSignIn;
 
-  GoogleSignIn get _googleSignInInstance =>
-      _googleSignIn ??= GoogleSignIn();
+  GoogleSignIn get _googleSignInInstance => _googleSignIn ??= GoogleSignIn();
 
   static const userCacheKey = '__user_cache_key__';
 
