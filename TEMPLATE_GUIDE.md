@@ -39,6 +39,11 @@
    ```bash
    flutterfire configure
    ```
+2. **Sync iOS Google Sign-In URLs:** After reconfiguring Firebase, copy `REVERSED_CLIENT_ID` and `CLIENT_ID` from `ios/Runner/GoogleService-Info.plist` into `ios/Runner/Info.plist`:
+   - `CFBundleURLTypes` → `CFBundleURLSchemes` = `REVERSED_CLIENT_ID`
+   - `GIDClientID` = `CLIENT_ID`
+
+   If these drift, Google Sign-In crashes on launch with `missing support for the following URL schemes`.
 
 ---
 

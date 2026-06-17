@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:377191190351:android:0582b14a5a7d26c9a1bf3a",
+        "mobilesdk_app_id": "1:377191190351:android:233541ebd8d141b4a1bf3a",
         "android_client_info": {
-          "package_name": "com.example.codeStore"
+          "package_name": "com.nungu.codestore"
         }
       },
       "oauth_client": [

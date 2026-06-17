@@ -10,5 +10,5 @@ git_branch(ENV["MATCH_GIT_BRANCH"].to_s.empty? ? "main" : ENV["MATCH_GIT_BRANCH"
 
 storage_mode("git")
 
-app_identifier(["com.example.codeStore"])
+app_identifier(["com.nungu.codestore"])
 team_id("YOUR_TEAM_ID")

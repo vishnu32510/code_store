@@ -1,6 +1,6 @@
 {
-    "name": "code_store",
-    "short_name": "code_store",
+    "name": "codestore",
+    "short_name": "codestore",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

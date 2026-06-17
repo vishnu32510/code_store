@@ -24,7 +24,7 @@ plugins {
     id("com.google.gms.google-services") version("4.3.15") apply false
     // END: FlutterFire Configuration
     // START: FlutterFire Configuration
-    // id("com.google.gms.google-services") version "4.3.15" apply false // TODO: Uncomment after updating google-services.json with package com.nungu.code_store
+    // id("com.google.gms.google-services") version "4.3.15" apply false // TODO: Uncomment after updating google-services.json with package com.nungu.codestore
     // END: FlutterFire Configuration
     id("org.jetbrains.kotlin.android") version "2.2.20" apply false
 }

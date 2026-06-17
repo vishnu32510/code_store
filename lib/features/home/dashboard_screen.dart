@@ -1,4 +1,6 @@
+import '../../core/config/routes.dart';
 import '../authentication/authentication_bloc/authentication_bloc.dart';
+import '../authentication/authentication_enums.dart';
 import '../theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,7 +19,7 @@ class DashboardScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(currentTab == 0 ? 'Dashboard' : 'Feature Placeholder'),
+        title: Text(currentTab == 0 ? 'Dashboard' : 'Flashlight'),
         centerTitle: true,
         actions: [
           IconButton(
@@ -67,25 +69,25 @@ class DashboardScreen extends StatelessWidget {
                           : colors.onSurfaceVariant.withValues(alpha: 0.65),
                   size: 28,
                 ),
-                onPressed: () => navigationShell.goBranch(0),
+                onPressed: () => context.go(AppRoutes.dashboard),
               ),
             ),
             const SizedBox(width: 48), // spacer for central FAB
             // Tab 1 button
             Semantics(
-              label: "Feature 2",
+              label: 'Flashlight',
               button: true,
               selected: currentTab == 1,
               child: IconButton(
                 icon: Icon(
-                  Icons.widgets_rounded,
+                  Icons.flashlight_on_rounded,
                   color:
                       currentTab == 1
                           ? colors.primary
                           : colors.onSurfaceVariant.withValues(alpha: 0.65),
                   size: 28,
                 ),
-                onPressed: () => navigationShell.goBranch(1),
+                onPressed: () => context.go(AppRoutes.flashlight),
               ),
             ),
           ],
@@ -248,6 +250,10 @@ class DashboardProfileView extends StatelessWidget {
       builder: (context, auth) {
         final user = auth.user;
         final email = user.email ?? user.id;
+        final isSignedIn =
+            auth.status == AuthenticationStatus.authenticated &&
+            auth.user.isNotEmpty;
+        final displayName = isSignedIn && email.isNotEmpty ? email : 'Guest';
 
         return ListView(
           padding: const EdgeInsets.all(24),
@@ -283,9 +289,16 @@ class DashboardProfileView extends StatelessWidget {
                     'Welcome back,',
                     style: TextStyle(color: Colors.white70, fontSize: 14),
                   ),
+                  if (!isSignedIn) ...[
+                    const SizedBox(height: 4),
+                    const Text(
+                      'Sign in below to test authentication.',
+                      style: TextStyle(color: Colors.white70, fontSize: 13),
+                    ),
+                  ],
                   const SizedBox(height: 4),
                   Text(
-                    email.isNotEmpty ? email : 'User',
+                    displayName,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -341,24 +354,58 @@ class DashboardProfileView extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            OutlinedButton.icon(
-              onPressed: () {
-                context.read<AuthenticationBloc>().add(const LogoutRequested());
-              },
-              style: OutlinedButton.styleFrom(
-                foregroundColor: colors.error,
-                side: BorderSide(color: colors.error.withValues(alpha: 0.5)),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            if (isSignedIn)
+              OutlinedButton.icon(
+                onPressed: () {
+                  context.read<AuthenticationBloc>().add(const LogoutRequested());
+                },
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: colors.error,
+                  side: BorderSide(color: colors.error.withValues(alpha: 0.5)),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                icon: const Icon(Icons.logout_rounded),
+                label: const Text(
+                  'Sign Out',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              )
+            else ...[
+              ElevatedButton.icon(
+                onPressed: () => context.push(AppRoutes.login),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colors.primary,
+                  foregroundColor: colors.onPrimary,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                icon: const Icon(Icons.login_rounded),
+                label: const Text(
+                  'Sign In',
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
-              icon: const Icon(Icons.logout_rounded),
-              label: const Text(
-                'Sign Out',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: () => context.push(AppRoutes.login),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                icon: const Icon(Icons.person_add_outlined),
+                label: const Text(
+                  'Sign Up',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
-            ),
+            ],
           ],
         );
       },

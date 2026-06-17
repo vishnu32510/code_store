@@ -7,7 +7,7 @@ def repo_root
 end
 
 def app_bundle_id
-  "com.example.codeStore"
+  "com.nungu.codestore"
 end
 
 def app_team_id

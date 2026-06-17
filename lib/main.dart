@@ -44,9 +44,10 @@ class MyApp extends StatelessWidget {
           themeAnimationCurve: Curves.easeIn,
           themeAnimationDuration: const Duration(milliseconds: 500),
           builder: (context, child) {
-            return AuthenticationListenerWrapper(
-              child: child ?? const SizedBox.shrink(),
-            );
+            if (child == null) {
+              return const ColoredBox(color: Colors.black);
+            }
+            return AuthenticationListenerWrapper(child: child);
           },
         );
       },

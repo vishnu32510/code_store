@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import '../../../core/config/routes.dart';
 import '../../../core/di/injection.dart';
 import '../../../core/services/services_barrel.dart';
 import '../authentication_bloc/authentication_bloc.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String routeName = '/login';
@@ -60,6 +62,11 @@ class _LoginScreenState extends State<LoginScreen>
     return BlocListener<AuthenticationBloc, AuthenticationBlocState>(
       listener: (context, state) {
         setState(() => _isLoading = false);
+
+        if (state.status == AuthenticationStatus.authenticated &&
+            state.user.isNotEmpty) {
+          context.go(AppRoutes.dashboard);
+        }
       },
       child: BlocListener<LoginBloc, LoginState>(
         listener: (context, state) {
@@ -74,6 +81,13 @@ class _LoginScreenState extends State<LoginScreen>
         },
         child: Scaffold(
           backgroundColor: theme.colorScheme.surface,
+          appBar: AppBar(
+            leading: IconButton(
+              tooltip: 'Back to dashboard',
+              icon: const Icon(Icons.arrow_back_rounded),
+              onPressed: () => context.go(AppRoutes.dashboard),
+            ),
+          ),
           body: SafeArea(
             child: Center(
               child: SingleChildScrollView(
@@ -131,7 +145,7 @@ class _LoginScreenState extends State<LoginScreen>
         Hero(tag: 'app_logo', child: CustomAnimatedLogo(size: logoSize)),
         const SizedBox(height: 18),
         Text(
-          'Code Store',
+          'codestore',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: isSmallScreen ? 28 : 36,

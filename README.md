@@ -4,9 +4,11 @@ Flutter app skeleton you can copy when starting a new project. It mirrors patter
 
 ## What is included
 
-- **Features**: `authentication/` (BLoC + `FirebaseAuthenticationRepository`), `theme/` (ThemeBloc), `home/` (minimal demo screen).
-- **Core**: `core/di/injection.dart`, `core/config/global_keys.dart`, `core/config/routes.dart`, `core/services/` (HTTP helpers + toast).
+- **Features**: `authentication/` (BLoC + `FirebaseAuthenticationRepository`), `theme/` (ThemeBloc), `home/` (dashboard + flashlight), `flashlight/` (torch, strobe, SOS).
+- **Core**: `core/di/injection.dart`, `core/config/global_keys.dart`, `core/config/routes.dart`, `core/services/` (HTTP helpers, toast, flashlight).
 - **Env**: `flutter_dotenv` loads `.env` if present (see assets in `pubspec.yaml`).
+
+**Auth:** The app opens straight to the dashboard. Login is not required on launch (auth BLoC still runs for optional sign-in from the profile tab).
 
 ## Prerequisites
 
@@ -61,6 +63,7 @@ lib/
     authentication/
     theme/
     home/
+    flashlight/
   main.dart
 ```
 

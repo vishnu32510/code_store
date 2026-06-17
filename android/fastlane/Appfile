@@ -1,2 +1,2 @@
 # Google Play applicationId (must match android/app build.gradle.kts).
-package_name("com.example.code_store")
+package_name("com.nungu.codestore")

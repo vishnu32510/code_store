@@ -3,7 +3,7 @@ import java.util.Properties
 plugins {
     id("com.android.application")
     // START: FlutterFire Configuration
-    // id("com.google.gms.google-services") // TODO: Uncomment after updating google-services.json with package com.nungu.code_store
+    // id("com.google.gms.google-services") // TODO: Uncomment after updating google-services.json with package com.nungu.codestore
     // END: FlutterFire Configuration
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
@@ -17,7 +17,7 @@ if (keyPropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.nungu.code_store"
+    namespace = "com.nungu.codestore"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -32,7 +32,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.nungu.code_store"
+        applicationId = "com.nungu.codestore"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

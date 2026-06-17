@@ -1,4 +1,4 @@
-package com.nungu.code_store
+package com.nungu.codestore
 
 import io.flutter.embedding.android.FlutterActivity
 

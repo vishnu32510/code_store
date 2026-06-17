@@ -1,5 +1,5 @@
 abstract class AppConstants {
-  static const String appTitle = "Code Store App";
+  static const String appTitle = 'Code Store';
   static const baseUrl = 'http://10.0.0.76:3000/';
 
   // Legal & Support URLs (GitHub Pages)

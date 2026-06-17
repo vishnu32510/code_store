@@ -5,7 +5,7 @@
         android:required="false" />
     <uses-permission android:name="android.permission.CAMERA" />
     <application
-        android:label="code_store"
+        android:label="codestore"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

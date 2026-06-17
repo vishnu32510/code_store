@@ -1,3 +1,4 @@
+import '../../core/config/routes.dart';
 import '../../core/di/injection.dart';
 import '../../core/services/services_barrel.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,7 @@ import 'package:flutter/services.dart';
 class FlashlightScreen extends StatefulWidget {
   const FlashlightScreen({super.key});
 
-  static const String routeName = '/flashlight';
+  static const String routeName = AppRoutes.flashlight;
 
   @override
   State<FlashlightScreen> createState() => _FlashlightScreenState();
@@ -66,23 +67,17 @@ class _FlashlightScreenState extends State<FlashlightScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Flashlight')),
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: SafeArea(
-        child: ListenableBuilder(
-          listenable: _flash,
-          builder: (context, _) {
-            return _FlashlightBody(
-              theme: theme,
-              flash: _flash,
-              onMainTap: _onMainTap,
-              onStrobeTap: _onStrobeTap,
-              onSosTap: _onSosTap,
-            );
-          },
-        ),
-      ),
+    return ListenableBuilder(
+      listenable: _flash,
+      builder: (context, _) {
+        return _FlashlightBody(
+          theme: theme,
+          flash: _flash,
+          onMainTap: _onMainTap,
+          onStrobeTap: _onStrobeTap,
+          onSosTap: _onSosTap,
+        );
+      },
     );
   }
 }
