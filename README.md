@@ -14,6 +14,51 @@ Flutter app skeleton you can copy when starting a new project. It mirrors patter
 
 - Flutter SDK matching `environment.sdk` in `pubspec.yaml`.
 - A Firebase project with Auth enabled (Google / Apple / Email as you need). Regenerate options with [FlutterFire CLI](https://firebase.flutter.dev/docs/cli/).
+- **Android Google Sign-In:** register your app **SHA-1** in Firebase (see [Android SHA fingerprints](#android-sha-fingerprints-firebase--google-sign-in) below).
+
+## Android SHA fingerprints (Firebase & Google Sign-In)
+
+Google Sign-In on Android requires your app’s **SHA-1** in Firebase (SHA-256 is optional). Add every signing key used for builds you install or publish.
+
+| Build type | Where to get SHA-1 |
+|------------|-------------------|
+| Debug / `flutter run` | Debug keystore or `./gradlew signingReport` |
+| Release APK/AAB you sign locally | Your **upload keystore** (`keytool`) |
+| Installs from **Play Store** | Play Console → **App integrity** → **App signing key certificate** |
+
+**Debug keystore**
+
+```bash
+keytool -list -v \
+  -keystore ~/.android/debug.keystore \
+  -alias androiddebugkey \
+  -storepass android -keypass android
+```
+
+**Gradle signing report** (debug + release configs)
+
+```bash
+cd android && ./gradlew signingReport
+```
+
+**Upload / release keystore** — set up [`android/key.properties`](android/key.properties.example) first:
+
+```bash
+keytool -list -v \
+  -keystore /path/to/upload-keystore.jks \
+  -alias upload
+```
+
+**Signed APK** (cert of the APK on disk)
+
+```bash
+"$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | tail -1)/apksigner" \
+  verify --print-certs build/app/outputs/flutter-apk/app-release.apk
+```
+
+**Play Store / AAB:** don’t rely on reading SHA from the `.aab` file. With [Play App Signing](https://support.google.com/googleplay/android-developer/answer/9842756) (default), Play re-signs your app. After the first upload, copy **SHA-1** from Play Console → **Release** → **Setup** → **App integrity** → **App signing key certificate** and add it to Firebase. Optionally also add your **upload key** SHA-1 if you sideload release builds signed with that keystore before store release.
+
+**Firebase:** Project settings → Android app → **Add fingerprint** → download new `google-services.json` → replace `android/app/google-services.json` → `flutter clean && flutter build apk` (or `appbundle`).
 
 ## Run locally
 
@@ -50,10 +95,13 @@ Config lives in [`flutter_launcher_icons.yaml`](flutter_launcher_icons.yaml).
 4. **Platform IDs**  
    Adjust Android (`android/app/build.gradle.kts`, namespace) and iOS/macOS bundle IDs in Xcode / project files so they match Firebase and store listings.
 
-5. **Secrets**  
+5. **Android SHA fingerprints**  
+   See [Android SHA fingerprints (Firebase & Google Sign-In)](#android-sha-fingerprints-firebase--google-sign-in) above.
+
+6. **Secrets**  
    Keep local keys in `.env` (listed under `flutter: assets:`). Do not commit real secrets; use your own ignore rules if you track `.env` locally.
 
-6. **Optional: rename script**  
+7. **Optional: rename script**  
    See [`tool/new_from_template.sh`](tool/new_from_template.sh) for a minimal automated rename + `flutter pub get`.
 
 ### Mason (optional)
