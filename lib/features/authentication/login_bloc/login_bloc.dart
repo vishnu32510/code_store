@@ -127,6 +127,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     try {
       await _authenticationRepository.logInWithGoogle();
       emit(state.copyWith(status: FormzSubmissionStatus.success));
+    } on LogInWithGoogleCancelled {
+      emit(state.copyWith(status: FormzSubmissionStatus.initial));
     } on LogInWithGoogleFailure catch (e) {
       emit(
         state.copyWith(

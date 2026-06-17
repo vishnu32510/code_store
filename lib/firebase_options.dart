@@ -58,14 +58,18 @@ class DefaultFirebaseOptions {
     storageBucket: 'code-store001.firebasestorage.app',
   );
 
+  /// Web OAuth client ID — required as [GoogleSignIn.serverClientId] on Android.
+  static const String googleWebClientId =
+      '377191190351-gr9skl6dv66qisc0s52mbpcf748jol0s.apps.googleusercontent.com';
+
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyD7RnwAQWGmCJIaBVqdfgrGfnu9xKXV0cc',
     appId: '1:377191190351:ios:963219e0f0467bffa1bf3a',
     messagingSenderId: '377191190351',
     projectId: 'code-store001',
     storageBucket: 'code-store001.firebasestorage.app',
-    iosClientId:
-        '377191190351-obpufneq8f4v17u4uhqsrltaq1422elk.apps.googleusercontent.com',
+    androidClientId: '377191190351-k0oltm0hsh5rqhsk0c1oqlppn8tikk98.apps.googleusercontent.com',
+    iosClientId: '377191190351-obpufneq8f4v17u4uhqsrltaq1422elk.apps.googleusercontent.com',
     iosBundleId: 'com.nungu.codestore',
   );
 

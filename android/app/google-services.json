@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "377191190351-k0oltm0hsh5rqhsk0c1oqlppn8tikk98.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nungu.codestore",
+            "certificate_hash": "266b56944141f65ec6e9a13103eb5f1c3b08bd74"
+          }
+        },
+        {
           "client_id": "377191190351-gr9skl6dv66qisc0s52mbpcf748jol0s.apps.googleusercontent.com",
           "client_type": 3
         }
