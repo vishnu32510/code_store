@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../utils/app_constants.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
@@ -21,6 +22,7 @@ class HttpServices extends Services {
         dio ??
         Dio(
           BaseOptions(
+            baseUrl: AppConstants.baseUrl,
             connectTimeout: const Duration(seconds: 20),
             receiveTimeout: const Duration(seconds: 20),
             sendTimeout: const Duration(seconds: 20),

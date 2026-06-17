@@ -3,6 +3,7 @@ import 'dart:io';
 import '../../../core/config/routes.dart';
 import '../../../core/di/injection.dart';
 import '../../../core/services/services_barrel.dart';
+import '../../../core/utils/app_constants.dart';
 import '../authentication_bloc/authentication_bloc.dart';
 import '../authentication_enums.dart';
 import '../login_bloc/login_bloc.dart';
@@ -145,7 +146,7 @@ class _LoginScreenState extends State<LoginScreen>
         Hero(tag: 'app_logo', child: CustomAnimatedLogo(size: logoSize)),
         const SizedBox(height: 18),
         Text(
-          'codestore',
+          AppConstants.appDisplayName,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: isSmallScreen ? 28 : 36,
@@ -488,9 +489,9 @@ class _LoginScreenState extends State<LoginScreen>
             recognizer:
                 TapGestureRecognizer()
                   ..onTap = () {
-                    getIt<OpenLinkService>().openUrl(
-                      link: 'https://example.com/terms',
-                    );
+                    final link = AppConstants.termsUrl;
+                    if (link.isEmpty) return;
+                    getIt<OpenLinkService>().openUrl(link: link);
                   },
           ),
           const TextSpan(text: ' and '),
@@ -503,9 +504,9 @@ class _LoginScreenState extends State<LoginScreen>
             recognizer:
                 TapGestureRecognizer()
                   ..onTap = () {
-                    getIt<OpenLinkService>().openUrl(
-                      link: 'https://example.com/privacy',
-                    );
+                    final link = AppConstants.privacyPolicyUrl;
+                    if (link.isEmpty) return;
+                    getIt<OpenLinkService>().openUrl(link: link);
                   },
           ),
         ],

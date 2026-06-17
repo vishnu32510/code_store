@@ -1,13 +1,28 @@
-abstract class AppConstants {
-  static const String appTitle = 'Code Store';
-  static const baseUrl = 'http://10.0.0.76:3000/';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-  // Legal & Support URLs (GitHub Pages)
-  // Replace vishnu32510 with your GitHub username and code_store with your repository name after deployment.
-  static const String privacyPolicyUrl =
-      'https://vishnu32510.github.io/code_store/privacy.html';
-  static const String termsUrl =
-      'https://vishnu32510.github.io/code_store/terms.html';
-  static const String supportUrl =
-      'https://vishnu32510.github.io/code_store/support.html';
+/// Runtime app configuration loaded from `.env` (see `.env.example`).
+abstract class AppConstants {
+  static String get appDisplayName =>
+      dotenv.get('APP_DISPLAY_NAME', fallback: 'My App');
+
+  /// [MaterialApp] title.
+  static String get appTitle => appDisplayName;
+
+  static String get baseUrl =>
+      dotenv.get('BASE_URL', fallback: 'https://api.example.com/');
+
+  static String get privacyPolicyUrl =>
+      dotenv.get('PRIVACY_POLICY_URL', fallback: '');
+
+  static String get termsUrl => dotenv.get('TERMS_URL', fallback: '');
+
+  static String get supportUrl => dotenv.get('SUPPORT_URL', fallback: '');
+
+  /// Filename prefix for gallery downloads (derived from display name).
+  static String get downloadFilePrefix {
+    final slug = appDisplayName
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9]+'), '');
+    return slug.isEmpty ? 'app' : slug;
+  }
 }
