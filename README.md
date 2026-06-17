@@ -25,6 +25,16 @@ flutter run
 
 Ensure `lib/firebase_options.dart` matches your Firebase apps (or run `flutterfire configure`).
 
+## Launcher icon
+
+Replace `assets/icon/app_icon.png` with a 1024×1024 PNG, then regenerate platform icons:
+
+```bash
+dart run flutter_launcher_icons -f flutter_launcher_icons.yaml
+```
+
+Config lives in [`flutter_launcher_icons.yaml`](flutter_launcher_icons.yaml).
+
 ## Create a new app from this template
 
 1. **Copy the tree**  
