@@ -21,9 +21,7 @@ Future<void> main() async {
   }
   Bloc.observer = SimpleBlocObserver();
   setupDI();
-  runApp(
-    const AuthenticationWrapper(child: ThemeWrapper(child: MyApp())),
-  );
+  runApp(const AuthenticationWrapper(child: ThemeWrapper(child: MyApp())));
 }
 
 class MyApp extends StatelessWidget {

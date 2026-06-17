@@ -357,7 +357,9 @@ class DashboardProfileView extends StatelessWidget {
             if (isSignedIn)
               OutlinedButton.icon(
                 onPressed: () {
-                  context.read<AuthenticationBloc>().add(const LogoutRequested());
+                  context.read<AuthenticationBloc>().add(
+                    const LogoutRequested(),
+                  );
                 },
                 style: OutlinedButton.styleFrom(
                   foregroundColor: colors.error,

@@ -25,10 +25,7 @@ class AppRouter {
     navigatorKey: _rootNavigatorKey,
     initialLocation: AppRoutes.dashboard,
     routes: <RouteBase>[
-      GoRoute(
-        path: '/',
-        redirect: (_, __) => AppRoutes.dashboard,
-      ),
+      GoRoute(path: '/', redirect: (_, __) => AppRoutes.dashboard),
       GoRoute(
         path: AppRoutes.login,
         builder: (context, state) => const LoginScreen(),
@@ -43,9 +40,9 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: AppRoutes.dashboard,
-                pageBuilder: (context, state) => const NoTransitionPage(
-                  child: DashboardProfileView(),
-                ),
+                pageBuilder:
+                    (context, state) =>
+                        const NoTransitionPage(child: DashboardProfileView()),
               ),
             ],
           ),
@@ -54,9 +51,9 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: AppRoutes.flashlight,
-                pageBuilder: (context, state) => const NoTransitionPage(
-                  child: FlashlightScreen(),
-                ),
+                pageBuilder:
+                    (context, state) =>
+                        const NoTransitionPage(child: FlashlightScreen()),
               ),
             ],
           ),
