@@ -20,9 +20,10 @@ abstract class AppConstants {
 
   /// Filename prefix for gallery downloads (derived from display name).
   static String get downloadFilePrefix {
-    final slug = appDisplayName
-        .toLowerCase()
-        .replaceAll(RegExp(r'[^a-z0-9]+'), '');
+    final slug = appDisplayName.toLowerCase().replaceAll(
+      RegExp(r'[^a-z0-9]+'),
+      '',
+    );
     return slug.isEmpty ? 'app' : slug;
   }
 }
