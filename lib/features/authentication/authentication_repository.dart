@@ -17,11 +17,14 @@ class FirebaseAuthenticationRepository extends AuthenticationRepository {
     GoogleSignIn? googleSignIn,
   }) : _cache = cache ?? CacheClient(),
        _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance,
-       _googleSignIn = googleSignIn ?? GoogleSignIn();
+       _googleSignIn = googleSignIn;
 
   final CacheClient _cache;
   final firebase_auth.FirebaseAuth _firebaseAuth;
-  final GoogleSignIn _googleSignIn;
+  GoogleSignIn? _googleSignIn;
+
+  GoogleSignIn get _googleSignInInstance =>
+      _googleSignIn ??= GoogleSignIn();
 
   static const userCacheKey = '__user_cache_key__';
 
@@ -66,7 +69,7 @@ class FirebaseAuthenticationRepository extends AuthenticationRepository {
         );
         credential = userCredential.credential!;
       } else {
-        final googleUser = await _googleSignIn.signIn();
+        final googleUser = await _googleSignInInstance.signIn();
         final googleAuth = await googleUser!.authentication;
         credential = firebase_auth.OAuthProvider('google.com').credential(
           accessToken: googleAuth.accessToken,
@@ -133,7 +136,11 @@ class FirebaseAuthenticationRepository extends AuthenticationRepository {
 
   Future<void> logOut() async {
     try {
-      await Future.wait([_firebaseAuth.signOut(), _googleSignIn.signOut()]);
+      final futures = <Future<void>>[_firebaseAuth.signOut()];
+      if (_googleSignIn != null) {
+        futures.add(_googleSignIn!.signOut());
+      }
+      await Future.wait(futures);
     } catch (_) {
       throw LogOutFailure();
     }

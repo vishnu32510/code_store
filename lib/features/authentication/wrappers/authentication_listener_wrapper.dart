@@ -29,8 +29,10 @@ class AuthenticationListenerWrapper extends StatelessWidget {
             state.status == AuthenticationStatus.authenticated &&
             state.user.isNotEmpty;
 
-        final location = signedIn ? AppRoutes.dashboard : AppRoutes.login;
-        AppRouter.router.go(location);
+        // Optional auth: only promote to dashboard after sign-in, never force login.
+        if (signedIn) {
+          AppRouter.router.go(AppRoutes.dashboard);
+        }
       },
       child: child,
     );
