@@ -20,6 +20,8 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
   void initState() {
     super.initState();
     _authenticationRepository = FirebaseAuthenticationRepository();
+    // google_sign_in v7: initialize() must be called exactly once before sign-in.
+    _authenticationRepository.initializeGoogleSignIn();
   }
 
   @override

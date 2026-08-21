@@ -214,7 +214,7 @@ class HttpServices extends Services {
       final fileName = filePath.split('/').last;
       final formData = FormData.fromMap({
         fileKey: await MultipartFile.fromFile(filePath, filename: fileName),
-        if (additionalFields != null) ...additionalFields,
+        ...?additionalFields,
       });
 
       final response = await _dio.post(

@@ -29,6 +29,7 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
+          flutter-version-file: flutter-version.txt
           channel: stable
           cache: true
 
@@ -40,14 +41,8 @@ jobs:
       - name: Install gems (root Gemfile)
         run: bundle install
 
-      - name: CocoaPods (required for flutter build ipa)
-        run: |
-          gem install cocoapods
-          echo "$(ruby -e 'puts Gem.user_dir')/bin" >> "$GITHUB_PATH"
-          pod --version
-          flutter pub get
-          cd ios
-          pod install --repo-update
+      - name: Install Flutter dependencies (SPM)
+        run: flutter pub get
 
       - name: Validate iOS release secrets
         env:

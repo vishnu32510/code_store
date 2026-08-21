@@ -59,3 +59,5 @@ app.*.map.json
 *.der
 flash/
 
+# Widget Preview related
+.widget_preview/
