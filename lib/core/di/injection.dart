@@ -1,6 +1,6 @@
 import '../config/global_keys.dart';
 import '../services/services_barrel.dart';
-import '../../features/theme/theme_bloc/theme_bloc.dart';
+import '../../features/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 

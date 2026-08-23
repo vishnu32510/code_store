@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
           scaffoldMessengerKey: scaffoldMessengerKey,
           theme: themeState.themeData,
           themeMode: themeState.themeMode,
-          darkTheme: DarkThemeState.darkTheme.themeData,
+          darkTheme: AppThemeConfig.dark.themeData,
           themeAnimationCurve: Curves.easeIn,
           themeAnimationDuration: const Duration(milliseconds: 500),
           builder: (context, child) {
