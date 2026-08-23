@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'models/app_theme_config.dart';
 import 'theme_bloc/theme_bloc.dart';
 
@@ -20,10 +21,7 @@ class ThemeWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (themeBloc != null) {
-      return BlocProvider<ThemeBloc>.value(
-        value: themeBloc!,
-        child: child,
-      );
+      return BlocProvider<ThemeBloc>.value(value: themeBloc!, child: child);
     }
 
     return BlocProvider<ThemeBloc>(

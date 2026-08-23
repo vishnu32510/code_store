@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'cache.dart';
 import 'user.dart';
+
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/foundation.dart'
     show debugPrint, defaultTargetPlatform, kIsWeb, TargetPlatform;
@@ -25,10 +27,9 @@ class FirebaseAuthenticationRepository extends AuthenticationRepository {
   /// Must be called once before any Google sign-in calls.
   Future<void> initializeGoogleSignIn({String? serverClientId}) async {
     await GoogleSignIn.instance.initialize(
-      serverClientId:
-          !kIsWeb && defaultTargetPlatform == TargetPlatform.android
-              ? serverClientId
-              : null,
+      serverClientId: !kIsWeb && defaultTargetPlatform == TargetPlatform.android
+          ? serverClientId
+          : null,
     );
   }
 

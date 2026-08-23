@@ -68,10 +68,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '377191190351',
     projectId: 'code-store001',
     storageBucket: 'code-store001.firebasestorage.app',
-    androidClientId:
-        '377191190351-k0oltm0hsh5rqhsk0c1oqlppn8tikk98.apps.googleusercontent.com',
-    iosClientId:
-        '377191190351-obpufneq8f4v17u4uhqsrltaq1422elk.apps.googleusercontent.com',
+    androidClientId: '377191190351-k0oltm0hsh5rqhsk0c1oqlppn8tikk98.apps.googleusercontent.com',
+    iosClientId: '377191190351-obpufneq8f4v17u4uhqsrltaq1422elk.apps.googleusercontent.com',
     iosBundleId: 'com.nungu.codestore',
   );
 
@@ -81,8 +79,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '377191190351',
     projectId: 'code-store001',
     storageBucket: 'code-store001.firebasestorage.app',
-    iosClientId:
-        '377191190351-obpufneq8f4v17u4uhqsrltaq1422elk.apps.googleusercontent.com',
+    iosClientId: '377191190351-obpufneq8f4v17u4uhqsrltaq1422elk.apps.googleusercontent.com',
     iosBundleId: 'com.nungu.codestore',
   );
 

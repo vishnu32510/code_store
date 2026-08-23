@@ -5,10 +5,7 @@ class ThemeState extends Equatable {
   final AppThemeConfig currentTheme;
   final List<AppThemeConfig> availableThemes;
 
-  const ThemeState({
-    required this.currentTheme,
-    required this.availableThemes,
-  });
+  const ThemeState({required this.currentTheme, required this.availableThemes});
 
   ThemeData get themeData => currentTheme.themeData;
   ThemeMode get themeMode => currentTheme.themeMode;
@@ -16,7 +13,9 @@ class ThemeState extends Equatable {
 
   AppThemeConfig get nextTheme {
     if (availableThemes.isEmpty) return currentTheme;
-    final currentIndex = availableThemes.indexWhere((t) => t.id == currentTheme.id);
+    final currentIndex = availableThemes.indexWhere(
+      (t) => t.id == currentTheme.id,
+    );
     if (currentIndex == -1 || currentIndex == availableThemes.length - 1) {
       return availableThemes.first;
     }

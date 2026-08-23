@@ -1,6 +1,7 @@
 import '../../core/config/routes.dart';
 import '../../core/di/injection.dart';
 import '../../core/services/services_barrel.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -171,16 +172,15 @@ class _FlashlightBody extends StatelessWidget {
                         color: isOn ? borderOn : borderOff,
                         width: isOn ? 2.2 : 2.4,
                       ),
-                      boxShadow:
-                          isOn
-                              ? [
-                                BoxShadow(
-                                  color: glowWhite.withValues(alpha: 0.75),
-                                  blurRadius: 36,
-                                  spreadRadius: 2,
-                                ),
-                              ]
-                              : const [],
+                      boxShadow: isOn
+                          ? [
+                              BoxShadow(
+                                color: glowWhite.withValues(alpha: 0.75),
+                                blurRadius: 36,
+                                spreadRadius: 2,
+                              ),
+                            ]
+                          : const [],
                     ),
                     child: Center(
                       child: AnimatedSwitcher(

@@ -2,6 +2,7 @@ import '../di/injection.dart';
 import '../../features/authentication/authentication.dart';
 import '../../features/flashlight/flashlight_screen.dart';
 import '../../features/home/dashboard_screen.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -40,9 +41,8 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: AppRoutes.dashboard,
-                pageBuilder:
-                    (context, state) =>
-                        const NoTransitionPage(child: DashboardProfileView()),
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: DashboardProfileView()),
               ),
             ],
           ),
@@ -51,9 +51,8 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: AppRoutes.flashlight,
-                pageBuilder:
-                    (context, state) =>
-                        const NoTransitionPage(child: FlashlightScreen()),
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: FlashlightScreen()),
               ),
             ],
           ),

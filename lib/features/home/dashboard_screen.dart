@@ -1,6 +1,7 @@
 import '../../core/config/routes.dart';
 import '../authentication/authentication.dart';
 import '../theme/theme.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -54,7 +55,9 @@ class DashboardScreen extends StatelessWidget {
             const SizedBox(width: 48), // Notch space
             IconButton(
               icon: Icon(
-                currentTab == 1 ? Icons.flashlight_on_rounded : Icons.flashlight_off_rounded,
+                currentTab == 1
+                    ? Icons.flashlight_on_rounded
+                    : Icons.flashlight_off_rounded,
                 color: currentTab == 1 ? colors.primary : colors.outline,
               ),
               tooltip: 'Flashlight',
@@ -98,7 +101,9 @@ class DashboardScreen extends StatelessWidget {
               const SizedBox(height: 20),
               Text(
                 'Code Store Architecture',
-                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
