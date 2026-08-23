@@ -24,7 +24,7 @@ enum TorchSosOutcome { started, stopped }
 
 /// Torch, strobe (~1 Hz), and Morse SOS — not for photosensitive epilepsy.
 class FlashlightControlService extends ChangeNotifier {
-  FlashlightControlService({required IToastService toast}) : _toast = toast;
+  FlashlightControlService({required this._toast});
 
   final IToastService _toast;
 

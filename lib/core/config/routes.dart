@@ -25,7 +25,7 @@ class AppRouter {
     navigatorKey: _rootNavigatorKey,
     initialLocation: AppRoutes.dashboard,
     routes: <RouteBase>[
-      GoRoute(path: '/', redirect: (_, __) => AppRoutes.dashboard),
+      GoRoute(path: '/', redirect: (_, _) => AppRoutes.dashboard),
       GoRoute(
         path: AppRoutes.login,
         builder: (context, state) => const LoginScreen(),

@@ -12,9 +12,8 @@ part 'authentication_state.dart';
 class AuthenticationBloc
     extends Bloc<AuthenticationEvent, AuthenticationBlocState> {
   AuthenticationBloc({
-    required FirebaseAuthenticationRepository authenticationRepository,
-  }) : _authenticationRepository = authenticationRepository,
-       super(const AuthenticationBlocState.unknown()) {
+    required this._authenticationRepository,
+  }) : super(const AuthenticationBlocState.unknown()) {
     on<_UserChanged>(_onUserChanged);
     on<LogoutRequested>(_onLogoutRequested);
     _userSubscription = _authenticationRepository.user.listen(

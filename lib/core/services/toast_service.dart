@@ -8,8 +8,7 @@ abstract class IToastService {
 }
 
 class ToastService implements IToastService {
-  ToastService({required GlobalKey<ScaffoldMessengerState> messengerKey})
-    : _messengerKey = messengerKey;
+  ToastService({required this._messengerKey});
 
   final GlobalKey<ScaffoldMessengerState> _messengerKey;
 

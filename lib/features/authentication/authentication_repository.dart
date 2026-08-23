@@ -18,22 +18,21 @@ class FirebaseAuthenticationRepository extends AuthenticationRepository {
   FirebaseAuthenticationRepository({
     CacheClient? cache,
     firebase_auth.FirebaseAuth? firebaseAuth,
-    GoogleSignIn? googleSignIn,
   }) : _cache = cache ?? CacheClient(),
-       _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance,
-       _googleSignIn = googleSignIn;
+       _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance;
 
   final CacheClient _cache;
   final firebase_auth.FirebaseAuth _firebaseAuth;
-  GoogleSignIn? _googleSignIn;
 
-  GoogleSignIn get _googleSignInInstance =>
-      _googleSignIn ??= GoogleSignIn(
-        serverClientId:
-            !kIsWeb && defaultTargetPlatform == TargetPlatform.android
-                ? DefaultFirebaseOptions.googleWebClientId
-                : null,
-      );
+  /// Must be called once before any Google sign-in calls.
+  Future<void> initializeGoogleSignIn() async {
+    await GoogleSignIn.instance.initialize(
+      serverClientId:
+          !kIsWeb && defaultTargetPlatform == TargetPlatform.android
+              ? DefaultFirebaseOptions.googleWebClientId
+              : null,
+    );
+  }
 
   static const userCacheKey = '__user_cache_key__';
 
@@ -76,12 +75,9 @@ class FirebaseAuthenticationRepository extends AuthenticationRepository {
         return;
       }
 
-      final googleUser = await _googleSignInInstance.signIn();
-      if (googleUser == null) {
-        throw const LogInWithGoogleCancelled();
-      }
-
-      final googleAuth = await googleUser.authentication;
+      // google_sign_in v7: authenticate() replaces signIn().
+      final googleUser = await GoogleSignIn.instance.authenticate();
+      final googleAuth = googleUser.authentication;
       final idToken = googleAuth.idToken;
       if (idToken == null) {
         throw const LogInWithGoogleFailure(
@@ -89,8 +85,9 @@ class FirebaseAuthenticationRepository extends AuthenticationRepository {
         );
       }
 
+      // accessToken lives on GoogleSignInClientAuthorization in v7;
+      // passing only idToken is sufficient for Firebase sign-in.
       final credential = firebase_auth.GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
         idToken: idToken,
       );
       await _firebaseAuth.signInWithCredential(credential);
@@ -178,11 +175,10 @@ class FirebaseAuthenticationRepository extends AuthenticationRepository {
 
   Future<void> logOut() async {
     try {
-      final futures = <Future<void>>[_firebaseAuth.signOut()];
-      if (_googleSignIn != null) {
-        futures.add(_googleSignIn!.signOut());
-      }
-      await Future.wait(futures);
+      await Future.wait([
+        _firebaseAuth.signOut(),
+        GoogleSignIn.instance.signOut(),
+      ]);
     } catch (_) {
       throw LogOutFailure();
     }
