@@ -10,8 +10,6 @@ import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
-import '../../firebase_options.dart';
-
 abstract class AuthenticationRepository {}
 
 class FirebaseAuthenticationRepository extends AuthenticationRepository {
@@ -25,11 +23,11 @@ class FirebaseAuthenticationRepository extends AuthenticationRepository {
   final firebase_auth.FirebaseAuth _firebaseAuth;
 
   /// Must be called once before any Google sign-in calls.
-  Future<void> initializeGoogleSignIn() async {
+  Future<void> initializeGoogleSignIn({String? serverClientId}) async {
     await GoogleSignIn.instance.initialize(
       serverClientId:
           !kIsWeb && defaultTargetPlatform == TargetPlatform.android
-              ? DefaultFirebaseOptions.googleWebClientId
+              ? serverClientId
               : null,
     );
   }
@@ -69,48 +67,34 @@ class FirebaseAuthenticationRepository extends AuthenticationRepository {
 
   Future<void> logInWithGoogle() async {
     try {
-      if (kIsWeb) {
-        final googleProvider = firebase_auth.GoogleAuthProvider();
-        await _firebaseAuth.signInWithPopup(googleProvider);
-        return;
-      }
-
-      // google_sign_in v7: authenticate() replaces signIn().
-      final googleUser = await GoogleSignIn.instance.authenticate();
-      final googleAuth = googleUser.authentication;
-      final idToken = googleAuth.idToken;
-      if (idToken == null) {
-        throw const LogInWithGoogleFailure(
-          'Google sign-in failed. Check Firebase SHA-1 setup for this build.',
-        );
-      }
-
-      // accessToken lives on GoogleSignInClientAuthorization in v7;
-      // passing only idToken is sufficient for Firebase sign-in.
+      final account = await GoogleSignIn.instance.authenticate();
+      final authentication = account.authentication;
       final credential = firebase_auth.GoogleAuthProvider.credential(
-        idToken: idToken,
+        idToken: authentication.idToken,
       );
       await _firebaseAuth.signInWithCredential(credential);
-    } on LogInWithGoogleCancelled {
-      rethrow;
+    } on GoogleSignInException catch (e) {
+      if (e.code == GoogleSignInExceptionCode.canceled) {
+        throw const LogInWithGoogleCancelled();
+      }
+      throw LogInWithGoogleFailure(e.description ?? 'Google sign-in failed.');
+    } on PlatformException catch (e) {
+      if (e.code == 'popup_closed_by_user') {
+        throw const LogInWithGoogleCancelled();
+      }
+      final message = _friendlyGoogleSignInError(e);
+      throw LogInWithGoogleFailure(message);
     } on firebase_auth.FirebaseAuthException catch (e) {
       throw LogInWithGoogleFailure.fromCode(e.code, messageString: e.message);
-    } on PlatformException catch (e) {
-      debugPrint('Google sign-in platform error: ${e.code} ${e.message}');
-      throw LogInWithGoogleFailure(_googleSignInFailureMessage(e));
     } catch (e) {
-      debugPrint('Google sign-in error: $e');
-      throw LogInWithGoogleFailure(_googleSignInFailureMessage(e));
+      debugPrint(e.toString());
+      throw const LogInWithGoogleFailure();
     }
   }
 
-  String _googleSignInFailureMessage(Object error) {
-    if (error is LogInWithGoogleFailure) {
-      return error.message;
-    }
+  String _friendlyGoogleSignInError(Object error) {
     if (error is PlatformException) {
-      final code = error.code;
-      if (code == 'sign_in_failed' || code == 'network_error') {
+      if (error.code == 'network_error') {
         return 'Google sign-in failed. Check your network and try again.';
       }
     }

@@ -1,6 +1,5 @@
 import '../../core/config/routes.dart';
-import '../authentication/authentication_bloc/authentication_bloc.dart';
-import '../authentication/authentication_enums.dart';
+import '../authentication/authentication.dart';
 import '../theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,19 +20,10 @@ class DashboardScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(currentTab == 0 ? 'Dashboard' : 'Flashlight'),
         centerTitle: true,
-        actions: [
-          IconButton(
-            tooltip: 'Toggle Theme',
-            onPressed: () {
-              final bloc = context.read<ThemeBloc>();
-              final current = bloc.state.themeEventType;
-              final next =
-                  current == ThemeType.darkMode
-                      ? ThemeType.lightMode
-                      : ThemeType.darkMode;
-              bloc.add(ThemeEventChange(next));
-            },
-            icon: const Icon(Icons.brightness_6_outlined),
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 12),
+            child: ThemeHeaderButton(),
           ),
         ],
       ),
@@ -48,47 +38,27 @@ class DashboardScreen extends StatelessWidget {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       body: navigationShell,
       bottomNavigationBar: BottomAppBar(
-        height: 64,
-        color: colors.surfaceContainer,
         shape: const CircularNotchedRectangle(),
-        notchMargin: 6,
+        notchMargin: 8,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            // Tab 0 button
-            Semantics(
-              label: "Home Dashboard",
-              button: true,
-              selected: currentTab == 0,
-              child: IconButton(
-                icon: Icon(
-                  Icons.dashboard_rounded,
-                  color:
-                      currentTab == 0
-                          ? colors.primary
-                          : colors.onSurfaceVariant.withValues(alpha: 0.65),
-                  size: 28,
-                ),
-                onPressed: () => context.go(AppRoutes.dashboard),
+          children: [
+            IconButton(
+              icon: Icon(
+                currentTab == 0 ? Icons.home_rounded : Icons.home_outlined,
+                color: currentTab == 0 ? colors.primary : colors.outline,
               ),
+              tooltip: 'Home',
+              onPressed: () => navigationShell.goBranch(0),
             ),
-            const SizedBox(width: 48), // spacer for central FAB
-            // Tab 1 button
-            Semantics(
-              label: 'Flashlight',
-              button: true,
-              selected: currentTab == 1,
-              child: IconButton(
-                icon: Icon(
-                  Icons.flashlight_on_rounded,
-                  color:
-                      currentTab == 1
-                          ? colors.primary
-                          : colors.onSurfaceVariant.withValues(alpha: 0.65),
-                  size: 28,
-                ),
-                onPressed: () => context.go(AppRoutes.flashlight),
+            const SizedBox(width: 48), // Notch space
+            IconButton(
+              icon: Icon(
+                currentTab == 1 ? Icons.flashlight_on_rounded : Icons.flashlight_off_rounded,
+                color: currentTab == 1 ? colors.primary : colors.outline,
               ),
+              tooltip: 'Flashlight',
+              onPressed: () => navigationShell.goBranch(1),
             ),
           ],
         ),
@@ -99,92 +69,66 @@ class DashboardScreen extends StatelessWidget {
   void _showArchitectureGuide(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
       isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) {
         final theme = Theme.of(context);
         final colors = theme.colorScheme;
 
         return Container(
           decoration: BoxDecoration(
-            color: theme.scaffoldBackgroundColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.16),
-                blurRadius: 20,
-                spreadRadius: 2,
-              ),
-            ],
+            color: colors.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
           ),
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
                 child: Container(
-                  width: 48,
-                  height: 5,
+                  width: 36,
+                  height: 4,
                   decoration: BoxDecoration(
-                    color: colors.onSurfaceVariant.withValues(alpha: 0.35),
-                    borderRadius: BorderRadius.circular(10),
+                    color: colors.onSurfaceVariant.withValues(alpha: 0.4),
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
               ),
               const SizedBox(height: 20),
               Text(
-                'Template Architecture',
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
+                'Code Store Architecture',
+                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 8),
               Text(
-                'Your fully loaded clean codebase checklist',
+                'A modular Flutter architecture with independent sub-packages.',
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: colors.onSurfaceVariant.withValues(alpha: 0.7),
+                  color: colors.onSurfaceVariant.withValues(alpha: 0.8),
                 ),
-                textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 24),
-              _buildGuideItem(
+              const SizedBox(height: 20),
+              _buildFeatureTile(
                 context,
                 Icons.folder_copy_rounded,
-                'Clean Structure',
-                'Modular folders separating authentication, themes, and services.',
+                'code_store_auth Package',
+                'Modular Firebase Authentication with Google/Apple Sign-In.',
               ),
-              const SizedBox(height: 16),
-              _buildGuideItem(
+              const SizedBox(height: 12),
+              _buildFeatureTile(
                 context,
-                Icons.rocket_launch_rounded,
-                'CI/CD & Fastlane',
-                'Ready-made actions for PR analysis and secure store deployment lanes.',
+                Icons.palette_rounded,
+                'code_store_theme Package',
+                'Universal Dynamic Theme Engine (0 native dependencies).',
               ),
-              const SizedBox(height: 16),
-              _buildGuideItem(
+              const SizedBox(height: 12),
+              _buildFeatureTile(
                 context,
-                Icons.supervised_user_circle_rounded,
-                'GetIt & BLoC',
-                'State-of-the-art state management and global dependency injection.',
+                Icons.hub_rounded,
+                'Dependency Injection',
+                'Global getIt locator registers singletons, factories, and services.',
               ),
               const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () => Navigator.of(context).pop(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colors.primary,
-                  foregroundColor: colors.onPrimary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                ),
-                child: const Text(
-                  'Got It',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
             ],
           ),
         );
@@ -192,7 +136,7 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildGuideItem(
+  Widget _buildFeatureTile(
     BuildContext context,
     IconData icon,
     String title,
@@ -205,14 +149,14 @@ class DashboardScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: colors.primary.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(12),
+            color: colors.primaryContainer.withValues(alpha: 0.4),
+            borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(icon, color: colors.primary, size: 24),
+          child: Icon(icon, color: colors.primary, size: 20),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 14),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -258,7 +202,6 @@ class DashboardProfileView extends StatelessWidget {
         return ListView(
           padding: const EdgeInsets.all(24),
           children: [
-            // Signed in profile card
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -331,15 +274,15 @@ class DashboardProfileView extends StatelessWidget {
                     _buildOverviewRow(
                       context,
                       Icons.security_rounded,
-                      'Authentication',
-                      'Firebase Auth fully configured.',
+                      'code_store_auth',
+                      'Firebase Auth package fully modularized.',
                     ),
                     const Divider(height: 24),
                     _buildOverviewRow(
                       context,
                       Icons.palette_rounded,
-                      'Theme Support',
-                      'ThemeBloc controls light/dark modes.',
+                      'code_store_theme',
+                      'Universal dynamic theme package.',
                       trailing: const ThemeChangeDropdownButton(),
                     ),
                     const Divider(height: 24),

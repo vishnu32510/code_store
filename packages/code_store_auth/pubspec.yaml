@@ -1,0 +1,32 @@
+name: code_store_auth
+description: "Modular Firebase Authentication package with Google Sign-In, Apple Sign-In, BLoC, and session wrappers."
+version: 1.0.0
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.13.1 <4.0.0'
+  flutter: '>=3.47.1'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State management
+  bloc: ^9.2.1
+  flutter_bloc: ^9.1.1
+  equatable: ^2.1.0
+
+  # Firebase & Authentication
+  firebase_core: ^4.13.0
+  firebase_auth: ^6.5.7
+  cloud_firestore: ^6.8.0
+  google_sign_in: ^7.2.0
+  sign_in_with_apple: ^8.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

@@ -1,5 +1,5 @@
 import '../di/injection.dart';
-import '../../features/authentication/screens/login_screen.dart';
+import '../../features/authentication/authentication.dart';
 import '../../features/flashlight/flashlight_screen.dart';
 import '../../features/home/dashboard_screen.dart';
 import 'package:flutter/material.dart';
