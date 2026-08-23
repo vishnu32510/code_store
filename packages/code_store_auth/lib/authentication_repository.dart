@@ -24,10 +24,10 @@ class FirebaseAuthenticationRepository extends AuthenticationRepository {
   final CacheClient _cache;
   final firebase_auth.FirebaseAuth _firebaseAuth;
 
-  /// Must be called once before any Google sign-in calls.
   Future<void> initializeGoogleSignIn({String? serverClientId}) async {
+    if (kIsWeb) return;
     await GoogleSignIn.instance.initialize(
-      serverClientId: !kIsWeb && defaultTargetPlatform == TargetPlatform.android
+      serverClientId: defaultTargetPlatform == TargetPlatform.android
           ? serverClientId
           : null,
     );
@@ -68,6 +68,11 @@ class FirebaseAuthenticationRepository extends AuthenticationRepository {
 
   Future<void> logInWithGoogle() async {
     try {
+      if (kIsWeb) {
+        final googleProvider = firebase_auth.GoogleAuthProvider();
+        await _firebaseAuth.signInWithPopup(googleProvider);
+        return;
+      }
       final account = await GoogleSignIn.instance.authenticate();
       final authentication = account.authentication;
       final credential = firebase_auth.GoogleAuthProvider.credential(
@@ -86,6 +91,10 @@ class FirebaseAuthenticationRepository extends AuthenticationRepository {
       final message = _friendlyGoogleSignInError(e);
       throw LogInWithGoogleFailure(message);
     } on firebase_auth.FirebaseAuthException catch (e) {
+      if (e.code == 'popup-closed-by-user' ||
+          e.code == 'cancelled-popup-request') {
+        throw const LogInWithGoogleCancelled();
+      }
       throw LogInWithGoogleFailure.fromCode(e.code, messageString: e.message);
     } catch (e) {
       debugPrint(e.toString());
@@ -160,10 +169,14 @@ class FirebaseAuthenticationRepository extends AuthenticationRepository {
 
   Future<void> logOut() async {
     try {
-      await Future.wait([
-        _firebaseAuth.signOut(),
-        GoogleSignIn.instance.signOut(),
-      ]);
+      if (kIsWeb) {
+        await _firebaseAuth.signOut();
+      } else {
+        await Future.wait([
+          _firebaseAuth.signOut(),
+          GoogleSignIn.instance.signOut(),
+        ]);
+      }
     } catch (_) {
       throw LogOutFailure();
     }
