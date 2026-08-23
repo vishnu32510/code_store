@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../models/app_theme_config.dart';
 import '../theme_bloc/theme_bloc.dart';
 
@@ -27,11 +28,23 @@ class ThemeChangeDropdownButton extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (item.icon is IconData)
-                      Icon(item.icon as IconData, size: 18, color: colors.primary)
+                      Icon(
+                        item.icon as IconData,
+                        size: 18,
+                        color: colors.primary,
+                      )
                     else if (item.icon is Widget)
-                      SizedBox(width: 18, height: 18, child: item.icon as Widget)
+                      SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: item.icon as Widget,
+                      )
                     else
-                      Icon(Icons.palette_outlined, size: 18, color: colors.primary),
+                      Icon(
+                        Icons.palette_outlined,
+                        size: 18,
+                        color: colors.primary,
+                      ),
                     const SizedBox(width: 10),
                     Text(
                       item.name,

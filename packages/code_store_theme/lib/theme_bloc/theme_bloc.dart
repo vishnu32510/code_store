@@ -1,16 +1,15 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+
 import '../models/app_theme_config.dart';
 
 part 'theme_event.dart';
 part 'theme_state.dart';
 
 class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
-  ThemeBloc({
-    List<AppThemeConfig>? availableThemes,
-    String? initialThemeId,
-  }) : super(_createInitialState(availableThemes, initialThemeId)) {
+  ThemeBloc({List<AppThemeConfig>? availableThemes, String? initialThemeId})
+    : super(_createInitialState(availableThemes, initialThemeId)) {
     on<ThemeEventChange>((event, emit) {
       emit(state.copyWith(currentTheme: event.theme));
     });
@@ -45,10 +44,7 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
         );
       }
 
-      emit(ThemeState(
-        currentTheme: active,
-        availableThemes: newThemes,
-      ));
+      emit(ThemeState(currentTheme: active, availableThemes: newThemes));
     });
   }
 
@@ -61,12 +57,12 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
         : AppThemeConfig.defaultThemes;
 
     final initial = (initialThemeId != null)
-        ? themes.firstWhere((t) => t.id == initialThemeId, orElse: () => themes.first)
+        ? themes.firstWhere(
+            (t) => t.id == initialThemeId,
+            orElse: () => themes.first,
+          )
         : themes.first;
 
-    return ThemeState(
-      currentTheme: initial,
-      availableThemes: themes,
-    );
+    return ThemeState(currentTheme: initial, availableThemes: themes);
   }
 }

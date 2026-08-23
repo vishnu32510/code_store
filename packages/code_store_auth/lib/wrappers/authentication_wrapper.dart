@@ -1,6 +1,7 @@
 import '../authentication_bloc/authentication_bloc.dart';
 import '../authentication_repository.dart';
 import '../login_bloc/login_bloc.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -31,16 +32,13 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
       child: MultiBlocProvider(
         providers: [
           BlocProvider(
-            create:
-                (_) => AuthenticationBloc(
-                  authenticationRepository: _authenticationRepository,
-                ),
+            create: (_) => AuthenticationBloc(
+              authenticationRepository: _authenticationRepository,
+            ),
           ),
           BlocProvider(
-            create:
-                (_) => LoginBloc(
-                  authenticationRepository: _authenticationRepository,
-                ),
+            create: (_) =>
+                LoginBloc(authenticationRepository: _authenticationRepository),
           ),
         ],
         child: widget.child,

@@ -3,6 +3,7 @@ import 'dart:io';
 import '../authentication_bloc/authentication_bloc.dart';
 import '../authentication_enums.dart';
 import '../login_bloc/login_bloc.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -78,20 +79,23 @@ class _LoginScreenState extends State<LoginScreen> {
           if (state.status == FormzSubmissionStatus.success) {
             _showNotification('Signed in successfully.');
           } else if (state.status == FormzSubmissionStatus.failure) {
-            _showNotification(state.errorMessage ?? 'Sign in failed.', isError: true);
+            _showNotification(
+              state.errorMessage ?? 'Sign in failed.',
+              isError: true,
+            );
           }
         },
         builder: (context, state) {
           final isLoading = state.status == FormzSubmissionStatus.inProgress;
 
           return Scaffold(
-            appBar: AppBar(
-              title: Text(widget.appTitle),
-              centerTitle: true,
-            ),
+            appBar: AppBar(title: Text(widget.appTitle), centerTitle: true),
             body: Center(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 28,
+                  vertical: 24,
+                ),
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 420),
                   child: Form(
@@ -99,10 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Icon(
-                          Icons.lock_outline_rounded,
-                          size: 56,
-                        ),
+                        const Icon(Icons.lock_outline_rounded, size: 56),
                         const SizedBox(height: 16),
                         Text(
                           widget.appTitle,
@@ -115,7 +116,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         Text(
                           'Sign in to sync your preferences and access all features.',
                           style: theme.textTheme.bodyMedium?.copyWith(
-                            color: colors.onSurfaceVariant.withValues(alpha: 0.75),
+                            color: colors.onSurfaceVariant.withValues(
+                              alpha: 0.75,
+                            ),
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -178,13 +181,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           onPressed: isLoading
                               ? null
                               : () {
-                                  if (_formKey.currentState?.validate() ?? false) {
+                                  if (_formKey.currentState?.validate() ??
+                                      false) {
                                     context.read<LoginBloc>().add(
-                                          LoginWithEmailAndPassword(
-                                            email: _emailController.text.trim(),
-                                            password: _passwordController.text,
-                                          ),
-                                        );
+                                      LoginWithEmailAndPassword(
+                                        email: _emailController.text.trim(),
+                                        password: _passwordController.text,
+                                      ),
+                                    );
                                   }
                                 },
                           style: ElevatedButton.styleFrom(
@@ -197,7 +201,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               ? const SizedBox(
                                   height: 20,
                                   width: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
                                 )
                               : const Text(
                                   'Sign In with Email',
@@ -209,7 +215,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           children: [
                             const Expanded(child: Divider()),
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
                               child: Text(
                                 'OR',
                                 style: theme.textTheme.labelSmall?.copyWith(
@@ -225,10 +233,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         OutlinedButton.icon(
                           onPressed: isLoading
                               ? null
-                              : () => context
-                                  .read<LoginBloc>()
-                                  .add(const LoginWithGoogle()),
-                          icon: const Icon(Icons.g_mobiledata_rounded, size: 28),
+                              : () => context.read<LoginBloc>().add(
+                                  const LoginWithGoogle(),
+                                ),
+                          icon: const Icon(
+                            Icons.g_mobiledata_rounded,
+                            size: 28,
+                          ),
                           label: const Text('Continue with Google'),
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 12),
@@ -237,15 +248,16 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
-                        if (!kIsWeb && (Platform.isIOS || Platform.isMacOS)) ...[
+                        if (!kIsWeb &&
+                            (Platform.isIOS || Platform.isMacOS)) ...[
                           const SizedBox(height: 12),
                           // Apple Sign In
                           OutlinedButton.icon(
                             onPressed: isLoading
                                 ? null
-                                : () => context
-                                    .read<LoginBloc>()
-                                    .add(const LoginWithApple()),
+                                : () => context.read<LoginBloc>().add(
+                                    const LoginWithApple(),
+                                  ),
                             icon: const Icon(Icons.apple_rounded, size: 24),
                             label: const Text('Continue with Apple'),
                             style: OutlinedButton.styleFrom(

@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../theme_bloc/theme_bloc.dart';
 
 class ThemeHeaderButton extends StatefulWidget {
   final VoidCallback? onToggled;
 
-  const ThemeHeaderButton({
-    super.key,
-    this.onToggled,
-  });
+  const ThemeHeaderButton({super.key, this.onToggled});
 
   @override
   State<ThemeHeaderButton> createState() => _ThemeHeaderButtonState();
@@ -82,7 +80,11 @@ class _ThemeHeaderButtonState extends State<ThemeHeaderButton> {
                         child: ScaleTransition(scale: animation, child: child),
                       );
                     },
-                    child: _buildIconWidget(currentTheme.icon, primaryColor, currentTheme.id),
+                    child: _buildIconWidget(
+                      currentTheme.icon,
+                      primaryColor,
+                      currentTheme.id,
+                    ),
                   ),
                 ),
               ),
@@ -102,15 +104,9 @@ class _ThemeHeaderButtonState extends State<ThemeHeaderButton> {
         color: primaryColor,
       );
     } else if (iconData is Widget) {
-      return KeyedSubtree(
-        key: ValueKey<String>(key),
-        child: iconData,
-      );
+      return KeyedSubtree(key: ValueKey<String>(key), child: iconData);
     } else if (iconData is Widget Function(BuildContext)) {
-      return KeyedSubtree(
-        key: ValueKey<String>(key),
-        child: iconData(context),
-      );
+      return KeyedSubtree(key: ValueKey<String>(key), child: iconData(context));
     }
     return Icon(
       Icons.palette_outlined,
