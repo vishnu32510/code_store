@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import '../utils/app_constants.dart';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
@@ -19,12 +17,12 @@ abstract class Services {}
 class HttpServices extends Services {
   late final Dio _dio;
 
-  HttpServices({Dio? dio}) {
+  HttpServices({Dio? dio, String? baseUrl}) {
     _dio =
         dio ??
         Dio(
           BaseOptions(
-            baseUrl: AppConstants.baseUrl,
+            baseUrl: baseUrl ?? '',
             connectTimeout: const Duration(seconds: 20),
             receiveTimeout: const Duration(seconds: 20),
             sendTimeout: const Duration(seconds: 20),
@@ -36,14 +34,6 @@ class HttpServices extends Services {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          // Uncomment and adapt to dynamically inject your Bearer Auth Token
-          /*
-          final token = await getIt<AuthLocalStorageService>().getToken();
-          if (token != null) {
-            options.headers['Authorization'] = 'Bearer $token';
-          }
-          */
-
           debugPrint('--> ${options.method} ${options.uri}');
           debugPrint('Headers: ${options.headers}');
           if (options.data != null) {
@@ -71,6 +61,8 @@ class HttpServices extends Services {
       ),
     );
   }
+
+  Dio get rawDio => _dio;
 
   // Map DioExceptions to our standard ServiceError
   dynamic _handleError(DioException e) {

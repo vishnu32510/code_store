@@ -13,6 +13,8 @@ dependencies:
     sdk: flutter
 
   # Modular Packages
+  code_store_core:
+    path: packages/code_store_core
   code_store_theme:
     path: packages/code_store_theme
   code_store_auth:

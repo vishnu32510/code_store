@@ -1,7 +1,6 @@
 import 'dart:async';
 
-import 'services_barrel.dart';
-
+import 'package:code_store_core/code_store_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:torch_light/torch_light.dart';
 
@@ -25,9 +24,9 @@ enum TorchSosOutcome { started, stopped }
 
 /// Torch, strobe (~1 Hz), and Morse SOS — not for photosensitive epilepsy.
 class FlashlightControlService extends ChangeNotifier {
-  FlashlightControlService({required this._toast});
+  FlashlightControlService({required this.toast});
 
-  final IToastService _toast;
+  final IToastService toast;
 
   /// ~1 Hz on/off — see UI disclaimer.
   static const Duration strobeHalfPeriod = Duration(milliseconds: 500);
@@ -101,26 +100,26 @@ class FlashlightControlService extends ChangeNotifier {
       notifyListeners();
       return TorchMainTapOutcome.turnedOn;
     } on EnableTorchExistentUserException {
-      _toast.showWarning('Torch is already enabled.');
+      toast.showWarning('Torch is already enabled.');
       _isOn = true;
       notifyListeners();
       return TorchMainTapOutcome.turnedOn;
     } on DisableTorchExistentUserException {
-      _toast.showWarning('Torch is already disabled.');
+      toast.showWarning('Torch is already disabled.');
       _isOn = false;
       notifyListeners();
       return TorchMainTapOutcome.turnedOff;
     } on EnableTorchNotAvailableException {
-      _toast.showError('Torch is not available on this device.');
+      toast.showError('Torch is not available on this device.');
       return TorchMainTapOutcome.unchanged;
     } on EnableTorchException catch (_) {
-      _toast.showError('Could not enable torch.');
+      toast.showError('Could not enable torch.');
       return TorchMainTapOutcome.unchanged;
     } on DisableTorchException catch (_) {
-      _toast.showError('Could not disable torch.');
+      toast.showError('Could not disable torch.');
       return TorchMainTapOutcome.unchanged;
     } catch (_) {
-      _toast.showError('Torch action failed.');
+      toast.showError('Torch action failed.');
       return TorchMainTapOutcome.unchanged;
     }
   }

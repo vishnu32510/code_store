@@ -1,6 +1,6 @@
 import '../../core/config/routes.dart';
-import '../../core/di/injection.dart';
-import '../../core/services/services_barrel.dart';
+import 'package:code_store_core/code_store_core.dart';
+import 'flashlight_control_service.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,7 +21,7 @@ class _FlashlightScreenState extends State<FlashlightScreen> {
   @override
   void initState() {
     super.initState();
-    _flash = FlashlightControlService(toast: getIt<IToastService>());
+    _flash = getIt<FlashlightControlService>();
   }
 
   @override

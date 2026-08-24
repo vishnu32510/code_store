@@ -1,10 +1,10 @@
 import 'bloc_observer.dart';
-import 'core/config/global_keys.dart';
+import 'package:code_store_core/code_store_core.dart';
 import 'core/config/routes.dart';
 import 'core/di/injection.dart';
 import 'core/utils/app_constants.dart';
-import 'features/authentication/authentication.dart';
-import 'features/theme/theme.dart';
+import 'package:code_store_auth/code_store_auth.dart';
+import 'package:code_store_theme/code_store_theme.dart';
 import 'firebase_options.dart';
 
 import 'package:firebase_core/firebase_core.dart';

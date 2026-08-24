@@ -96,6 +96,20 @@ packages:
       relative: false
     source: path
     version: "1.0.0+1"
+  code_store_auth:
+    dependency: transitive
+    description:
+      path: "../packages/code_store_auth"
+      relative: true
+    source: path
+    version: "1.0.0"
+  code_store_theme:
+    dependency: transitive
+    description:
+      path: "../packages/code_store_theme"
+      relative: true
+    source: path
+    version: "1.0.0"
   collection:
     dependency: transitive
     description:
@@ -958,4 +972,4 @@ packages:
     version: "3.1.3"
 sdks:
   dart: ">=3.13.1 <4.0.0"
-  flutter: ">=3.44.0"
+  flutter: ">=3.47.1"

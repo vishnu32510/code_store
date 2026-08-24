@@ -1,6 +1,6 @@
 import '../../core/config/routes.dart';
-import '../authentication/authentication.dart';
-import '../theme/theme.dart';
+import 'package:code_store_auth/code_store_auth.dart';
+import 'package:code_store_theme/code_store_theme.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

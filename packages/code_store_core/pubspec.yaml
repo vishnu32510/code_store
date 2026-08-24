@@ -1,0 +1,28 @@
+name: code_store_core
+description: "Core services, utilities, HTTP clients, and DI helpers for Flutter applications."
+version: 1.0.0
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.13.1 <4.0.0'
+  flutter: '>=3.47.1'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # DI & Utilities
+  get_it: ^9.2.1
+  dio: ^5.11.0
+  url_launcher: ^6.3.2
+
+  # Media
+  gal: ^2.3.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

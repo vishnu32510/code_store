@@ -8,9 +8,9 @@ abstract class IToastService {
 }
 
 class ToastService implements IToastService {
-  ToastService({required this._messengerKey});
+  ToastService({required this.messengerKey});
 
-  final GlobalKey<ScaffoldMessengerState> _messengerKey;
+  final GlobalKey<ScaffoldMessengerState> messengerKey;
 
   @override
   void showSuccess(String message) {
@@ -54,7 +54,7 @@ class ToastService implements IToastService {
     required IconData icon,
     Duration duration = const Duration(seconds: 3),
   }) {
-    _messengerKey.currentState?.showSnackBar(
+    messengerKey.currentState?.showSnackBar(
       SnackBar(
         content: Row(
           children: [
