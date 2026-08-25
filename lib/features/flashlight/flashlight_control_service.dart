@@ -52,6 +52,7 @@ class FlashlightControlService extends ChangeNotifier {
   }
 
   Future<void> _torchOffQuiet() async {
+    if (kIsWeb) return;
     try {
       await TorchLight.disableTorch();
     } catch (_) {}
@@ -72,7 +73,9 @@ class FlashlightControlService extends ChangeNotifier {
     _stopStrobe();
     _stopSos();
     try {
-      await TorchLight.disableTorch();
+      if (!kIsWeb) {
+        await TorchLight.disableTorch();
+      }
       _isOn = false;
       notifyListeners();
     } catch (_) {
@@ -89,10 +92,19 @@ class FlashlightControlService extends ChangeNotifier {
 
     try {
       if (_isOn) {
-        await TorchLight.disableTorch();
+        if (!kIsWeb) {
+          await TorchLight.disableTorch();
+        }
         _isOn = false;
         notifyListeners();
         return TorchMainTapOutcome.turnedOff;
+      }
+
+      if (kIsWeb) {
+        toast.showInfo('Flashlight turned on (Web preview mode)');
+        _isOn = true;
+        notifyListeners();
+        return TorchMainTapOutcome.turnedOn;
       }
 
       await TorchLight.enableTorch();
@@ -129,10 +141,14 @@ class FlashlightControlService extends ChangeNotifier {
     _strobeLit = !_strobeLit;
     try {
       if (_strobeLit) {
-        await TorchLight.enableTorch();
+        if (!kIsWeb) {
+          await TorchLight.enableTorch();
+        }
         _isOn = true;
       } else {
-        await TorchLight.disableTorch();
+        if (!kIsWeb) {
+          await TorchLight.disableTorch();
+        }
         _isOn = false;
       }
       notifyListeners();
@@ -156,6 +172,10 @@ class FlashlightControlService extends ChangeNotifier {
       return;
     }
 
+    if (kIsWeb) {
+      toast.showInfo('Strobe mode activated (Web preview mode)');
+    }
+
     _strobeActive = true;
     _strobeLit = false;
     notifyListeners();
@@ -169,11 +189,15 @@ class FlashlightControlService extends ChangeNotifier {
 
   Future<void> _flashShort() async {
     try {
-      await TorchLight.enableTorch();
+      if (!kIsWeb) {
+        await TorchLight.enableTorch();
+      }
       _isOn = true;
       notifyListeners();
       await Future<void>.delayed(const Duration(milliseconds: 200));
-      await TorchLight.disableTorch();
+      if (!kIsWeb) {
+        await TorchLight.disableTorch();
+      }
       _isOn = false;
       notifyListeners();
       await Future<void>.delayed(const Duration(milliseconds: 220));
@@ -182,11 +206,15 @@ class FlashlightControlService extends ChangeNotifier {
 
   Future<void> _flashLong() async {
     try {
-      await TorchLight.enableTorch();
+      if (!kIsWeb) {
+        await TorchLight.enableTorch();
+      }
       _isOn = true;
       notifyListeners();
       await Future<void>.delayed(const Duration(milliseconds: 600));
-      await TorchLight.disableTorch();
+      if (!kIsWeb) {
+        await TorchLight.disableTorch();
+      }
       _isOn = false;
       notifyListeners();
       await Future<void>.delayed(const Duration(milliseconds: 220));
@@ -232,6 +260,10 @@ class FlashlightControlService extends ChangeNotifier {
     if (_sosActive) {
       await stopEffectsAndTorch();
       return TorchSosOutcome.stopped;
+    }
+
+    if (kIsWeb) {
+      toast.showInfo('SOS mode activated (Web preview mode)');
     }
 
     _sosActive = true;

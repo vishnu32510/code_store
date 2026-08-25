@@ -100,13 +100,14 @@ class _FlashlightBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = theme.brightness == Brightness.dark;
     final colors = theme.colorScheme;
     final raised = colors.surface;
     final onSurface = colors.onSurface;
-    const glowWhite = Color(0xFFFFFFFF);
-    final iconOn = glowWhite.withValues(alpha: 0.95);
+    final iconOn = isDark ? Colors.white.withValues(alpha: 0.95) : Colors.black;
     final iconOff = onSurface.withValues(alpha: 0.7);
-    final borderOn = glowWhite.withValues(alpha: 0.85);
+    final borderOn =
+        isDark ? Colors.white.withValues(alpha: 0.85) : Colors.black87;
     final borderOff = onSurface.withValues(alpha: 0.52);
     final bottomPad = MediaQuery.paddingOf(context).bottom;
 
@@ -134,17 +135,19 @@ class _FlashlightBody extends StatelessWidget {
             boxShadow: [
               if (isOn)
                 BoxShadow(
-                  color: glowWhite.withValues(alpha: 0.62),
+                  color: isDark
+                      ? const Color(0xFFFFFFFF).withValues(alpha: 0.62)
+                      : const Color(0xFFFFC107).withValues(alpha: 0.45),
                   blurRadius: 52,
                   spreadRadius: 6,
                 ),
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.28),
+                color: Colors.black.withValues(alpha: isDark ? 0.28 : 0.12),
                 offset: const Offset(14, 14),
                 blurRadius: 28,
               ),
               BoxShadow(
-                color: glowWhite.withValues(alpha: 0.14),
+                color: Colors.white.withValues(alpha: isDark ? 0.14 : 0.8),
                 offset: const Offset(-10, -10),
                 blurRadius: 20,
               ),
@@ -175,7 +178,9 @@ class _FlashlightBody extends StatelessWidget {
                       boxShadow: isOn
                           ? [
                               BoxShadow(
-                                color: glowWhite.withValues(alpha: 0.75),
+                                color: isDark
+                                    ? const Color(0xFFFFFFFF).withValues(alpha: 0.75)
+                                    : const Color(0xFFFFC107).withValues(alpha: 0.5),
                                 blurRadius: 36,
                                 spreadRadius: 2,
                               ),

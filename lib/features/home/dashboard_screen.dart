@@ -1,4 +1,5 @@
 import '../../core/config/routes.dart';
+import 'widgets/app_drawer.dart';
 import 'package:code_store_auth/code_store_auth.dart';
 import 'package:code_store_theme/code_store_theme.dart';
 
@@ -18,6 +19,10 @@ class DashboardScreen extends StatelessWidget {
     final currentTab = navigationShell.currentIndex;
 
     return Scaffold(
+      drawer: AppDrawer(
+        navigationShell: navigationShell,
+        onShowArchitectureGuide: () => _showArchitectureGuide(context),
+      ),
       appBar: AppBar(
         title: Text(currentTab == 0 ? 'Dashboard' : 'Flashlight'),
         centerTitle: true,
