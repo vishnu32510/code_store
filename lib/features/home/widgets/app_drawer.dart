@@ -54,6 +54,18 @@ class AppDrawer extends StatelessWidget {
                       navigationShell.goBranch(1);
                     },
                   ),
+                  const SizedBox(height: 4),
+                  _buildDrawerItem(
+                    context,
+                    icon: Icons.auto_awesome_motion_rounded,
+                    title: 'Apex Campaign',
+                    subtitle: 'Scroll-driven video experience',
+                    isSelected: false,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      context.push(AppRoutes.campaignShowcase);
+                    },
+                  ),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 8),
                     child: Divider(),

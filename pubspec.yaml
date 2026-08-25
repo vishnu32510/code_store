@@ -43,6 +43,7 @@ dependencies:
   # Hardware / Media
   gal: ^2.3.3
   torch_light: ^2.0.0
+  video_player: ^2.9.2
 
   # DI
   get_it: ^9.2.1
@@ -62,4 +63,6 @@ flutter:
   uses-material-design: true
   assets:
     - assets/icon/
+    - assets/videos/
+    - assets/frames/
     - .env
