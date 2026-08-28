@@ -1,6 +1,7 @@
 import java.util.Properties
 
 plugins {
+    id("org.jetbrains.kotlin.plugin.compose") version "2.2.20"
     id("com.android.application")
     id("com.android.built-in-kotlin")
     // START: FlutterFire Configuration
@@ -60,8 +61,17 @@ android {
             }
         }
     }
+    buildFeatures {
+        compose = true
+    }
+
 }
 
 flutter {
     source = "../.."
+}
+
+
+dependencies {
+    implementation("androidx.glance:glance-appwidget:1.2.0")
 }

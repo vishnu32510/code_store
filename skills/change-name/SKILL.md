@@ -73,7 +73,12 @@ sed -i '' "s/content=\"\${OLD_DISPLAY_NAME}\"/content=\"\${DISPLAY_NAME}\"/" web
 sed -i '' "s/<title>\${OLD_DISPLAY_NAME}<\/title>/<title>\${DISPLAY_NAME}<\/title>/" web/index.html
 
 # Gradle / Fastlane comments (if old package ID present)
-grep -rl "\${OLD_PACKAGE_ID}" android/ | xargs sed -i '' "s/\${OLD_PACKAGE_ID}/\${NEW_PACKAGE_ID}/g" 2>/dev/null || true
+grep -rl "${OLD_PACKAGE_ID}" android/ | xargs sed -i '' "s/${OLD_PACKAGE_ID}/${NEW_PACKAGE_ID}/g" 2>/dev/null || true
+
+# App Group ID in .env and iOS Entitlements
+sed -i '' "s/group.${OLD_PACKAGE_ID}/group.${NEW_PACKAGE_ID}/g" .env .env.example 2>/dev/null || true
+find ios -name '*.entitlements' -exec sed -i '' "s/group.${OLD_PACKAGE_ID}/group.${NEW_PACKAGE_ID}/g" {} + 2>/dev/null || true
+find ios -name '*.swift' -exec sed -i '' "s/group.${OLD_PACKAGE_ID}/group.${NEW_PACKAGE_ID}/g" {} + 2>/dev/null || true
 ```
 
 ### Step 4: Clean Rebuild

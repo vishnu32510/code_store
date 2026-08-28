@@ -1,4 +1,4 @@
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// Runtime app configuration loaded from `.env` (see `.env.example`).
 abstract class AppConstants {
@@ -17,6 +17,16 @@ abstract class AppConstants {
   static String get termsUrl => dotenv.get('TERMS_URL', fallback: '');
 
   static String get supportUrl => dotenv.get('SUPPORT_URL', fallback: '');
+
+  /// App Group identifier for iOS WidgetKit and shared storage.
+  static String get appGroupId =>
+      dotenv.get('APP_GROUP_ID', fallback: 'group.com.nungu.codestore');
+
+  /// Android AppWidget provider class name.
+  static String get homeWidgetAndroidName => 'HomeWidgetProvider';
+
+  /// iOS Widget Extension bundle name.
+  static String get homeWidgetIOSName => 'CodeStoreWidget';
 
   /// Filename prefix for gallery downloads (derived from display name).
   static String get downloadFilePrefix {

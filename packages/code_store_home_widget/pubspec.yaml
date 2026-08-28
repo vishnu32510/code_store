@@ -1,0 +1,23 @@
+name: code_store_home_widget
+description: "Modular Home Screen Widget engine for iOS (WidgetKit) and Android (AppWidgets) with snapshot rendering and deep-linking."
+version: 1.0.0
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.13.1 <4.0.0'
+  flutter: '>=3.47.1'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  home_widget: ^0.9.3
+  equatable: ^2.1.0
+  meta: ^1.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

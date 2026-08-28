@@ -1,5 +1,6 @@
 import '../../core/config/routes.dart';
 import 'widgets/app_drawer.dart';
+import 'widgets/home_widget_card.dart';
 import 'package:code_store_auth/code_store_auth.dart';
 import 'package:code_store_theme/code_store_theme.dart';
 
@@ -130,6 +131,13 @@ class DashboardScreen extends StatelessWidget {
                 Icons.palette_rounded,
                 'code_store_theme Package',
                 'Universal Dynamic Theme Engine (0 native dependencies).',
+              ),
+              const SizedBox(height: 12),
+              _buildFeatureTile(
+                context,
+                Icons.widgets_rounded,
+                'code_store_home_widget Package',
+                'Native Home Screen WidgetKit & AppWidget synchronization.',
               ),
               const SizedBox(height: 12),
               _buildFeatureTile(
@@ -298,6 +306,13 @@ class DashboardProfileView extends StatelessWidget {
                     const Divider(height: 24),
                     _buildOverviewRow(
                       context,
+                      Icons.widgets_rounded,
+                      'code_store_home_widget',
+                      'iOS WidgetKit & Android AppWidgets.',
+                    ),
+                    const Divider(height: 24),
+                    _buildOverviewRow(
+                      context,
                       Icons.offline_bolt_rounded,
                       'Services & DI',
                       'Singletons resolved dynamically.',
@@ -306,6 +321,8 @@ class DashboardProfileView extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 20),
+            const HomeWidgetCard(),
             const SizedBox(height: 24),
             if (isSignedIn)
               OutlinedButton.icon(
