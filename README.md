@@ -6,9 +6,46 @@ Flutter app skeleton you can copy when starting a new project. It mirrors patter
 
 - **Packages**:
   - `packages/code_store_core`: Standalone modular core package containing reusable services (`ToastService`, `DownloadService`, `OpenLinkService`, `FlashlightControlService`, `HttpServices`), utils, extensions, global keys, and DI bootstrap (`setupCoreDI`).
-- **Features**: `authentication/` (BLoC + `FirebaseAuthenticationRepository`), `theme/` (ThemeBloc), `home/` (dashboard + flashlight), `flashlight/` (torch, strobe, SOS).
+  - `packages/code_store_theme`: Dynamic theme engine with ThemeBloc and zero native dependencies.
+  - `packages/code_store_auth`: Modular Firebase authentication package.
+  - `packages/code_store_home_widget`: Modular Home Screen Widget engine for iOS (WidgetKit) and Android (Glance / AppWidgets) with payload synchronization, offscreen snapshot rendering, and deep-link routing.
+
+- **Features**: `authentication/`, `theme/`, `home/` (dashboard + home widget test card), `flashlight/`.
 - **Core Config**: `core/di/injection.dart`, `core/config/routes.dart`, `core/utils/app_constants.dart`.
 - **Env**: `flutter_dotenv` loads `.env` if present (see assets in `pubspec.yaml`).
+
+## Home Screen Widgets (`code_store_home_widget`)
+
+### 1. Scaffold a new widget
+Generate native iOS (SwiftUI) and Android (Glance) boilerplate:
+```bash
+dart pub global activate home_widget_cli
+home_widget create <WidgetName> --ios-app-group-id group.com.nungu.codestore
+```
+
+### 2. Update data from Flutter
+```dart
+// Text payload sync
+await getIt<HomeWidgetService>().syncPayload(
+  HomeWidgetPayload(
+    title: 'Weather Forecast',
+    message: 'Sunny, 72°F',
+    status: 'NYC',
+    updatedAt: DateTime.now(),
+  ),
+);
+
+// Offscreen Flutter Widget -> Image Snapshot
+await getIt<HomeWidgetService>().renderFlutterWidget(
+  widget: HomeWidgetSnapshotCard(payload: payload),
+  key: 'home_widget_image',
+);
+await getIt<HomeWidgetService>().updateWidget();
+```
+
+### 3. Run & test
+* **Full App:** `flutter run` (test live sync & deep linking from dashboard).
+* **iOS Widget Target alone:** Open `ios/Runner.xcworkspace` in Xcode, select the `WeatherForecastWidgetHomeWidget` scheme, and press **Run (`⌘R`)**.
 
 **Auth:** The app opens straight to the dashboard. Login is not required on launch (auth BLoC still runs for optional sign-in from the profile tab).
 
