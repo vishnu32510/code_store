@@ -321,24 +321,47 @@ class AppDrawer extends StatelessWidget {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 )
-              : ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    context.push(AppRoutes.login);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: colors.primary,
-                    foregroundColor: colors.onPrimary,
-                    minimumSize: const Size.fromHeight(48),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        LoginBottomSheet.show(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colors.primary,
+                        foregroundColor: colors.onPrimary,
+                        minimumSize: const Size.fromHeight(46),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      icon: const Icon(Icons.login_rounded, size: 20),
+                      label: const Text(
+                        'Sign In (Bottom Sheet)',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                     ),
-                  ),
-                  icon: const Icon(Icons.login_rounded, size: 20),
-                  label: const Text(
-                    'Sign In / Register',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                    const SizedBox(height: 8),
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        context.push(AppRoutes.login);
+                      },
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(44),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      icon: const Icon(Icons.fullscreen_rounded, size: 20),
+                      label: const Text(
+                        'Push Login Screen',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
                 ),
         );
       },

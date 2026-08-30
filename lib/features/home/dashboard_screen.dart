@@ -330,7 +330,7 @@ class DashboardProfileView extends StatelessWidget {
               )
             else ...[
               ElevatedButton.icon(
-                onPressed: () => context.push(AppRoutes.login),
+                onPressed: () => LoginBottomSheet.show(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colors.primary,
                   foregroundColor: colors.onPrimary,
@@ -341,7 +341,7 @@ class DashboardProfileView extends StatelessWidget {
                 ),
                 icon: const Icon(Icons.login_rounded),
                 label: const Text(
-                  'Sign In',
+                  'Sign In (Bottom Sheet)',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
@@ -354,9 +354,9 @@ class DashboardProfileView extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                icon: const Icon(Icons.person_add_outlined),
+                icon: const Icon(Icons.fullscreen_rounded),
                 label: const Text(
-                  'Sign Up',
+                  'Full Screen Login',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
