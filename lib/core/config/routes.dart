@@ -1,3 +1,4 @@
+import 'package:code_store_analytics/code_store_analytics.dart';
 import 'package:code_store_auth/code_store_auth.dart';
 import 'package:code_store_core/code_store_core.dart';
 import '../../features/flashlight/flashlight_screen.dart';
@@ -25,6 +26,9 @@ class AppRouter {
   static final GoRouter router = GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: AppRoutes.dashboard,
+    observers: [
+      getIt<FirebaseAnalyticsObserver>(),
+    ],
     routes: <RouteBase>[
       GoRoute(path: '/', redirect: (_, _) => AppRoutes.dashboard),
       GoRoute(

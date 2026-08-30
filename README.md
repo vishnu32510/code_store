@@ -8,6 +8,7 @@ Flutter app skeleton you can copy when starting a new project. It mirrors patter
   - `packages/code_store_core`: Standalone modular core package containing reusable services (`ToastService`, `DownloadService`, `OpenLinkService`, `FlashlightControlService`, `HttpServices`), utils, extensions, global keys, and DI bootstrap (`setupCoreDI`).
   - `packages/code_store_theme`: Dynamic theme engine with ThemeBloc and zero native dependencies.
   - `packages/code_store_auth`: Modular Firebase authentication package.
+  - `packages/code_store_analytics`: Modular Firebase Analytics package with DI registration (`setupAnalyticsDI()`), `IAnalyticsService` interface, `FirebaseAnalyticsObserver` for GoRouter / Navigator screen tracking, and standard event helpers.
   - `packages/code_store_home_widget`: Modular Home Screen Widget engine for iOS (WidgetKit) and Android (Glance / AppWidgets) with payload synchronization, offscreen snapshot rendering, and deep-link routing.
 
 - **Features**: `authentication/`, `theme/`, `home/` (dashboard + home widget test card), `flashlight/`.
@@ -46,6 +47,38 @@ await getIt<HomeWidgetService>().updateWidget();
 ### 3. Run & test
 * **Full App:** `flutter run` (test live sync & deep linking from dashboard).
 * **iOS Widget Target alone:** Open `ios/Runner.xcworkspace` in Xcode, select the `WeatherForecastWidgetHomeWidget` scheme, and press **Run (`⌘R`)**.
+
+## Analytics (`code_store_analytics`)
+
+Add Firebase Analytics to any app with 1 line in DI:
+
+```dart
+// In your DI setup (e.g. setupDI()):
+setupAnalyticsDI();
+```
+
+### Route tracking with GoRouter:
+```dart
+GoRouter(
+  navigatorKey: rootNavigatorKey,
+  observers: [
+    getIt<FirebaseAnalyticsObserver>(),
+  ],
+  ...
+);
+```
+
+### Log events from anywhere:
+```dart
+// Via GetIt:
+getIt<IAnalyticsService>().logEvent(
+  name: AppAnalyticsEvents.buttonClick,
+  parameters: {'button': 'upgrade_pro'},
+);
+
+// Or via BuildContext:
+context.logAnalyticsEvent('custom_action', parameters: {'source': 'home'});
+```
 
 **Auth:** The app opens straight to the dashboard. Login is not required on launch (auth BLoC still runs for optional sign-in from the profile tab).
 

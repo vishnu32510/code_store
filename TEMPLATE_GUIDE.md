@@ -19,12 +19,15 @@
    Remove the following dependencies:
    * `firebase_core`
    * `firebase_auth`
+   * `firebase_analytics`
    * `cloud_firestore`
    * `google_sign_in`
    * `sign_in_with_apple`
-2. **Clean `lib/main.dart`:**
+   * `code_store_analytics`
+2. **Clean `lib/main.dart` & `lib/core/di/injection.dart`:**
    * Remove Firebase imports.
    * Remove `await Firebase.initializeApp(...)` from the `main()` function.
+   * Remove `setupAnalyticsDI();` from `setupDI()`.
 3. **Fetch clean dependencies:**
    ```bash
    flutter pub get
