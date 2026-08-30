@@ -42,4 +42,3 @@ Future<void> setupDI() async {
     debugPrint('Warning: MessagingService initialization failed: $e');
   }
 }
-

@@ -9,6 +9,7 @@ Flutter app skeleton you can copy when starting a new project. It mirrors patter
   - `packages/code_store_theme`: Dynamic theme engine with ThemeBloc and zero native dependencies.
   - `packages/code_store_auth`: Modular Firebase authentication package.
   - `packages/code_store_analytics`: Modular Firebase Analytics package with DI registration (`setupAnalyticsDI()`), `IAnalyticsService` interface, `FirebaseAnalyticsObserver` for GoRouter / Navigator screen tracking, and standard event helpers.
+  - `packages/code_store_messaging`: Modular Firebase Cloud Messaging (FCM) & Local Push Notifications package with DI (`setupMessagingDI()`), background isolate handler, scheduled & recurring alerts, rich media big picture support, actionable quick reply buttons, badge counts, and Android notification grouping.
   - `packages/code_store_home_widget`: Modular Home Screen Widget engine for iOS (WidgetKit) and Android (Glance / AppWidgets) with payload synchronization, offscreen snapshot rendering, and deep-link routing.
 
 - **Features**: `authentication/`, `theme/`, `home/` (dashboard + home widget test card), `flashlight/`.
@@ -79,6 +80,46 @@ getIt<IAnalyticsService>().logEvent(
 // Or via BuildContext:
 context.logAnalyticsEvent('custom_action', parameters: {'source': 'home'});
 ```
+
+## Push Notifications & Scheduling (`code_store_messaging`)
+
+Add Firebase Push Notifications, foreground heads-up banners, scheduling, and rich media to any app:
+
+```dart
+// 1. In your DI setup (e.g. setupDI()):
+setupMessagingDI();
+await getIt<IMessagingService>().initialize();
+
+// 2. Request permissions & retrieve FCM token:
+final messaging = getIt<IMessagingService>();
+await messaging.requestPermission();
+final token = await messaging.getToken();
+
+// 3. Schedule a local notification:
+await messaging.scheduleNotification(
+  id: 101,
+  title: '⏰ Reminder',
+  body: 'Time to drink water!',
+  scheduledDate: DateTime.now().add(const Duration(hours: 2)),
+);
+```
+
+---
+
+## 📱 Native Permissions & Configuration Matrix
+
+When integrating packages into a cloned app, verify the corresponding native permissions:
+
+| Package | Android Permissions (`AndroidManifest.xml`) | iOS Configuration (`Info.plist` / `AppDelegate`) |
+| :--- | :--- | :--- |
+| **`code_store_messaging`** | • `INTERNET`<br>• `RECEIVE_BOOT_COMPLETED`<br>• `VIBRATE`<br>• `POST_NOTIFICATIONS`<br>• `SCHEDULE_EXACT_ALARM`<br>• `USE_EXACT_ALARM` | • `UIBackgroundModes` (`fetch`, `remote-notification`)<br>• `UNUserNotificationCenter` delegate in `AppDelegate.swift` |
+| **`code_store_auth`** | • `INTERNET`<br>• Keystore SHA-1 in Firebase Console | • `GIDClientID` & reversed client ID in `CFBundleURLTypes`<br>• `Sign In with Apple` capability in Xcode |
+| **`code_store_core`** | • `INTERNET`<br>• `CAMERA` (for Flashlight)<br>• `<queries>` for `https`/`http` (URL Launcher) | • `NSCameraUsageDescription`<br>• `NSPhotoLibraryAddUsageDescription`<br>• `LSApplicationQueriesSchemes` |
+| **`code_store_home_widget`** | • `<receiver>` for `HomeWidgetProvider` | • `App Groups` capability in `Runner` and Widget target |
+| **`code_store_analytics`** | • `INTERNET` | • None required (unless implementing IDFA tracking) |
+| **`code_store_theme`** | • None (Pure Flutter/Dart) | • None |
+
+---
 
 **Auth:** The app opens straight to the dashboard. Login is not required on launch (auth BLoC still runs for optional sign-in from the profile tab).
 

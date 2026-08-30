@@ -1,5 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
 import '../models/notification_action.dart';
 import '../models/push_notification_payload.dart';
 
@@ -8,7 +9,8 @@ typedef NotificationTapHandler = void Function(PushNotificationPayload payload);
 
 /// Callback invoked when an action button or text reply is submitted on a notification.
 typedef NotificationActionHandler = void Function(
-    NotificationActionResponse response);
+  NotificationActionResponse response,
+);
 
 /// Contract defining push notification operations, lifecycle listeners,
 /// scheduling, actionable quick buttons, rich media, and badge management.

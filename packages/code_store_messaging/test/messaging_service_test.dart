@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:code_store_messaging/code_store_messaging.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -194,7 +195,7 @@ class MockMessagingService implements IMessagingService {
 
   @override
   Future<List<PendingNotificationRequest>>
-      getPendingNotificationRequests() async {
+  getPendingNotificationRequests() async {
     return [
       const PendingNotificationRequest(
         1,
@@ -336,81 +337,90 @@ void main() {
       testLocator = GetIt.asNewInstance();
     });
 
-    test('Executes all advanced notification methods on IMessagingService',
-        () async {
-      final mockService = MockMessagingService();
-      setupMessagingDI(locator: testLocator, customService: mockService);
+    test(
+      'Executes all advanced notification methods on IMessagingService',
+      () async {
+        final mockService = MockMessagingService();
+        setupMessagingDI(locator: testLocator, customService: mockService);
 
-      expect(testLocator.isRegistered<IMessagingService>(), isTrue);
-      final resolved = testLocator<IMessagingService>();
+        expect(testLocator.isRegistered<IMessagingService>(), isTrue);
+        final resolved = testLocator<IMessagingService>();
 
-      await resolved.initialize();
-      expect(mockService.initialized, isTrue);
+        await resolved.initialize();
+        expect(mockService.initialized, isTrue);
 
-      // A: Scheduling
-      final futureDate = DateTime.now().add(const Duration(hours: 1));
-      await resolved.scheduleNotification(
-        id: 10,
-        title: 'Drink Water',
-        body: 'Stay hydrated',
-        scheduledDate: futureDate,
-      );
-      expect(mockService.scheduledNotifications.length, 1);
+        // A: Scheduling
+        final futureDate = DateTime.now().add(const Duration(hours: 1));
+        await resolved.scheduleNotification(
+          id: 10,
+          title: 'Drink Water',
+          body: 'Stay hydrated',
+          scheduledDate: futureDate,
+        );
+        expect(mockService.scheduledNotifications.length, 1);
 
-      await resolved.periodicallyShowNotification(
-        id: 11,
-        title: 'Daily Standup',
-        body: 'Join the meeting',
-        repeatInterval: RepeatInterval.daily,
-      );
-      expect(mockService.scheduledNotifications.length, 2);
+        await resolved.periodicallyShowNotification(
+          id: 11,
+          title: 'Daily Standup',
+          body: 'Join the meeting',
+          repeatInterval: RepeatInterval.daily,
+        );
+        expect(mockService.scheduledNotifications.length, 2);
 
-      final pending = await resolved.getPendingNotificationRequests();
-      expect(pending.length, 1);
+        final pending = await resolved.getPendingNotificationRequests();
+        expect(pending.length, 1);
 
-      await resolved.cancelNotification(10);
-      expect(mockService.scheduledNotifications.length, 1);
+        await resolved.cancelNotification(10);
+        expect(mockService.scheduledNotifications.length, 1);
 
-      // B: Actionable
-      await resolved.showLocalNotification(
-        id: 20,
-        title: 'New Invite',
-        body: 'Join team',
-        actions: [
-          const NotificationAction(id: 'accept', title: 'Accept'),
-          const NotificationAction(
-              id: 'decline', title: 'Decline', isDestructive: true),
-        ],
-      );
-      expect(mockService.shownLocalNotifications.length, 1);
+        // B: Actionable
+        await resolved.showLocalNotification(
+          id: 20,
+          title: 'New Invite',
+          body: 'Join team',
+          actions: [
+            const NotificationAction(id: 'accept', title: 'Accept'),
+            const NotificationAction(
+              id: 'decline',
+              title: 'Decline',
+              isDestructive: true,
+            ),
+          ],
+        );
+        expect(mockService.shownLocalNotifications.length, 1);
 
-      // C: Rich Media
-      await resolved.showRichMediaNotification(
-        id: 30,
-        title: 'Special Offer',
-        body: 'Tap to see picture',
-        imageUrl: 'https://example.com/promo.jpg',
-      );
-      expect(mockService.richMediaNotifications.length, 1);
-      expect(mockService.richMediaNotifications.first['imageUrl'],
-          'https://example.com/promo.jpg');
+        // C: Rich Media
+        await resolved.showRichMediaNotification(
+          id: 30,
+          title: 'Special Offer',
+          body: 'Tap to see picture',
+          imageUrl: 'https://example.com/promo.jpg',
+        );
+        expect(mockService.richMediaNotifications.length, 1);
+        expect(
+          mockService.richMediaNotifications.first['imageUrl'],
+          'https://example.com/promo.jpg',
+        );
 
-      // D: Badges
-      await resolved.setBadgeCount(5);
-      expect(mockService.badgeCount, 5);
-      await resolved.clearBadge();
-      expect(mockService.badgeCount, 0);
+        // D: Badges
+        await resolved.setBadgeCount(5);
+        expect(mockService.badgeCount, 5);
+        await resolved.clearBadge();
+        expect(mockService.badgeCount, 0);
 
-      // E: Grouping
-      await resolved.showGroupedNotification(
-        id: 40,
-        title: 'Alice',
-        body: 'Hey there!',
-        groupKey: 'chat_group_1',
-      );
-      expect(mockService.groupedNotifications.length, 1);
-      expect(
-          mockService.groupedNotifications.first['groupKey'], 'chat_group_1');
-    });
+        // E: Grouping
+        await resolved.showGroupedNotification(
+          id: 40,
+          title: 'Alice',
+          body: 'Hey there!',
+          groupKey: 'chat_group_1',
+        );
+        expect(mockService.groupedNotifications.length, 1);
+        expect(
+          mockService.groupedNotifications.first['groupKey'],
+          'chat_group_1',
+        );
+      },
+    );
   });
 }

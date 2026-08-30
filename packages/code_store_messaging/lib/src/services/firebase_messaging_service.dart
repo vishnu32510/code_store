@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -20,9 +21,9 @@ class FirebaseMessagingService implements IMessagingService {
   FirebaseMessagingService({
     FirebaseMessaging? messaging,
     FlutterLocalNotificationsPlugin? localNotifications,
-  })  : _messaging = messaging ?? FirebaseMessaging.instance,
-        _localNotifications =
-            localNotifications ?? FlutterLocalNotificationsPlugin();
+  }) : _messaging = messaging ?? FirebaseMessaging.instance,
+       _localNotifications =
+           localNotifications ?? FlutterLocalNotificationsPlugin();
 
   final FirebaseMessaging _messaging;
   final FlutterLocalNotificationsPlugin _localNotifications;
@@ -139,12 +140,13 @@ class FirebaseMessagingService implements IMessagingService {
     });
 
     // 6. Listen to notification clicks when the app is in the background
-    _messageOpenedAppSubscription =
-        FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      final payload = PushNotificationPayload.fromRemoteMessage(message);
-      _messageOpenedAppController.add(payload);
-      _onNotificationTapped?.call(payload);
-    });
+    _messageOpenedAppSubscription = FirebaseMessaging.onMessageOpenedApp.listen(
+      (message) {
+        final payload = PushNotificationPayload.fromRemoteMessage(message);
+        _messageOpenedAppController.add(payload);
+        _onNotificationTapped?.call(payload);
+      },
+    );
 
     _isInitialized = true;
   }
@@ -156,8 +158,9 @@ class FirebaseMessagingService implements IMessagingService {
       requestSoundPermission: false,
     );
 
-    final androidInitializationSettings =
-        AndroidInitializationSettings(defaultAndroidIcon);
+    final androidInitializationSettings = AndroidInitializationSettings(
+      defaultAndroidIcon,
+    );
 
     final initializationSettings = InitializationSettings(
       android: androidInitializationSettings,
@@ -205,7 +208,8 @@ class FirebaseMessagingService implements IMessagingService {
 
     await _localNotifications
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.createNotificationChannel(androidChannel);
   }
 
@@ -425,7 +429,7 @@ class FirebaseMessagingService implements IMessagingService {
 
   @override
   Future<List<PendingNotificationRequest>>
-      getPendingNotificationRequests() async {
+  getPendingNotificationRequests() async {
     return await _localNotifications.pendingNotificationRequests();
   }
 
@@ -455,7 +459,9 @@ class FirebaseMessagingService implements IMessagingService {
       if (largeIconUrl != null) {
         if (largeIconUrl.startsWith('http')) {
           localLargeIconPath = await _downloadAndSaveFile(
-              largeIconUrl, 'rich_media_large_$id');
+            largeIconUrl,
+            'rich_media_large_$id',
+          );
         } else {
           localLargeIconPath = largeIconUrl;
         }
@@ -517,7 +523,8 @@ class FirebaseMessagingService implements IMessagingService {
       if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
         await _localNotifications
             .resolvePlatformSpecificImplementation<
-                IOSFlutterLocalNotificationsPlugin>()
+              IOSFlutterLocalNotificationsPlugin
+            >()
             ?.requestPermissions(badge: true);
       }
     } catch (e) {
@@ -575,7 +582,8 @@ class FirebaseMessagingService implements IMessagingService {
   }
 
   List<AndroidNotificationAction> _buildAndroidActions(
-      List<NotificationAction> actions) {
+    List<NotificationAction> actions,
+  ) {
     return actions.map((action) {
       final inputs = action.allowFreeFormInput
           ? <AndroidNotificationActionInput>[

@@ -47,7 +47,8 @@ class PushNotificationPayload {
     final data = Map<String, dynamic>.from(message.data);
 
     // Extract image URL from either the standard notification payload or data field
-    final imageUrl = notification?.android?.imageUrl ??
+    final imageUrl =
+        notification?.android?.imageUrl ??
         notification?.apple?.imageUrl ??
         data['image']?.toString() ??
         data['imageUrl']?.toString() ??
@@ -60,7 +61,8 @@ class PushNotificationPayload {
       imageUrl: imageUrl,
       data: data,
       sentTime: message.sentTime ?? DateTime.now(),
-      category: notification?.android?.channelId ??
+      category:
+          notification?.android?.channelId ??
           notification?.apple?.subtitleLocKey,
       from: message.from,
       collapseKey: message.collapseKey,
@@ -77,8 +79,8 @@ class PushNotificationPayload {
       data: map['data'] is Map<String, dynamic>
           ? map['data'] as Map<String, dynamic>
           : (map['data'] is Map
-              ? Map<String, dynamic>.from(map['data'] as Map)
-              : {}),
+                ? Map<String, dynamic>.from(map['data'] as Map)
+                : {}),
       sentTime: map['sentTime'] != null
           ? DateTime.tryParse(map['sentTime'].toString())
           : null,

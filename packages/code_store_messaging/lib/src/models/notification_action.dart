@@ -30,13 +30,13 @@ class NotificationAction {
   final String? inputPlaceholder;
 
   Map<String, dynamic> toMap() => {
-        'id': id,
-        'title': title,
-        'isDestructive': isDestructive,
-        'showsUserInterface': showsUserInterface,
-        'allowFreeFormInput': allowFreeFormInput,
-        'inputPlaceholder': inputPlaceholder,
-      };
+    'id': id,
+    'title': title,
+    'isDestructive': isDestructive,
+    'showsUserInterface': showsUserInterface,
+    'allowFreeFormInput': allowFreeFormInput,
+    'inputPlaceholder': inputPlaceholder,
+  };
 }
 
 /// Represents the event fired when a user taps an action button or enters text reply.
