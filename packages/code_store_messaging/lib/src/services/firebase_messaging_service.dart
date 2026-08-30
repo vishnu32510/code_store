@@ -1,11 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -609,9 +608,8 @@ class FirebaseMessagingService implements IMessagingService {
         ? '.png'
         : (url.contains('.webp') ? '.webp' : '.jpg');
     final filePath = '${directory.path}/$fileName$extension';
-    final response = await http.get(Uri.parse(url));
-    final file = File(filePath);
-    await file.writeAsBytes(response.bodyBytes);
+    final dio = Dio();
+    await dio.download(url, filePath);
     return filePath;
   }
 
