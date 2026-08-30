@@ -23,6 +23,8 @@ dependencies:
     path: packages/code_store_home_widget
   code_store_analytics:
     path: packages/code_store_analytics
+  code_store_messaging:
+    path: packages/code_store_messaging
 
   # State management
   bloc: ^9.2.1
@@ -33,6 +35,7 @@ dependencies:
   firebase_core: ^4.13.0
   firebase_auth: ^6.5.7
   firebase_analytics: ^12.5.0
+  firebase_messaging: ^16.1.0
   cloud_firestore: ^6.8.0
   google_sign_in: ^7.2.0
   sign_in_with_apple: ^8.1.0

@@ -8,7 +8,6 @@ import 'core/utils/app_constants.dart';
 
 import 'package:code_store_auth/code_store_auth.dart';
 import 'package:code_store_theme/code_store_theme.dart';
-import 'package:code_store_home_widget/code_store_home_widget.dart';
 
 import 'firebase_options.dart';
 
@@ -26,16 +25,7 @@ Future<void> main() async {
   }
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   Bloc.observer = SimpleBlocObserver();
-  setupDI();
-  try {
-    await getIt<HomeWidgetService>().initialize(
-      appGroupId: AppConstants.appGroupId,
-      defaultAndroidName: AppConstants.homeWidgetAndroidName,
-      defaultIOSName: AppConstants.homeWidgetIOSName,
-    );
-  } catch (e) {
-    debugPrint('Warning: HomeWidgetService initialization failed: $e');
-  }
+  await setupDI();
   runApp(const AuthenticationWrapper(child: ThemeWrapper(child: MyApp())));
 }
 
