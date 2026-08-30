@@ -8,8 +8,9 @@ on:
   workflow_dispatch:
 
 jobs:
+  # ── Root app: format, analyze, test, web build ──────────────────────────────
   ci:
-    name: Test, Lint & Web Build
+    name: Root — Test, Lint & Web Build
     runs-on: ubuntu-latest
 
     steps:
@@ -40,3 +41,48 @@ jobs:
 
       - name: Build Web verification
         run: flutter build web --release --no-tree-shake-icons
+
+  # ── Per-package: analyze + test (matrix) ────────────────────────────────────
+  package_ci:
+    name: Package — ${{ matrix.package }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - package: code_store_core
+            has_tests: false
+          - package: code_store_theme
+            has_tests: false
+          - package: code_store_auth
+            has_tests: false
+          - package: code_store_analytics
+            has_tests: true
+          - package: code_store_home_widget
+            has_tests: true
+          - package: code_store_messaging
+            has_tests: true
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: flutter-version.txt
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        working-directory: packages/${{ matrix.package }}
+        run: flutter pub get
+
+      - name: Run static analysis
+        working-directory: packages/${{ matrix.package }}
+        run: flutter analyze
+
+      - name: Run tests
+        if: ${{ matrix.has_tests }}
+        working-directory: packages/${{ matrix.package }}
+        run: flutter test

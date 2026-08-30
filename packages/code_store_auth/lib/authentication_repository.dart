@@ -178,7 +178,7 @@ class FirebaseAuthenticationRepository extends AuthenticationRepository {
         ]);
       }
     } catch (_) {
-      throw LogOutFailure();
+      throw const LogOutFailure();
     }
   }
 

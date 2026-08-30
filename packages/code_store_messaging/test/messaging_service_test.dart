@@ -67,7 +67,7 @@ class MockMessagingService implements IMessagingService {
     bool provisional = false,
     bool sound = true,
   }) async {
-    return NotificationSettings(
+    return const NotificationSettings(
       alert: AppleNotificationSetting.enabled,
       announcement: AppleNotificationSetting.notSupported,
       authorizationStatus: AuthorizationStatus.authorized,
@@ -85,7 +85,7 @@ class MockMessagingService implements IMessagingService {
 
   @override
   Future<NotificationSettings> getNotificationSettings() async {
-    return NotificationSettings(
+    return const NotificationSettings(
       alert: AppleNotificationSetting.enabled,
       announcement: AppleNotificationSetting.notSupported,
       authorizationStatus: AuthorizationStatus.authorized,

@@ -12,26 +12,19 @@ Future<void> setupDI() async {
   setupCoreDI(defaultBaseUrl: AppConstants.baseUrl);
   setupAnalyticsDI();
   setupMessagingDI();
+  setupHomeWidgetDI(
+    appGroupId: AppConstants.appGroupId,
+    defaultAndroidName: AppConstants.homeWidgetAndroidName,
+    defaultIOSName: AppConstants.homeWidgetIOSName,
+  );
 
   getIt.registerLazySingleton<FlashlightControlService>(
     () => FlashlightControlService(toast: getIt<IToastService>()),
   );
 
-  getIt.registerLazySingleton<HomeWidgetService>(
-    () => HomeWidgetService(
-      appGroupId: AppConstants.appGroupId,
-      defaultAndroidName: AppConstants.homeWidgetAndroidName,
-      defaultIOSName: AppConstants.homeWidgetIOSName,
-    ),
-  );
-
   // 2. Perform asynchronous startup initializations for registered services
   try {
-    await getIt<HomeWidgetService>().initialize(
-      appGroupId: AppConstants.appGroupId,
-      defaultAndroidName: AppConstants.homeWidgetAndroidName,
-      defaultIOSName: AppConstants.homeWidgetIOSName,
-    );
+    await getIt<HomeWidgetService>().initialize();
   } catch (e) {
     debugPrint('Warning: HomeWidgetService initialization failed: $e');
   }
