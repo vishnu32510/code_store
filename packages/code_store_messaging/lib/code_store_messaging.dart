@@ -11,7 +11,7 @@ export 'package:firebase_messaging/firebase_messaging.dart'
         AppleNotificationSetting,
         AppleShowPreviewSetting;
 
-// Re-export flutter_local_notifications types if custom local notification channels are needed
+// Re-export flutter_local_notifications types for channels, scheduling, and intervals
 export 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show
         FlutterLocalNotificationsPlugin,
@@ -21,12 +21,16 @@ export 'package:flutter_local_notifications/flutter_local_notifications.dart'
         NotificationDetails,
         Importance,
         Priority,
-        NotificationResponse;
+        NotificationResponse,
+        PendingNotificationRequest,
+        RepeatInterval,
+        DateTimeComponents;
 
 // DI
 export 'src/di/messaging_injection.dart';
 
 // Models
+export 'src/models/notification_action.dart';
 export 'src/models/push_notification_payload.dart';
 
 // Services

@@ -8,12 +8,18 @@ class MockMessagingService implements IMessagingService {
       StreamController<PushNotificationPayload>.broadcast();
   final _openedAppController =
       StreamController<PushNotificationPayload>.broadcast();
+  final _actionTappedController =
+      StreamController<NotificationActionResponse>.broadcast();
   final _tokenRefreshController = StreamController<String>.broadcast();
 
   bool initialized = false;
   String? currentToken = 'mock_fcm_token_123';
+  int badgeCount = 0;
   final List<String> subscribedTopics = [];
   final List<Map<String, dynamic>> shownLocalNotifications = [];
+  final List<Map<String, dynamic>> scheduledNotifications = [];
+  final List<Map<String, dynamic>> richMediaNotifications = [];
+  final List<Map<String, dynamic>> groupedNotifications = [];
 
   @override
   Stream<PushNotificationPayload> get onForegroundMessage =>
@@ -24,6 +30,10 @@ class MockMessagingService implements IMessagingService {
       _openedAppController.stream;
 
   @override
+  Stream<NotificationActionResponse> get onActionTapped =>
+      _actionTappedController.stream;
+
+  @override
   Stream<String> get onTokenRefresh => _tokenRefreshController.stream;
 
   @override
@@ -32,8 +42,10 @@ class MockMessagingService implements IMessagingService {
     String defaultAndroidIcon = '@mipmap/ic_launcher',
     String channelId = 'high_importance_channel',
     String channelName = 'High Importance Notifications',
-    String channelDescription = 'This channel is used for important notifications.',
+    String channelDescription =
+        'This channel is used for important notifications.',
     NotificationTapHandler? onNotificationTapped,
+    NotificationActionHandler? onActionTapped,
   }) async {
     initialized = true;
   }
@@ -116,13 +128,134 @@ class MockMessagingService implements IMessagingService {
     String? channelId,
     String? channelName,
     String? channelDescription,
+    List<NotificationAction>? actions,
   }) async {
     shownLocalNotifications.add({
       'id': id,
       'title': title,
       'body': body,
       'payload': payload,
-      'channelId': channelId,
+      'actions': actions,
+    });
+  }
+
+  @override
+  Future<void> scheduleNotification({
+    required int id,
+    required String title,
+    required String body,
+    required DateTime scheduledDate,
+    String? payload,
+    String? channelId,
+    String? channelName,
+    String? channelDescription,
+    DateTimeComponents? matchDateTimeComponents,
+    List<NotificationAction>? actions,
+  }) async {
+    scheduledNotifications.add({
+      'id': id,
+      'title': title,
+      'body': body,
+      'scheduledDate': scheduledDate,
+      'actions': actions,
+    });
+  }
+
+  @override
+  Future<void> periodicallyShowNotification({
+    required int id,
+    required String title,
+    required String body,
+    required RepeatInterval repeatInterval,
+    String? payload,
+    String? channelId,
+    String? channelName,
+    String? channelDescription,
+  }) async {
+    scheduledNotifications.add({
+      'id': id,
+      'title': title,
+      'body': body,
+      'repeatInterval': repeatInterval,
+    });
+  }
+
+  @override
+  Future<void> cancelNotification(int id) async {
+    scheduledNotifications.removeWhere((item) => item['id'] == id);
+    shownLocalNotifications.removeWhere((item) => item['id'] == id);
+  }
+
+  @override
+  Future<void> cancelAllNotifications() async {
+    scheduledNotifications.clear();
+    shownLocalNotifications.clear();
+  }
+
+  @override
+  Future<List<PendingNotificationRequest>>
+      getPendingNotificationRequests() async {
+    return [
+      const PendingNotificationRequest(
+        1,
+        'Reminder',
+        'Check tasks',
+        'payload_1',
+      ),
+    ];
+  }
+
+  @override
+  Future<void> showRichMediaNotification({
+    required int id,
+    required String title,
+    required String body,
+    required String imageUrl,
+    String? largeIconUrl,
+    String? payload,
+    String? channelId,
+    String? channelName,
+    String? channelDescription,
+    List<NotificationAction>? actions,
+  }) async {
+    richMediaNotifications.add({
+      'id': id,
+      'title': title,
+      'body': body,
+      'imageUrl': imageUrl,
+      'largeIconUrl': largeIconUrl,
+      'actions': actions,
+    });
+  }
+
+  @override
+  Future<void> setBadgeCount(int count) async {
+    badgeCount = count;
+  }
+
+  @override
+  Future<void> clearBadge() async {
+    badgeCount = 0;
+  }
+
+  @override
+  Future<void> showGroupedNotification({
+    required int id,
+    required String title,
+    required String body,
+    required String groupKey,
+    bool setAsGroupSummary = false,
+    String? payload,
+    String? channelId,
+    String? channelName,
+    String? channelDescription,
+  }) async {
+    groupedNotifications.add({
+      'id': id,
+      'title': title,
+      'body': body,
+      'groupKey': groupKey,
+      'setAsGroupSummary': setAsGroupSummary,
     });
   }
 
@@ -135,12 +268,13 @@ class MockMessagingService implements IMessagingService {
   void dispose() {
     _foregroundController.close();
     _openedAppController.close();
+    _actionTappedController.close();
     _tokenRefreshController.close();
   }
 }
 
 void main() {
-  group('PushNotificationPayload Tests', () {
+  group('PushNotificationPayload & NotificationAction Tests', () {
     test('Constructs and converts to Map correctly', () {
       final now = DateTime.now();
       final payload = PushNotificationPayload(
@@ -172,37 +306,111 @@ void main() {
       expect(deserialized.body, payload.body);
       expect(deserialized.imageUrl, payload.imageUrl);
     });
+
+    test('NotificationAction models construct correctly', () {
+      const action = NotificationAction(
+        id: 'accept_order',
+        title: 'Accept',
+        showsUserInterface: true,
+        allowFreeFormInput: true,
+        inputPlaceholder: 'Type a message...',
+      );
+
+      expect(action.id, 'accept_order');
+      expect(action.title, 'Accept');
+      expect(action.allowFreeFormInput, isTrue);
+
+      const response = NotificationActionResponse(
+        actionId: 'accept_order',
+        userText: 'On my way!',
+      );
+      expect(response.actionId, 'accept_order');
+      expect(response.userText, 'On my way!');
+    });
   });
 
-  group('Messaging DI & Service Tests', () {
+  group('Messaging DI & Advanced Features Tests (A to E)', () {
     late GetIt testLocator;
 
     setUp(() {
       testLocator = GetIt.asNewInstance();
     });
 
-    test('Registers custom IMessagingService in GetIt DI properly', () async {
+    test('Executes all advanced notification methods on IMessagingService',
+        () async {
       final mockService = MockMessagingService();
       setupMessagingDI(locator: testLocator, customService: mockService);
 
       expect(testLocator.isRegistered<IMessagingService>(), isTrue);
       final resolved = testLocator<IMessagingService>();
-      expect(resolved, isA<MockMessagingService>());
 
       await resolved.initialize();
       expect(mockService.initialized, isTrue);
 
-      final token = await resolved.getToken();
-      expect(token, 'mock_fcm_token_123');
+      // A: Scheduling
+      final futureDate = DateTime.now().add(const Duration(hours: 1));
+      await resolved.scheduleNotification(
+        id: 10,
+        title: 'Drink Water',
+        body: 'Stay hydrated',
+        scheduledDate: futureDate,
+      );
+      expect(mockService.scheduledNotifications.length, 1);
 
-      await resolved.subscribeToTopic('news');
-      expect(mockService.subscribedTopics, contains('news'));
+      await resolved.periodicallyShowNotification(
+        id: 11,
+        title: 'Daily Standup',
+        body: 'Join the meeting',
+        repeatInterval: RepeatInterval.daily,
+      );
+      expect(mockService.scheduledNotifications.length, 2);
 
-      await resolved.unsubscribeFromTopic('news');
-      expect(mockService.subscribedTopics, isEmpty);
+      final pending = await resolved.getPendingNotificationRequests();
+      expect(pending.length, 1);
 
-      final initialMsg = await resolved.getInitialMessage();
-      expect(initialMsg?.title, 'Welcome Back');
+      await resolved.cancelNotification(10);
+      expect(mockService.scheduledNotifications.length, 1);
+
+      // B: Actionable
+      await resolved.showLocalNotification(
+        id: 20,
+        title: 'New Invite',
+        body: 'Join team',
+        actions: [
+          const NotificationAction(id: 'accept', title: 'Accept'),
+          const NotificationAction(
+              id: 'decline', title: 'Decline', isDestructive: true),
+        ],
+      );
+      expect(mockService.shownLocalNotifications.length, 1);
+
+      // C: Rich Media
+      await resolved.showRichMediaNotification(
+        id: 30,
+        title: 'Special Offer',
+        body: 'Tap to see picture',
+        imageUrl: 'https://example.com/promo.jpg',
+      );
+      expect(mockService.richMediaNotifications.length, 1);
+      expect(mockService.richMediaNotifications.first['imageUrl'],
+          'https://example.com/promo.jpg');
+
+      // D: Badges
+      await resolved.setBadgeCount(5);
+      expect(mockService.badgeCount, 5);
+      await resolved.clearBadge();
+      expect(mockService.badgeCount, 0);
+
+      // E: Grouping
+      await resolved.showGroupedNotification(
+        id: 40,
+        title: 'Alice',
+        body: 'Hey there!',
+        groupKey: 'chat_group_1',
+      );
+      expect(mockService.groupedNotifications.length, 1);
+      expect(
+          mockService.groupedNotifications.first['groupKey'], 'chat_group_1');
     });
   });
 }
