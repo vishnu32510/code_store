@@ -19,10 +19,13 @@ void main() {
       expect(AppAnalyticsUserProperties.themeMode, 'theme_mode');
     });
 
-    test('FirebaseAnalyticsService can be instantiated with custom instances', () {
-      // Test interface contract
-      expect(IAnalyticsService, isNotNull);
-      expect(FirebaseAnalyticsService, isNotNull);
-    });
+    test(
+      'FirebaseAnalyticsService can be instantiated with custom instances',
+      () {
+        // Test interface contract
+        expect(IAnalyticsService, isNotNull);
+        expect(FirebaseAnalyticsService, isNotNull);
+      },
+    );
   });
 }

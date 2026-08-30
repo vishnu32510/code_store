@@ -9,10 +9,7 @@ extension AnalyticsContextExtension on BuildContext {
   IAnalyticsService get analytics => GetIt.instance<IAnalyticsService>();
 
   /// Logs a custom event shorthand.
-  void logAnalyticsEvent(
-    String name, {
-    Map<String, Object?>? parameters,
-  }) {
+  void logAnalyticsEvent(String name, {Map<String, Object?>? parameters}) {
     analytics.logEvent(name: name, parameters: parameters);
   }
 }

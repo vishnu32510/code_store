@@ -1,5 +1,6 @@
 import '../../../core/config/routes.dart';
 import '../../../core/utils/app_constants.dart';
+
 import 'package:code_store_auth/code_store_auth.dart';
 import 'package:code_store_theme/code_store_theme.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +29,10 @@ class AppDrawer extends StatelessWidget {
             _buildHeader(context),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 children: [
                   _buildNavHeader(context, 'Navigation'),
                   _buildDrawerItem(
@@ -97,8 +101,9 @@ class AppDrawer extends StatelessWidget {
         final isSignedIn =
             auth.status == AuthenticationStatus.authenticated &&
             auth.user.isNotEmpty;
-        final displayName =
-            isSignedIn && email.isNotEmpty ? email : 'Guest User';
+        final displayName = isSignedIn && email.isNotEmpty
+            ? email
+            : 'Guest User';
 
         return Container(
           width: double.infinity,
@@ -124,7 +129,9 @@ class AppDrawer extends StatelessWidget {
                     radius: 28,
                     backgroundColor: Colors.white.withValues(alpha: 0.2),
                     child: Icon(
-                      isSignedIn ? Icons.person_rounded : Icons.person_outline_rounded,
+                      isSignedIn
+                          ? Icons.person_rounded
+                          : Icons.person_outline_rounded,
                       size: 32,
                       color: Colors.white,
                     ),
@@ -273,9 +280,7 @@ class AppDrawer extends StatelessWidget {
       ),
       title: Text(
         'Theme Mode',
-        style: theme.textTheme.bodyLarge?.copyWith(
-          fontWeight: FontWeight.w500,
-        ),
+        style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
       ),
       subtitle: Text(
         'Switch color theme',
@@ -309,7 +314,9 @@ class AppDrawer extends StatelessWidget {
                   },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: colors.error,
-                    side: BorderSide(color: colors.error.withValues(alpha: 0.5)),
+                    side: BorderSide(
+                      color: colors.error.withValues(alpha: 0.5),
+                    ),
                     minimumSize: const Size.fromHeight(48),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),

@@ -1,5 +1,7 @@
 import '../../core/config/routes.dart';
+
 import 'package:code_store_core/code_store_core.dart';
+
 import 'flashlight_control_service.dart';
 
 import 'package:flutter/material.dart';
@@ -106,8 +108,9 @@ class _FlashlightBody extends StatelessWidget {
     final onSurface = colors.onSurface;
     final iconOn = isDark ? Colors.white.withValues(alpha: 0.95) : Colors.black;
     final iconOff = onSurface.withValues(alpha: 0.7);
-    final borderOn =
-        isDark ? Colors.white.withValues(alpha: 0.85) : Colors.black87;
+    final borderOn = isDark
+        ? Colors.white.withValues(alpha: 0.85)
+        : Colors.black87;
     final borderOff = onSurface.withValues(alpha: 0.52);
     final bottomPad = MediaQuery.paddingOf(context).bottom;
 
@@ -179,8 +182,10 @@ class _FlashlightBody extends StatelessWidget {
                           ? [
                               BoxShadow(
                                 color: isDark
-                                    ? const Color(0xFFFFFFFF).withValues(alpha: 0.75)
-                                    : const Color(0xFFFFC107).withValues(alpha: 0.5),
+                                    ? const Color(0xFFFFFFFF)
+                                          .withValues(alpha: 0.75)
+                                    : const Color(0xFFFFC107)
+                                          .withValues(alpha: 0.5),
                                 blurRadius: 36,
                                 spreadRadius: 2,
                               ),

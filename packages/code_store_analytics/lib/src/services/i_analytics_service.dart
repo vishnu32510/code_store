@@ -17,10 +17,7 @@ abstract interface class IAnalyticsService {
   });
 
   /// Logs a custom event with [name] and optional [parameters] (convenience shorthand).
-  Future<void> logCustomEvent(
-    String name, [
-    Map<String, Object?>? parameters,
-  ]);
+  Future<void> logCustomEvent(String name, [Map<String, Object?>? parameters]);
 
   /// Sets the current active screen name for analytics tracking.
   Future<void> setCurrentScreen({
@@ -32,10 +29,7 @@ abstract interface class IAnalyticsService {
   Future<void> setUserId(String? userId);
 
   /// Sets a user property [name] to [value].
-  Future<void> setUserProperty({
-    required String name,
-    required String? value,
-  });
+  Future<void> setUserProperty({required String name, required String? value});
 
   /// Logs a user sign-in event with an optional [loginMethod] (e.g. 'google', 'apple', 'email').
   Future<void> logLogin({String? loginMethod});
@@ -75,7 +69,9 @@ abstract interface class IAnalyticsService {
   Future<void> setAnalyticsCollectionEnabled(bool enabled);
 
   /// Sets default parameters that will be included with every logged event.
-  Future<void> setDefaultEventParameters(Map<String, Object?>? defaultParameters);
+  Future<void> setDefaultEventParameters(
+    Map<String, Object?>? defaultParameters,
+  );
 
   /// Sets the duration of inactivity that terminates the current session.
   Future<void> setSessionTimeoutDuration(Duration timeout);

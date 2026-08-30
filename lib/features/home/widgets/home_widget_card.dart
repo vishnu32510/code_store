@@ -11,8 +11,9 @@ class HomeWidgetCard extends StatefulWidget {
 
 class _HomeWidgetCardState extends State<HomeWidgetCard> {
   final _titleController = TextEditingController(text: 'CodeStore Status');
-  final _messageController =
-      TextEditingController(text: 'All packages & services operational 🚀');
+  final _messageController = TextEditingController(
+    text: 'All packages & services operational 🚀',
+  );
   bool _isSyncing = false;
   bool _isRendering = false;
   DateTime? _lastSyncTime;
@@ -86,7 +87,9 @@ class _HomeWidgetCardState extends State<HomeWidgetCard> {
           _lastSyncTime = DateTime.now();
         });
         if (path != null) {
-          getIt<IToastService>().showSuccess('Snapshot rendered & pushed to widget!');
+          getIt<IToastService>().showSuccess(
+            'Snapshot rendered & pushed to widget!',
+          );
         } else {
           getIt<IToastService>().showInfo('Widget snapshot updated.');
         }
@@ -109,9 +112,7 @@ class _HomeWidgetCardState extends State<HomeWidgetCard> {
     return Card(
       elevation: 0,
       color: colors.surfaceContainerLow,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -125,7 +126,11 @@ class _HomeWidgetCardState extends State<HomeWidgetCard> {
                     color: colors.primaryContainer.withValues(alpha: 0.4),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(Icons.widgets_rounded, color: colors.primary, size: 22),
+                  child: Icon(
+                    Icons.widgets_rounded,
+                    color: colors.primary,
+                    size: 22,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -141,7 +146,9 @@ class _HomeWidgetCardState extends State<HomeWidgetCard> {
                       Text(
                         'iOS WidgetKit & Android AppWidget sync',
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: colors.onSurfaceVariant.withValues(alpha: 0.75),
+                          color: colors.onSurfaceVariant.withValues(
+                            alpha: 0.75,
+                          ),
                         ),
                       ),
                     ],
@@ -149,7 +156,10 @@ class _HomeWidgetCardState extends State<HomeWidgetCard> {
                 ),
                 if (_lastSyncTime != null)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.green.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),

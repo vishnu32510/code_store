@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../models/home_widget_payload.dart';
 
 /// A sleek pre-styled card designed to be rendered offscreen and displayed inside native Home Screen widgets.
@@ -69,7 +70,10 @@ class HomeWidgetSnapshotCard extends StatelessWidget {
               ),
               if (payload.status != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: accentColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
@@ -87,11 +91,7 @@ class HomeWidgetSnapshotCard extends StatelessWidget {
           ),
           Text(
             payload.message,
-            style: TextStyle(
-              color: subtitleColor,
-              fontSize: 13,
-              height: 1.3,
-            ),
+            style: TextStyle(color: subtitleColor, fontSize: 13, height: 1.3),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
@@ -109,7 +109,10 @@ class HomeWidgetSnapshotCard extends StatelessWidget {
               ),
               if (payload.badgeCount > 0)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.redAccent,
                     borderRadius: BorderRadius.circular(10),

@@ -105,7 +105,9 @@ class AppThemeConfig extends Equatable {
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF3D2B1F),
           foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),

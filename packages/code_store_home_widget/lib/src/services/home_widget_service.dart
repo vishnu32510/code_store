@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:flutter/widgets.dart';
 import 'package:home_widget/home_widget.dart';
+
 import '../models/home_widget_payload.dart';
 import '../models/widget_action.dart';
 
@@ -169,7 +171,8 @@ class HomeWidgetService {
     } else if (value is double) {
       return await HomeWidget.saveWidgetData<double>(key, value) ?? false;
     }
-    return await HomeWidget.saveWidgetData<String>(key, value.toString()) ?? false;
+    return await HomeWidget.saveWidgetData<String>(key, value.toString()) ??
+        false;
   }
 
   /// Reads a value from shared widget storage.

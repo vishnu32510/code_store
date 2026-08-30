@@ -70,12 +70,12 @@ class HomeWidgetPayload extends Equatable {
 
   @override
   List<Object?> get props => [
-        title,
-        message,
-        status,
-        updatedAt,
-        badgeCount,
-        actionUri,
-        customData,
-      ];
+    title,
+    message,
+    status,
+    updatedAt,
+    badgeCount,
+    actionUri,
+    customData,
+  ];
 }

@@ -30,5 +30,6 @@ class WidgetAction {
   }
 
   @override
-  String toString() => 'WidgetAction(uri: $uri, actionId: $actionId, params: $parameters)';
+  String toString() =>
+      'WidgetAction(uri: $uri, actionId: $actionId, params: $parameters)';
 }

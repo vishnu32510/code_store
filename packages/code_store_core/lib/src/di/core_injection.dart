@@ -37,9 +37,7 @@ void setupCoreDI({GetIt? locator, String? defaultBaseUrl}) {
   }
   if (!di.isRegistered<IToastService>()) {
     di.registerLazySingleton<IToastService>(
-      () => ToastService(
-        messengerKey: di<GlobalKey<ScaffoldMessengerState>>(),
-      ),
+      () => ToastService(messengerKey: di<GlobalKey<ScaffoldMessengerState>>()),
     );
   }
 }

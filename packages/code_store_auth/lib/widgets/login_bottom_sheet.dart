@@ -137,7 +137,8 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
 
-    final sheetBg = widget.backgroundColor ??
+    final sheetBg =
+        widget.backgroundColor ??
         (isDark ? colors.surfaceContainerHigh : colors.surface);
 
     final authBloc = _getAuthBloc(context);
@@ -233,11 +234,7 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
               widget.headerIcon!,
               const SizedBox(width: 10),
             ] else ...[
-              Icon(
-                Icons.lock_person_rounded,
-                color: colors.primary,
-                size: 28,
-              ),
+              Icon(Icons.lock_person_rounded, color: colors.primary, size: 28),
               const SizedBox(width: 10),
             ],
             Expanded(
@@ -341,8 +338,9 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colors.primary,
                   foregroundColor: colors.onPrimary,
-                  disabledBackgroundColor:
-                      colors.primary.withValues(alpha: 0.5),
+                  disabledBackgroundColor: colors.primary.withValues(
+                    alpha: 0.5,
+                  ),
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
@@ -521,11 +519,10 @@ class _SocialButton extends StatelessWidget {
           ),
         ),
         style: OutlinedButton.styleFrom(
-          backgroundColor:
-              colors.surfaceContainerHighest.withValues(alpha: 0.25),
-          side: BorderSide(
-            color: colors.outlineVariant.withValues(alpha: 0.6),
+          backgroundColor: colors.surfaceContainerHighest.withValues(
+            alpha: 0.25,
           ),
+          side: BorderSide(color: colors.outlineVariant.withValues(alpha: 0.6)),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),

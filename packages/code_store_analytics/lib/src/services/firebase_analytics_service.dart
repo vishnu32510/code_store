@@ -11,11 +11,12 @@ class FirebaseAnalyticsService implements IAnalyticsService {
   FirebaseAnalyticsService({
     FirebaseAnalytics? analytics,
     FirebaseAnalyticsObserver? observer,
-  })  : _analytics = analytics ?? FirebaseAnalytics.instance,
-        _observer = observer ??
-            FirebaseAnalyticsObserver(
-              analytics: analytics ?? FirebaseAnalytics.instance,
-            );
+  }) : _analytics = analytics ?? FirebaseAnalytics.instance,
+       _observer =
+           observer ??
+           FirebaseAnalyticsObserver(
+             analytics: analytics ?? FirebaseAnalytics.instance,
+           );
 
   @override
   FirebaseAnalytics get rawAnalytics => _analytics;
@@ -51,8 +52,7 @@ class FirebaseAnalyticsService implements IAnalyticsService {
   Future<void> logCustomEvent(
     String name, [
     Map<String, Object?>? parameters,
-  ]) =>
-      logEvent(name: name, parameters: parameters);
+  ]) => logEvent(name: name, parameters: parameters);
 
   @override
   Future<void> setCurrentScreen({
@@ -65,7 +65,9 @@ class FirebaseAnalyticsService implements IAnalyticsService {
         screenClass: screenClassOverride,
       );
       if (kDebugMode) {
-        debugPrint('[Analytics] Screen viewed: $screenName ($screenClassOverride)');
+        debugPrint(
+          '[Analytics] Screen viewed: $screenName ($screenClassOverride)',
+        );
       }
     } catch (e) {
       debugPrint('[Analytics] Error setting current screen: $e');
@@ -184,7 +186,9 @@ class FirebaseAnalyticsService implements IAnalyticsService {
         method: method,
       );
       if (kDebugMode) {
-        debugPrint('[Analytics] Share logged: type=$contentType, id=$itemId, method=$method');
+        debugPrint(
+          '[Analytics] Share logged: type=$contentType, id=$itemId, method=$method',
+        );
       }
     } catch (e) {
       debugPrint('[Analytics] Error logging share: $e');
