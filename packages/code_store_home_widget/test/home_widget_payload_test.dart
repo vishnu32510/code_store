@@ -31,4 +31,22 @@ void main() {
       expect(deserialized.actionUri, payload.actionUri);
     });
   });
+
+  group('WidgetAction', () {
+    test('parses action URI and parameters correctly', () {
+      final uri = Uri.parse('codestore://weather?action=refresh&city=NYC');
+      final action = WidgetAction.fromUri(uri);
+
+      expect(action.uri, uri);
+      expect(action.actionId, 'refresh');
+      expect(action.parameters['city'], 'NYC');
+    });
+
+    test('falls back to host when action query parameter is missing', () {
+      final uri = Uri.parse('codestore://dashboard');
+      final action = WidgetAction.fromUri(uri);
+
+      expect(action.actionId, 'dashboard');
+    });
+  });
 }

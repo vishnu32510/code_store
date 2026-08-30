@@ -157,31 +157,55 @@ To prevent Xcode from trying to build Flutter SPM plugins (`url_launcher_ios`, `
 
 ---
 
-## Step 5: Data Synchronization from Flutter
+---
 
-### A. Key-Value Sync
+## Step 5: Generalized Data & Bridge Synchronization
+
+### A. Synchronize Structured JSON Models (Dart -> Swift/Kotlin)
 ```dart
-await getIt<HomeWidgetService>().syncPayload(
-  HomeWidgetPayload(
-    title: 'Daily Goal',
-    message: '8 of 10 habits completed',
-    status: 'Active',
-    updatedAt: DateTime.now(),
-    badgeCount: 2,
-    actionUri: 'codestore://dashboard',
-  ),
+// Flutter side:
+await getIt<HomeWidgetService>().syncModel(
+  key: 'user_profile',
+  model: profileData,
+  toJson: (p) => p.toJson(),
+  actionUri: 'codestore://profile',
 );
 ```
 
+* **iOS Native (`WidgetBridge.swift`)**:
+  ```swift
+  let profile = WidgetBridge.decode(UserProfile.self, forKey: "user_profile")
+  ```
+* **Android Native (`WidgetBridge.kt`)**:
+  ```kotlin
+  val profile = WidgetBridge.getString(context, "user_profile")
+  ```
+
 ### B. Offscreen Flutter Widget -> Image Snapshot
 ```dart
-final path = await getIt<HomeWidgetService>().renderFlutterWidget(
+final path = await getIt<HomeWidgetService>().renderAndSync(
   widget: HomeWidgetSnapshotCard(payload: payload),
   key: 'home_widget_image',
-  logicalSize: const Size(320, 160),
-  pixelRatio: 3.0,
+  actionUri: 'codestore://dashboard',
 );
-await getIt<HomeWidgetService>().updateWidget();
+```
+
+* **iOS Native (`Widget.swift`)**:
+  ```swift
+  if let image = WidgetBridge.image(forKey: "home_widget_image") {
+      Image(uiImage: image).resizable().scaledToFit()
+  }
+  ```
+* **Android Native (`WeatherForecastWidgetHomeWidget.kt`)**:
+  ```kotlin
+  val bitmap = WidgetBridge.getImageBitmap(context, "home_widget_image")
+  ```
+
+### C. Listening to Widget Click Actions in Flutter
+```dart
+getIt<HomeWidgetService>().onActionTriggered.listen((action) {
+  debugPrint('User tapped widget: ${action.actionId} | uri: ${action.uri}');
+});
 ```
 
 ---

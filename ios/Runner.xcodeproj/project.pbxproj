@@ -20,6 +20,7 @@
 		ED11FC3E9C19F7B715CA1224 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412FBA933BB691D6B2539BA5 /* WidgetKit.framework */; };
 		A1F3BBF31E04D32EFD7AA1E1 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BAF95C3AC2D197BBF80BA244 /* SwiftUI.framework */; };
 		9668B5CB3C9FD4DCFBA132C9 /* Widget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EAFBB18A9456DB3D7946D82 /* Widget.swift */; };
+		E8C419A23E954911BF24C3D0 /* WidgetBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EAFBB18A9456DB3D7946D83 /* WidgetBridge.swift */; };
 		6A0735CBE7D30A1C43B95B61 /* WidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11DDF99052155E132462830A /* WidgetBundle.swift */; };
 /* End PBXBuildFile section */
 
@@ -88,6 +89,7 @@
 		BAF95C3AC2D197BBF80BA244 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		4A8E3181EBEB3BA6DF11D1E7 /* WeatherForecastWidgetHomeWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WeatherForecastWidgetHomeWidget.entitlements; sourceTree = "<group>"; };
 		4EAFBB18A9456DB3D7946D82 /* Widget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Widget.swift; sourceTree = "<group>"; };
+		4EAFBB18A9456DB3D7946D83 /* WidgetBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetBridge.swift; sourceTree = "<group>"; };
 		11DDF99052155E132462830A /* WidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetBundle.swift; sourceTree = "<group>"; };
 		8315C46758865414DE08E295 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -190,6 +192,7 @@
 			isa = PBXGroup;
 			children = (
 				4EAFBB18A9456DB3D7946D82 /* Widget.swift */,
+				4EAFBB18A9456DB3D7946D83 /* WidgetBridge.swift */,
 				11DDF99052155E132462830A /* WidgetBundle.swift */,
 				8315C46758865414DE08E295 /* Info.plist */,
 			);
@@ -389,6 +392,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9668B5CB3C9FD4DCFBA132C9 /* Widget.swift in Sources */,
+				E8C419A23E954911BF24C3D0 /* WidgetBridge.swift in Sources */,
 				6A0735CBE7D30A1C43B95B61 /* WidgetBundle.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
