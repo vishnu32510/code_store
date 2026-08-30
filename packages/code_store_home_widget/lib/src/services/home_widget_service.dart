@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/widgets.dart';
 import 'package:home_widget/home_widget.dart';
 import '../models/home_widget_payload.dart';
+import '../models/widget_action.dart';
 
-/// Central service for managing Home Screen widgets across iOS (WidgetKit) and Android (AppWidgets).
+/// Central generalized service for managing Home Screen widgets across iOS (WidgetKit) and Android (AppWidgets/Glance).
 class HomeWidgetService {
   HomeWidgetService({
     String? appGroupId,
@@ -26,8 +28,13 @@ class HomeWidgetService {
   /// Current configured App Group ID (used by iOS WidgetKit & shared UserDefaults).
   String? get appGroupId => _appGroupId;
 
-  /// Stream of URIs triggered when a user taps a widget on their home screen.
+  /// Stream of raw URIs triggered when a user taps a widget on their home screen.
   Stream<Uri?> get widgetClickedStream => HomeWidget.widgetClicked;
+
+  /// Stream of parsed [WidgetAction] events triggered when a user taps a widget.
+  Stream<WidgetAction> get onActionTriggered => HomeWidget.widgetClicked
+      .where((uri) => uri != null)
+      .map((uri) => WidgetAction.fromUri(uri!));
 
   /// Initializes the Home Widget service with optional app group and widget identifiers.
   Future<void> initialize({
@@ -48,12 +55,110 @@ class HomeWidgetService {
     _initialized = true;
   }
 
-  /// Retrieves the URI that launched the app if it was opened from a home screen widget.
+  /// Checks if the app was launched from a home screen widget and returns the parsed [WidgetAction].
+  Future<WidgetAction?> getInitialAction() async {
+    final uri = await HomeWidget.initiallyLaunchedFromHomeWidget();
+    if (uri == null) return null;
+    return WidgetAction.fromUri(uri);
+  }
+
+  /// Retrieves the raw URI that launched the app if opened from a widget.
   Future<Uri?> getInitiallyLaunchedUri() async {
     return await HomeWidget.initiallyLaunchedFromHomeWidget();
   }
 
-  /// Saves a single key-value pair to shared widget storage.
+  /// ---------------------------------------------------------------------------
+  /// GENERALIZED SYNCHRONIZATION PRIMITIVES
+  /// ---------------------------------------------------------------------------
+
+  /// 1. Synchronize any structured Dart model to native widget storage as JSON.
+  ///
+  /// The native Swift/Kotlin side can decode it directly with `WidgetBridge.decode(MyModel.self, forKey: key)`.
+  Future<bool> syncModel<T>({
+    required String key,
+    required T model,
+    Map<String, dynamic> Function(T)? toJson,
+    String? actionUri,
+    bool update = true,
+    String? androidName,
+    String? iOSName,
+  }) async {
+    final Map<String, dynamic> map = toJson != null
+        ? toJson(model)
+        : (model as dynamic).toJson();
+    final jsonStr = jsonEncode(map);
+    final saved = await saveData<String>(key, jsonStr);
+
+    if (actionUri != null) {
+      await saveData<String>('${key}_action_uri', actionUri);
+    }
+
+    if (update && saved) {
+      await updateWidget(androidName: androidName, iOSName: iOSName);
+    }
+    return saved;
+  }
+
+  /// Reads and deserializes a structured JSON model from shared widget storage.
+  Future<T?> getModel<T>(
+    String key, {
+    required T Function(Map<String, dynamic> json) fromJson,
+  }) async {
+    final jsonStr = await getData<String>(key);
+    if (jsonStr == null || jsonStr.isEmpty) return null;
+    try {
+      final map = jsonDecode(jsonStr) as Map<String, dynamic>;
+      return fromJson(map);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// 2. Synchronize a batch Map of key-value pairs to shared widget storage.
+  Future<bool> syncMap(
+    Map<String, dynamic> data, {
+    bool update = true,
+    String? androidName,
+    String? iOSName,
+  }) async {
+    for (final entry in data.entries) {
+      await saveData(entry.key, entry.value);
+    }
+    if (update) {
+      return await updateWidget(androidName: androidName, iOSName: iOSName);
+    }
+    return true;
+  }
+
+  /// 3. Render any Flutter [widget] off-screen to an image and synchronize to native widgets.
+  Future<String?> renderAndSync({
+    required Widget widget,
+    String key = 'home_widget_image',
+    Size logicalSize = const Size(320, 160),
+    double pixelRatio = 3.0,
+    String? actionUri,
+    bool update = true,
+    String? androidName,
+    String? iOSName,
+  }) async {
+    final path = await renderFlutterWidget(
+      widget: widget,
+      key: key,
+      logicalSize: logicalSize,
+      pixelRatio: pixelRatio,
+    );
+
+    if (actionUri != null) {
+      await saveData<String>('${key}_action_uri', actionUri);
+    }
+
+    if (update && path != null) {
+      await updateWidget(androidName: androidName, iOSName: iOSName);
+    }
+    return path;
+  }
+
+  /// 4. Saves a single typed value to shared storage.
   Future<bool> saveData<T>(String key, T value) async {
     if (value is String) {
       return await HomeWidget.saveWidgetData<String>(key, value) ?? false;
@@ -64,7 +169,6 @@ class HomeWidgetService {
     } else if (value is double) {
       return await HomeWidget.saveWidgetData<double>(key, value) ?? false;
     }
-    // Fallback as String
     return await HomeWidget.saveWidgetData<String>(key, value.toString()) ?? false;
   }
 
@@ -109,8 +213,6 @@ class HomeWidgetService {
   }
 
   /// Renders a Flutter [widget] off-screen to an image file and saves the image path to shared storage under [key].
-  ///
-  /// The native widget (iOS SwiftUI `Image` or Android `ImageView`) can then load this generated image directly.
   Future<String?> renderFlutterWidget({
     required Widget widget,
     required String key,
