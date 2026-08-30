@@ -152,6 +152,38 @@ dart run flutter_launcher_icons -f flutter_launcher_icons.yaml
 
 Config lives in [`flutter_launcher_icons.yaml`](flutter_launcher_icons.yaml).
 
+## 🚀 Quick Start (Create & Run a New App Fast)
+
+```bash
+# 1. Rename App Package & Bundle ID
+flutter pub run change_app_package_name:main com.yourcompany.newapp
+
+# 2. Configure Environment & Firebase (Optional)
+cp .env.example .env
+flutterfire configure
+
+# 3. Run the App
+flutter pub get
+flutter run
+```
+
+---
+
+## 🛠 CI/CD & GitHub Secrets Cheat Sheet
+
+All workflows are located in `.github/workflows/`. By default, only **`flutter_ci.yml`** runs on PRs/pushes; all release and deployment workflows run on manual `workflow_dispatch`.
+
+| Workflow | Purpose | Required GitHub Secrets |
+| :--- | :--- | :--- |
+| **`flutter_ci.yml`** | Format, Analyze, Test & Web compilation | *None required* (Uses committed files + `.env.example`) |
+| **`android_debug_apk.yml`** | Build & upload debug APK artifact | *None required* |
+| **`web_deploy_prod.yml`** | Deploy live site to Firebase Hosting | `FIREBASE_SERVICE_ACCOUNT_CODE_STORE` (Service Account JSON) |
+| **`web_deploy_preview.yml`** | Deploy PR preview channel to Firebase Hosting | `FIREBASE_SERVICE_ACCOUNT_CODE_STORE` |
+| **`android_store_release.yml`** | Fastlane release to Google Play | `ANDROID_UPLOAD_KEYSTORE_B64`, `ANDROID_STORE_PASSWORD`, `ANDROID_KEY_PASSWORD`, `ANDROID_KEY_ALIAS`, `PLAY_SERVICE_ACCOUNT_JSON_B64` |
+| **`ios_store_release.yml`** | Fastlane release to TestFlight / App Store | `APP_STORE_CONNECT_KEY_ID`, `APP_STORE_CONNECT_ISSUER_ID`, `APP_STORE_CONNECT_KEY_CONTENT`, `MATCH_GIT_URL`, `MATCH_PASSWORD` |
+
+---
+
 ## Create a new app from this template
 
 1. **Copy the tree**  

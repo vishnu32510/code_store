@@ -22,13 +22,13 @@ When this skill is triggered, you MUST execute the following workflow:
    - WAIT for the user to provide all this information before proceeding to execution.
 
 3. **Rename the App**:
-   - Trigger the `change-name` skill (`@[/Users/vishnu/garage/tvtime/skills/change-name]`) using the provided app name and package name.
+   - Trigger the `change-name` skill using the provided app name and package name.
 
 4. **Set Up the App Icon (Logo)**:
-   - Trigger the `update-icons` skill (`@[/Users/vishnu/garage/tvtime/skills/update-icons]`) and pass it the logo details (file, URL, or generation prompt) gathered from the user. This skill will handle generation, native icon configuration, and web favicon setup.
+   - Trigger the `update-icons` skill and pass it the logo details (file, URL, or generation prompt) gathered from the user. This skill will handle generation, native icon configuration, and web favicon setup.
 
 5. **Set Up Authentication**:
-   - If the user agreed to configure Firebase Auth, trigger the `setup-auth` skill (`@[/Users/vishnu/garage/tvtime/skills/setup-auth]`).
+   - If the user agreed to configure Firebase Auth, trigger the `setup-auth` skill.
 
 6. **Completion**:
    - Summarize the actions taken and notify the user that the initial app clone setup is complete!

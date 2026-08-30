@@ -6,117 +6,29 @@ description: >
 
 # update-github-actions
 
-Manages GitHub Action workflows for Flutter projects. It specifically handles CI routines like testing, formatting, and building APKs (e.g., `flutter_ci.yml`, `android_debug_apk.yml`).
+Manages GitHub Action workflows for Flutter projects. It handles multiplatform CI/CD pipelines including linting/testing, Android debug APKs, Firebase Hosting web deployments, and iOS/Android Fastlane store releases.
 
-## Prerequisites
+## Available Workflows (`.github/workflows/`)
 
-- A GitHub repository.
+1. **`flutter_ci.yml`**: Common CI (Testing, Static Analysis, Formatting check, and Web release build verification). Triggers on Pull Requests, Push to `main`, and manual dispatch.
+2. **`android_debug_apk.yml`**: Builds and uploads Android Debug APK artifact on `workflow_dispatch`.
+3. **`web_deploy_prod.yml`**: Deploys the Flutter Web build to Firebase Hosting (live channel) on `workflow_dispatch`.
+4. **`web_deploy_preview.yml`**: Deploys a preview channel URL on `workflow_dispatch` or PRs.
+5. **`android_store_release.yml`**: Fastlane release to Google Play Console (Internal / Production) with keystore signing.
+6. **`ios_store_release.yml`**: Fastlane release to TestFlight or App Store using App Store Connect API keys and Match certificates.
 
-## Workflow
+## GitHub Repository Secrets Cheat Sheet
 
-### Step 1: Identify Workflows to Update
-
-Look into `.github/workflows/` to find existing workflows. Common examples:
-- `.github/workflows/flutter_ci.yml` (Testing & Linting)
-- `.github/workflows/android_debug_apk.yml` (Build Debug APK)
-
-### Step 2: Basic CI Workflow Update
-
-To update standard CI (Formatting, Analysis, Testing), modify `.github/workflows/flutter_ci.yml`:
-
-```yaml
-name: Flutter CI
-
-on:
-  pull_request:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
-
-jobs:
-  ci:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
-
-      - name: Create .env file
-        run: cp .env.example .env
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Verify formatting
-        run: dart format --output=none --set-exit-if-changed .
-
-      - name: Run static analysis
-        run: flutter analyze
-
-      - name: Run tests
-        run: flutter test
-```
-
-### Step 3: Debug APK Workflow Update
-
-To update Android debug builds, modify `.github/workflows/android_debug_apk.yml`:
-
-```yaml
-name: Build Android Debug APK
-
-on:
-  workflow_dispatch:
-
-jobs:
-  android_debug_apk:
-    name: Build Android Debug APK
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
-
-      - name: Create .env file
-        run: cp .env.example .env
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Build debug APK
-        run: flutter build apk --debug
-
-      - name: Upload debug APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-debug-apk
-          path: build/app/outputs/flutter-apk/app-debug.apk
-          if-no-files-found: error
-```
-
-### Step 4: Verification
-
-Ensure the updated YAML files are valid and commit them.
-
-```bash
-git add .github/workflows/
-git commit -m "Update GitHub Actions CI/CD pipelines"
-```
+| Secret Name | Workflow | Description |
+| :--- | :--- | :--- |
+| `FIREBASE_SERVICE_ACCOUNT_CODE_STORE` | Web Hosting | Firebase Service Account JSON for hosting deployments |
+| `ANDROID_UPLOAD_KEYSTORE_B64` | Android Fastlane | Base64-encoded `upload-keystore.jks` |
+| `ANDROID_STORE_PASSWORD` | Android Fastlane | Keystore store password |
+| `ANDROID_KEY_PASSWORD` | Android Fastlane | Keystore key password |
+| `ANDROID_KEY_ALIAS` | Android Fastlane | Keystore key alias |
+| `PLAY_SERVICE_ACCOUNT_JSON_B64` | Android Fastlane | Base64-encoded Google Play API service account JSON |
+| `APP_STORE_CONNECT_KEY_ID` | iOS Fastlane | App Store Connect API Key ID |
+| `APP_STORE_CONNECT_ISSUER_ID` | iOS Fastlane | App Store Connect Issuer ID |
+| `APP_STORE_CONNECT_KEY_CONTENT` | iOS Fastlane | Base64-encoded `.p8` AuthKey file |
+| `MATCH_GIT_URL` | iOS Fastlane | Git repo URL holding encrypted certificates |
+| `MATCH_PASSWORD` | iOS Fastlane | Encryption passphrase for fastlane match |

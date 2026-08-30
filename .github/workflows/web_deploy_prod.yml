@@ -23,15 +23,6 @@ jobs:
       - name: Create .env file
         run: cp .env.example .env
 
-      - name: Create firebase_options.dart (Optional from secret)
-        env:
-          FIREBASE_OPTIONS: ${{ secrets.FIREBASE_OPTIONS }}
-        run: |
-          if [ -n "$FIREBASE_OPTIONS" ]; then
-            python3 -c "import os; open('lib/firebase_options.dart', 'w').write(os.environ['FIREBASE_OPTIONS'])"
-            dart format lib/firebase_options.dart
-          fi
-
       - name: Install dependencies
         run: flutter pub get
 
