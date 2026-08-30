@@ -1,9 +1,9 @@
-# Fastlane → Play Internal (on push) or Internal / Production (manual).
+# Fastlane → Play Internal or Production (manual workflow_dispatch).
 # Android: release signing via GitHub secrets.
-name: Store release (Android)
+name: Android Store Release
 
 concurrency:
-  group: store-release-android-${{ github.ref }}
+  group: android-store-release-${{ github.ref }}
   cancel-in-progress: false
 
 on:

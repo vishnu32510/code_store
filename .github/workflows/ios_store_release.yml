@@ -1,9 +1,9 @@
 # Fastlane → TestFlight (`ios_beta`) or App Store submit (`ios_submit_review`).
 # Secrets: MATCH_GIT_URL, MATCH_PASSWORD, optional MATCH_GIT_BASIC_AUTHORIZATION (private HTTPS clone).
-name: Store release (iOS)
+name: iOS Store Release
 
 concurrency:
-  group: store-release-ios-${{ github.ref }}
+  group: ios-store-release-${{ github.ref }}
   cancel-in-progress: false
 
 on:

@@ -2,13 +2,14 @@ name: Flutter CI
 
 on:
   pull_request:
-  # push:
-  #   branches:
-  #     - main
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
   ci:
+    name: Test, Lint & Web Build
     runs-on: ubuntu-latest
 
     steps:
@@ -21,8 +22,30 @@ jobs:
           flutter-version-file: flutter-version.txt
           channel: stable
           cache: true
+
       - name: Create .env file
         run: cp .env.example .env
+
+      - name: Create firebase_options.dart (Optional from secret)
+        env:
+          FIREBASE_OPTIONS: ${{ secrets.FIREBASE_OPTIONS }}
+        run: |
+          if [ -n "$FIREBASE_OPTIONS" ]; then
+            python3 -c "import os; open('lib/firebase_options.dart', 'w').write(os.environ['FIREBASE_OPTIONS'])"
+            dart format lib/firebase_options.dart
+          fi
+
+      - name: Create google-services.json for Android (Optional from secret)
+        env:
+          GOOGLE_SERVICES_JSON_B64: ${{ secrets.GOOGLE_SERVICES_JSON_B64 }}
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          mkdir -p android/app
+          if [ -n "$GOOGLE_SERVICES_JSON_B64" ]; then
+            echo "$GOOGLE_SERVICES_JSON_B64" | base64 -d > android/app/google-services.json
+          elif [ -n "$GOOGLE_SERVICES_JSON" ]; then
+            printf "%s" "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
+          fi
 
       - name: Install dependencies
         run: flutter pub get
@@ -36,3 +59,5 @@ jobs:
       - name: Run tests
         run: flutter test
 
+      - name: Build Web verification
+        run: flutter build web --release --no-tree-shake-icons

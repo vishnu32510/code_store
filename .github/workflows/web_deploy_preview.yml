@@ -1,0 +1,55 @@
+name: Web Deploy Preview (Firebase Hosting PR)
+
+on:
+  # pull_request:
+  #   branches:
+  #     - main
+  #   types:
+  #     - opened
+  #     - synchronize
+  #     - reopened
+  workflow_dispatch:
+
+permissions:
+  checks: write
+  contents: read
+  pull-requests: write
+
+jobs:
+  build_and_preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: flutter-version.txt
+          channel: 'stable'
+          cache: true
+
+      - name: Create .env file
+        run: cp .env.example .env
+
+      - name: Create firebase_options.dart (Optional from secret)
+        env:
+          FIREBASE_OPTIONS: ${{ secrets.FIREBASE_OPTIONS }}
+        run: |
+          if [ -n "$FIREBASE_OPTIONS" ]; then
+            python3 -c "import os; open('lib/firebase_options.dart', 'w').write(os.environ['FIREBASE_OPTIONS'])"
+            dart format lib/firebase_options.dart
+          fi
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Flutter web
+        run: flutter build web --release --no-tree-shake-icons
+
+      - name: Deploy preview to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_CODE_STORE || secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          projectId: code-store001

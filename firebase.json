@@ -1,1 +1,85 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"code-store001","appId":"1:377191190351:android:233541ebd8d141b4a1bf3a","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"code-store001","appId":"1:377191190351:ios:963219e0f0467bffa1bf3a","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"code-store001","configurations":{"android":"1:377191190351:android:233541ebd8d141b4a1bf3a","ios":"1:377191190351:ios:963219e0f0467bffa1bf3a","web":"1:377191190351:web:171f7d5c4bed7c74a1bf3a"}}}}}}
+{
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "headers": [
+      {
+        "source": "**",
+        "headers": [
+          {
+            "key": "Cross-Origin-Opener-Policy",
+            "value": "same-origin"
+          },
+          {
+            "key": "Cross-Origin-Embedder-Policy",
+            "value": "credentialless"
+          },
+          {
+            "key": "Access-Control-Allow-Origin",
+            "value": "*"
+          },
+          {
+            "key": "Cross-Origin-Resource-Policy",
+            "value": "cross-origin"
+          }
+        ]
+      },
+      {
+        "source": "**/*.@(otf|ttf|woff|woff2)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=31536000, immutable"
+          },
+          {
+            "key": "Access-Control-Allow-Origin",
+            "value": "*"
+          },
+          {
+            "key": "Cross-Origin-Resource-Policy",
+            "value": "cross-origin"
+          }
+        ]
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "code-store001",
+          "appId": "1:377191190351:android:233541ebd8d141b4a1bf3a",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "code-store001",
+          "appId": "1:377191190351:ios:963219e0f0467bffa1bf3a",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "code-store001",
+          "configurations": {
+            "android": "1:377191190351:android:233541ebd8d141b4a1bf3a",
+            "ios": "1:377191190351:ios:963219e0f0467bffa1bf3a",
+            "web": "1:377191190351:web:171f7d5c4bed7c74a1bf3a"
+          }
+        }
+      }
+    }
+  }
+}
