@@ -33,6 +33,8 @@ dependencies:
     path: packages/code_store_permissions
   code_store_secure_storage:
     path: packages/code_store_secure_storage
+  code_store_connectivity:
+    path: packages/code_store_connectivity
 
   # State management (used directly in app feature code)
   bloc: ^9.2.1

@@ -10,6 +10,7 @@ import '../../features/flashlight/flashlight_screen.dart';
 import '../../features/home/dashboard_screen.dart';
 import '../../features/home_widget/home_widget_screen.dart';
 import '../../features/notifications/notifications_screen.dart';
+import '../../features/connectivity/connectivity_screen.dart';
 import '../../features/permissions/permissions_screen.dart';
 import '../../features/secure_storage/secure_storage_screen.dart';
 
@@ -22,6 +23,7 @@ class AppRoutes {
   static const String biometrics = '/biometrics';
   static const String permissions = '/permissions';
   static const String secureStorage = '/secure-storage';
+  static const String connectivity = '/connectivity';
 }
 
 class AppRouter {
@@ -64,6 +66,10 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.secureStorage,
         builder: (context, state) => const SecureStorageScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.connectivity,
+        builder: (context, state) => const ConnectivityScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {

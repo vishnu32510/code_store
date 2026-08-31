@@ -118,6 +118,18 @@ class AppDrawer extends StatelessWidget {
                       context.push(AppRoutes.secureStorage);
                     },
                   ),
+                  const SizedBox(height: 4),
+                  _buildDrawerItem(
+                    context,
+                    icon: Icons.wifi_rounded,
+                    title: 'Network & Connectivity',
+                    subtitle: 'Live Status, Ping & Offline Banner',
+                    isSelected: false,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      context.push(AppRoutes.connectivity);
+                    },
+                  ),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 8),
                     child: Divider(),
