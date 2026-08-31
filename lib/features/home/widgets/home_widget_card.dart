@@ -58,7 +58,10 @@ class _HomeWidgetCardState extends State<HomeWidgetCard> {
       }
     } catch (e) {
       if (mounted) {
-        getIt<IToastService>().showError('Failed to sync widget: $e');
+        final message = e is UnsupportedError
+            ? (e.message ?? 'Home widgets are not supported on this platform.')
+            : 'Failed to sync widget: $e';
+        getIt<IToastService>().showError(message);
       }
     } finally {
       if (mounted) setState(() => _isSyncing = false);
@@ -96,7 +99,10 @@ class _HomeWidgetCardState extends State<HomeWidgetCard> {
       }
     } catch (e) {
       if (mounted) {
-        getIt<IToastService>().showError('Render failed: $e');
+        final message = e is UnsupportedError
+            ? (e.message ?? 'Home widgets are not supported on this platform.')
+            : 'Render failed: $e';
+        getIt<IToastService>().showError(message);
       }
     } finally {
       if (mounted) setState(() => _isRendering = false);

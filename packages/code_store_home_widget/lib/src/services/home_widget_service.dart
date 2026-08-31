@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:home_widget/home_widget.dart';
 
@@ -24,6 +25,22 @@ class HomeWidgetService {
   String? _defaultIOSName;
   bool _initialized = false;
 
+  /// Whether the current platform supports native Home Screen Widgets (Android & iOS).
+  static bool get isPlatformSupported {
+    if (kIsWeb) return false;
+    return defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS;
+  }
+
+  /// Throws an [UnsupportedError] if called on a platform that does not support home widgets.
+  void _ensurePlatformSupported() {
+    if (!isPlatformSupported) {
+      throw UnsupportedError(
+        'Home widgets are only supported on Android and iOS.',
+      );
+    }
+  }
+
   /// Whether the service has been initialized with platform configuration.
   bool get isInitialized => _initialized;
 
@@ -31,12 +48,16 @@ class HomeWidgetService {
   String? get appGroupId => _appGroupId;
 
   /// Stream of raw URIs triggered when a user taps a widget on their home screen.
-  Stream<Uri?> get widgetClickedStream => HomeWidget.widgetClicked;
+  Stream<Uri?> get widgetClickedStream => isPlatformSupported
+      ? HomeWidget.widgetClicked
+      : const Stream.empty();
 
   /// Stream of parsed [WidgetAction] events triggered when a user taps a widget.
-  Stream<WidgetAction> get onActionTriggered => HomeWidget.widgetClicked
-      .where((uri) => uri != null)
-      .map((uri) => WidgetAction.fromUri(uri!));
+  Stream<WidgetAction> get onActionTriggered => isPlatformSupported
+      ? HomeWidget.widgetClicked
+          .where((uri) => uri != null)
+          .map((uri) => WidgetAction.fromUri(uri!))
+      : const Stream.empty();
 
   /// Initializes the Home Widget service with optional app group and widget identifiers.
   Future<void> initialize({
@@ -44,6 +65,8 @@ class HomeWidgetService {
     String? defaultAndroidName,
     String? defaultIOSName,
   }) async {
+    if (!isPlatformSupported) return;
+
     if (appGroupId != null) {
       _appGroupId = appGroupId;
       await HomeWidget.setAppGroupId(appGroupId);
@@ -59,6 +82,7 @@ class HomeWidgetService {
 
   /// Checks if the app was launched from a home screen widget and returns the parsed [WidgetAction].
   Future<WidgetAction?> getInitialAction() async {
+    if (!isPlatformSupported) return null;
     final uri = await HomeWidget.initiallyLaunchedFromHomeWidget();
     if (uri == null) return null;
     return WidgetAction.fromUri(uri);
@@ -66,6 +90,7 @@ class HomeWidgetService {
 
   /// Retrieves the raw URI that launched the app if opened from a widget.
   Future<Uri?> getInitiallyLaunchedUri() async {
+    if (!isPlatformSupported) return null;
     return await HomeWidget.initiallyLaunchedFromHomeWidget();
   }
 
@@ -162,6 +187,7 @@ class HomeWidgetService {
 
   /// 4. Saves a single typed value to shared storage.
   Future<bool> saveData<T>(String key, T value) async {
+    _ensurePlatformSupported();
     if (value is String) {
       return await HomeWidget.saveWidgetData<String>(key, value) ?? false;
     } else if (value is int) {
@@ -177,6 +203,7 @@ class HomeWidgetService {
 
   /// Reads a value from shared widget storage.
   Future<T?> getData<T>(String key, {T? defaultValue}) async {
+    _ensurePlatformSupported();
     return await HomeWidget.getWidgetData<T>(key, defaultValue: defaultValue);
   }
 
@@ -187,6 +214,7 @@ class HomeWidgetService {
     String? iOSName,
     String? qualifiedAndroidName,
   }) async {
+    _ensurePlatformSupported();
     final map = payload.toMap();
     for (final entry in map.entries) {
       await saveData(entry.key, entry.value);
@@ -204,6 +232,7 @@ class HomeWidgetService {
     String? iOSName,
     String? qualifiedAndroidName,
   }) async {
+    _ensurePlatformSupported();
     final targetAndroid = androidName ?? _defaultAndroidName;
     final targetIOS = iOSName ?? _defaultIOSName;
 
@@ -222,6 +251,7 @@ class HomeWidgetService {
     Size logicalSize = const Size(320, 160),
     double pixelRatio = 3.0,
   }) async {
+    _ensurePlatformSupported();
     return await HomeWidget.renderFlutterWidget(
       widget,
       key: key,
@@ -234,6 +264,7 @@ class HomeWidgetService {
   Future<bool> registerInteractivityCallback(
     FutureOr<void> Function(Uri?) callback,
   ) async {
+    _ensurePlatformSupported();
     return await HomeWidget.registerInteractivityCallback(callback) ?? false;
   }
 }
