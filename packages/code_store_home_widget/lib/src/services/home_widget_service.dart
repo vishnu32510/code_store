@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 import 'package:home_widget/home_widget.dart';
 
 import '../models/home_widget_payload.dart';
@@ -157,35 +156,7 @@ class HomeWidgetService {
     return true;
   }
 
-  /// 3. Render any Flutter [widget] off-screen to an image and synchronize to native widgets.
-  Future<String?> renderAndSync({
-    required Widget widget,
-    String key = 'home_widget_image',
-    Size logicalSize = const Size(320, 160),
-    double pixelRatio = 3.0,
-    String? actionUri,
-    bool update = true,
-    String? androidName,
-    String? iOSName,
-  }) async {
-    final path = await renderFlutterWidget(
-      widget: widget,
-      key: key,
-      logicalSize: logicalSize,
-      pixelRatio: pixelRatio,
-    );
-
-    if (actionUri != null) {
-      await saveData<String>('${key}_action_uri', actionUri);
-    }
-
-    if (update && path != null) {
-      await updateWidget(androidName: androidName, iOSName: iOSName);
-    }
-    return path;
-  }
-
-  /// 4. Saves a single typed value to shared storage.
+  /// 3. Saves a single typed value to shared storage.
   Future<bool> saveData<T>(String key, T value) async {
     _ensurePlatformSupported();
     if (value is String) {
@@ -242,22 +213,6 @@ class HomeWidgetService {
           qualifiedAndroidName: qualifiedAndroidName,
         ) ??
         false;
-  }
-
-  /// Renders a Flutter [widget] off-screen to an image file and saves the image path to shared storage under [key].
-  Future<String?> renderFlutterWidget({
-    required Widget widget,
-    required String key,
-    Size logicalSize = const Size(320, 160),
-    double pixelRatio = 3.0,
-  }) async {
-    _ensurePlatformSupported();
-    return await HomeWidget.renderFlutterWidget(
-      widget,
-      key: key,
-      logicalSize: logicalSize,
-      pixelRatio: pixelRatio,
-    );
   }
 
   /// Registers an interactive background callback (for interactive widgets on iOS 17+ and Android).

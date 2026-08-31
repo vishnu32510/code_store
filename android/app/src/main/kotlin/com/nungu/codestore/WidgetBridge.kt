@@ -2,14 +2,11 @@ package com.nungu.codestore
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import es.antonborri.home_widget.HomeWidgetPlugin
-import java.io.File
 
 /**
- * Universal communication bridge for decoding Flutter data, JSON, and image assets in Android AppWidgets / Glance.
+ * Universal communication bridge for decoding Flutter structured models and values in Android AppWidgets / Glance.
  */
 object WidgetBridge {
 
@@ -64,28 +61,16 @@ object WidgetBridge {
     }
 
     /**
-     * Reads the file path of an off-screen Flutter rendered image snapshot.
-     */
-    fun getImagePath(context: Context, key: String): String? {
-        val path = getString(context, key, "")
-        if (path.isEmpty() || !File(path).exists()) return null
-        return path
-    }
-
-    /**
-     * Decodes and loads an off-screen Flutter rendered image snapshot as a Bitmap.
-     */
-    fun getImageBitmap(context: Context, key: String): Bitmap? {
-        val path = getImagePath(context, key) ?: return null
-        return BitmapFactory.decodeFile(path)
-    }
-
-    /**
      * Retrieves an action URI for deep linking when the widget is clicked.
      */
     fun getActionUri(context: Context, key: String): Uri? {
         val uriString = getString(context, "${key}_action_uri", "")
+            .ifEmpty { getString(context, key, "") }
         if (uriString.isEmpty()) return null
-        return Uri.parse(uriString)
+        return try {
+            Uri.parse(uriString)
+        } catch (e: Exception) {
+            null
+        }
     }
 }

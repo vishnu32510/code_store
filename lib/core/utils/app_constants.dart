@@ -23,10 +23,11 @@ abstract class AppConstants {
       dotenv.get('APP_GROUP_ID', fallback: 'group.com.nungu.codestore');
 
   /// Android AppWidget provider class name.
-  static String get homeWidgetAndroidName => 'HomeWidgetProvider';
+  static String get homeWidgetAndroidName =>
+      'AppStatusWidgetHomeWidgetReceiver';
 
-  /// iOS Widget Extension bundle name.
-  static String get homeWidgetIOSName => 'CodeStoreWidget';
+  /// iOS Widget Extension bundle / kind name.
+  static String get homeWidgetIOSName => 'AppStatusWidgetHomeWidget';
 
   /// Filename prefix for gallery downloads (derived from display name).
   static String get downloadFilePrefix {

@@ -146,20 +146,16 @@ To prevent Xcode from trying to build Flutter SPM plugins (`url_launcher_ios`, `
    );
    ```
 
-2. **App Bootstrap** (`lib/main.dart`):
+2. **App Bootstrap** (`lib/main.dart` or `lib/core/di/injection.dart`):
    ```dart
-   await getIt<HomeWidgetService>().initialize(
-     appGroupId: AppConstants.appGroupId,
-     defaultAndroidName: AppConstants.homeWidgetAndroidName,
-     defaultIOSName: AppConstants.homeWidgetIOSName,
-   );
+   await getIt<HomeWidgetService>().initialize();
    ```
 
 ---
 
 ---
 
-## Step 5: Generalized Data & Bridge Synchronization
+## Step 5: Pure Model & Data Synchronization
 
 ### A. Synchronize Structured JSON Models (Dart -> Swift/Kotlin)
 ```dart
@@ -181,24 +177,29 @@ await getIt<HomeWidgetService>().syncModel(
   val profile = WidgetBridge.getString(context, "user_profile")
   ```
 
-### B. Offscreen Flutter Widget -> Image Snapshot
+### B. Synchronize Key-Value Payloads
 ```dart
-final path = await getIt<HomeWidgetService>().renderAndSync(
-  widget: HomeWidgetSnapshotCard(payload: payload),
-  key: 'home_widget_image',
-  actionUri: 'codestore://dashboard',
+// Flutter side:
+await getIt<HomeWidgetService>().syncPayload(
+  HomeWidgetPayload(
+    title: 'CodeStore Status',
+    message: 'All systems operational 🚀',
+    status: 'Active',
+  ),
 );
 ```
 
 * **iOS Native (`Widget.swift`)**:
   ```swift
-  if let image = WidgetBridge.image(forKey: "home_widget_image") {
-      Image(uiImage: image).resizable().scaledToFit()
-  }
+  let title = WidgetBridge.string(forKey: "title", fallback: "CodeStore Status")
+  let message = WidgetBridge.string(forKey: "message", fallback: "All systems operational")
+  let status = WidgetBridge.string(forKey: "status", fallback: "Active")
   ```
-* **Android Native (`WeatherForecastWidgetHomeWidget.kt`)**:
+* **Android Native (`AppStatusWidgetHomeWidget.kt`)**:
   ```kotlin
-  val bitmap = WidgetBridge.getImageBitmap(context, "home_widget_image")
+  val title = WidgetBridge.getString(context, "title", "CodeStore Status")
+  val message = WidgetBridge.getString(context, "message", "All systems operational")
+  val status = WidgetBridge.getString(context, "status", "Active")
   ```
 
 ### C. Listening to Widget Click Actions in Flutter

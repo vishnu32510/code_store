@@ -8,10 +8,12 @@ import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.currentState
 import androidx.glance.layout.Alignment
+import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
@@ -24,7 +26,7 @@ import androidx.glance.text.TextStyle
 import es.antonborri.home_widget.HomeWidgetGlanceState
 import es.antonborri.home_widget.HomeWidgetGlanceStateDefinition
 
-class WeatherForecastWidgetHomeWidget : GlanceAppWidget() {
+class AppStatusWidgetHomeWidget : GlanceAppWidget() {
   override val stateDefinition = HomeWidgetGlanceStateDefinition()
 
   override suspend fun provideGlance(context: Context, id: GlanceId) {
@@ -33,34 +35,71 @@ class WeatherForecastWidgetHomeWidget : GlanceAppWidget() {
 
   @Composable
   private fun WidgetContent(context: Context, currentState: HomeWidgetGlanceState) {
-    val title = WidgetBridge.getString(context, "title", "Weather Forecast")
-    val message = WidgetBridge.getString(context, "message", "Sunny, 72°F")
-    val status = WidgetBridge.getString(context, "status", "NYC")
+    val title = WidgetBridge.getString(context, "title", "CodeStore Status")
+    val message = WidgetBridge.getString(context, "message", "All services operational 🚀")
+    val status = WidgetBridge.getString(context, "status", "Active")
 
     Column(
       modifier = GlanceModifier
         .fillMaxSize()
-        .background(Color(0xFF1E1E2E))
-        .padding(12.dp)
+        .background(Color(0xFF13131A))
+        .padding(14.dp)
     ) {
+      // Header
       Row(
         verticalAlignment = Alignment.CenterVertically
       ) {
         Text(
           text = title,
-          style = TextStyle(color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+          style = TextStyle(
+            color = Color.White,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Bold
+          )
         )
+        Spacer(modifier = GlanceModifier.defaultWeight())
+        Box(
+          modifier = GlanceModifier
+            .background(Color(0x2E4CAF50))
+            .cornerRadius(12.dp)
+            .padding(horizontal = 8.dp, vertical = 2.dp)
+        ) {
+          Text(
+            text = status,
+            style = TextStyle(
+              color = Color(0xFF81C784),
+              fontSize = 10.sp,
+              fontWeight = FontWeight.Bold
+            )
+          )
+        }
       }
-      Spacer(modifier = GlanceModifier.height(4.dp))
+
+      Spacer(modifier = GlanceModifier.height(8.dp))
+
+      // Message
       Text(
         text = message,
-        style = TextStyle(color = Color(0xFFCCCCCC), fontSize = 12.sp)
+        style = TextStyle(
+          color = Color(0xFFB0B0C0),
+          fontSize = 12.sp
+        )
       )
+
       Spacer(modifier = GlanceModifier.defaultWeight())
-      Text(
-        text = status,
-        style = TextStyle(color = Color(0xFF64B5F6), fontSize = 10.sp)
-      )
+
+      // Footer
+      Row(
+        verticalAlignment = Alignment.CenterVertically
+      ) {
+        Text(
+          text = "● Operational",
+          style = TextStyle(
+            color = Color(0xFF81C784),
+            fontSize = 10.sp
+          )
+        )
+      }
     }
   }
 }

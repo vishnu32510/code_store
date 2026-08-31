@@ -14,14 +14,15 @@ class _HomeWidgetCardState extends State<HomeWidgetCard> {
   final _messageController = TextEditingController(
     text: 'All packages & services operational 🚀',
   );
+  final _statusController = TextEditingController(text: 'Active');
   bool _isSyncing = false;
-  bool _isRendering = false;
   DateTime? _lastSyncTime;
 
   @override
   void dispose() {
     _titleController.dispose();
     _messageController.dispose();
+    _statusController.dispose();
     super.dispose();
   }
 
@@ -33,14 +34,16 @@ class _HomeWidgetCardState extends State<HomeWidgetCard> {
       message: _messageController.text.trim().isEmpty
           ? 'No message'
           : _messageController.text.trim(),
-      status: 'Active',
+      status: _statusController.text.trim().isEmpty
+          ? 'Active'
+          : _statusController.text.trim(),
       updatedAt: DateTime.now(),
       badgeCount: 1,
       actionUri: 'codestore://dashboard',
     );
   }
 
-  Future<void> _syncTextData() async {
+  Future<void> _syncData() async {
     setState(() => _isSyncing = true);
     try {
       final service = getIt<HomeWidgetService>();
@@ -51,7 +54,7 @@ class _HomeWidgetCardState extends State<HomeWidgetCard> {
           _lastSyncTime = DateTime.now();
         });
         if (success) {
-          getIt<IToastService>().showSuccess('Home widget text updated!');
+          getIt<IToastService>().showSuccess('Widget data synchronized live!');
         } else {
           getIt<IToastService>().showInfo('Widget sync requested.');
         }
@@ -68,52 +71,10 @@ class _HomeWidgetCardState extends State<HomeWidgetCard> {
     }
   }
 
-  Future<void> _renderAndSyncImage() async {
-    setState(() => _isRendering = true);
-    try {
-      final service = getIt<HomeWidgetService>();
-      final payload = _buildPayload();
-
-      // Render Flutter widget off-screen to image
-      final path = await service.renderFlutterWidget(
-        widget: HomeWidgetSnapshotCard(payload: payload),
-        key: 'home_widget_image',
-        logicalSize: const Size(320, 160),
-        pixelRatio: 3.0,
-      );
-
-      // Trigger native widget refresh
-      await service.updateWidget();
-
-      if (mounted) {
-        setState(() {
-          _lastSyncTime = DateTime.now();
-        });
-        if (path != null) {
-          getIt<IToastService>().showSuccess(
-            'Snapshot rendered & pushed to widget!',
-          );
-        } else {
-          getIt<IToastService>().showInfo('Widget snapshot updated.');
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        final message = e is UnsupportedError
-            ? (e.message ?? 'Home widgets are not supported on this platform.')
-            : 'Render failed: $e';
-        getIt<IToastService>().showError(message);
-      }
-    } finally {
-      if (mounted) setState(() => _isRendering = false);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final payload = _buildPayload();
 
     return Card(
       elevation: 0,
@@ -150,7 +111,7 @@ class _HomeWidgetCardState extends State<HomeWidgetCard> {
                         ),
                       ),
                       Text(
-                        'iOS WidgetKit & Android AppWidget sync',
+                        'Sync live model data to native iOS & Android widgets',
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: colors.onSurfaceVariant.withValues(
                             alpha: 0.75,
@@ -188,7 +149,6 @@ class _HomeWidgetCardState extends State<HomeWidgetCard> {
                 border: OutlineInputBorder(),
                 isDense: true,
               ),
-              onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 12),
             TextField(
@@ -199,60 +159,37 @@ class _HomeWidgetCardState extends State<HomeWidgetCard> {
                 isDense: true,
               ),
               maxLines: 2,
-              onChanged: (_) => setState(() {}),
             ),
-            const SizedBox(height: 16),
-            Text(
-              'Snapshot Preview:',
-              style: theme.textTheme.labelMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: colors.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Center(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(22),
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: HomeWidgetSnapshotCard(payload: payload),
-                ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _statusController,
+              decoration: const InputDecoration(
+                labelText: 'Status Badge (e.g. Active, Operational)',
+                border: OutlineInputBorder(),
+                isDense: true,
               ),
             ),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: _isSyncing ? null : _syncTextData,
-                    icon: _isSyncing
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.sync_rounded, size: 18),
-                    label: const Text('Sync Text'),
-                  ),
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: FilledButton.icon(
+                onPressed: _isSyncing ? null : _syncData,
+                icon: _isSyncing
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Icon(Icons.sync_rounded, size: 20),
+                label: const Text(
+                  'Sync to Home Widget',
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: FilledButton.icon(
-                    onPressed: _isRendering ? null : _renderAndSyncImage,
-                    icon: _isRendering
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Icon(Icons.camera_rounded, size: 18),
-                    label: const Text('Sync Image'),
-                  ),
-                ),
-              ],
+              ),
             ),
           ],
         ),

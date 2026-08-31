@@ -8,7 +8,6 @@ struct Provider: TimelineProvider {
       title: "Weather Forecast",
       message: "Sunny, 72°F in New York",
       status: "NYC",
-      image: nil,
       actionUrl: nil
     )
   }
@@ -24,16 +23,14 @@ struct Provider: TimelineProvider {
   private func createEntry() -> WeatherForecastWidgetHomeWidgetEntry {
     let title = WidgetBridge.string(forKey: "title", fallback: "Weather Forecast")
     let message = WidgetBridge.string(forKey: "message", fallback: "Sunny, 72°F")
-    let status = WidgetBridge.string(forKey: "status", fallback: "Live")
-    let image = WidgetBridge.image(forKey: "home_widget_image")
-    let actionUrl = WidgetBridge.actionUrl(forKey: "home_widget_image") ?? WidgetBridge.actionUrl(forKey: "title")
+    let status = WidgetBridge.string(forKey: "status", fallback: "NYC")
+    let actionUrl = WidgetBridge.actionUrl(forKey: "action_uri") ?? WidgetBridge.actionUrl(forKey: "title")
 
     return WeatherForecastWidgetHomeWidgetEntry(
       date: Date(),
       title: title,
       message: message,
       status: status,
-      image: image,
       actionUrl: actionUrl
     )
   }
@@ -44,7 +41,6 @@ struct WeatherForecastWidgetHomeWidgetEntry: TimelineEntry {
   let title: String
   let message: String
   let status: String
-  let image: UIImage?
   let actionUrl: URL?
 }
 
@@ -52,50 +48,42 @@ struct WeatherForecastWidgetHomeWidgetEntryView: View {
   var entry: Provider.Entry
 
   var body: some View {
-    Group {
-      if let image = entry.image {
-        Image(uiImage: image)
-          .resizable()
-          .scaledToFit()
-      } else {
-        VStack(alignment: .leading, spacing: 6) {
-          HStack {
-            Image(systemName: "sun.max.fill")
-              .foregroundColor(.yellow)
-            Text(entry.title)
-              .font(.system(size: 13, weight: .bold))
-              .foregroundColor(.primary)
-            Spacer()
-            Text(entry.status)
-              .font(.system(size: 10, weight: .semibold))
-              .padding(.horizontal, 6)
-              .padding(.vertical, 2)
-              .background(Color.blue.opacity(0.2))
-              .foregroundColor(.blue)
-              .cornerRadius(6)
-          }
+    VStack(alignment: .leading, spacing: 6) {
+      HStack {
+        Image(systemName: "sun.max.fill")
+          .foregroundColor(.yellow)
+        Text(entry.title)
+          .font(.system(size: 13, weight: .bold))
+          .foregroundColor(.primary)
+        Spacer()
+        Text(entry.status)
+          .font(.system(size: 10, weight: .semibold))
+          .padding(.horizontal, 6)
+          .padding(.vertical, 2)
+          .background(Color.blue.opacity(0.2))
+          .foregroundColor(.blue)
+          .cornerRadius(6)
+      }
 
-          Text(entry.message)
-            .font(.system(size: 12))
-            .foregroundColor(.secondary)
-            .lineLimit(2)
+      Text(entry.message)
+        .font(.system(size: 12))
+        .foregroundColor(.secondary)
+        .lineLimit(2)
 
-          Spacer()
+      Spacer()
 
-          HStack {
-            Text(entry.date, style: .time)
-              .font(.system(size: 10))
-              .foregroundColor(.secondary)
-            Spacer()
-            Text(entry.date, style: .date)
-              .font(.system(size: 9))
-              .foregroundColor(.secondary)
-          }
-        }
-        .padding(12)
-        .applyContainerBackground()
+      HStack {
+        Text(entry.date, style: .time)
+          .font(.system(size: 10))
+          .foregroundColor(.secondary)
+        Spacer()
+        Text(entry.date, style: .date)
+          .font(.system(size: 9))
+          .foregroundColor(.secondary)
       }
     }
+    .padding(12)
+    .applyContainerBackground()
     .widgetURL(entry.actionUrl)
   }
 }
@@ -133,7 +121,6 @@ extension View {
       title: "Weather Forecast",
       message: "Sunny, 72°F in New York",
       status: "NYC",
-      image: nil,
       actionUrl: nil
     )
   )

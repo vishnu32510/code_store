@@ -24,11 +24,7 @@ Future<void> setupDI() async {
 
   // 2. Perform asynchronous startup initializations for registered services
   try {
-    await getIt<HomeWidgetService>().initialize(
-      appGroupId: AppConstants.appGroupId,
-      defaultAndroidName: AppConstants.homeWidgetAndroidName,
-      defaultIOSName: AppConstants.homeWidgetIOSName,
-    );
+    await getIt<HomeWidgetService>().initialize();
   } catch (e) {
     debugPrint('Warning: HomeWidgetService initialization failed: $e');
   }

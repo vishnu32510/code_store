@@ -22,6 +22,12 @@
 		9668B5CB3C9FD4DCFBA132C9 /* Widget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EAFBB18A9456DB3D7946D82 /* Widget.swift */; };
 		E8C419A23E954911BF24C3D0 /* WidgetBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EAFBB18A9456DB3D7946D83 /* WidgetBridge.swift */; };
 		6A0735CBE7D30A1C43B95B61 /* WidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11DDF99052155E132462830A /* WidgetBundle.swift */; };
+		8439E3E721B07926507667B9 /* AppStatusWidgetHomeWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C845DA7843CAE1D15763DD2E /* AppStatusWidgetHomeWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		971C48B2BBEF9B57F3100334 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5AD73F6BF907F3AAD2D6D071 /* WidgetKit.framework */; };
+		86B7144BF2C1EBC275F4AD55 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CBAED286C1A6A173311DCCD4 /* SwiftUI.framework */; };
+		0370AAE37BE17CAC4EE3643D /* Widget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1255DCB0DF47550B2944A88E /* Widget.swift */; };
+		4EAFBB18A9456DB3D7946D86 /* WidgetBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EAFBB18A9456DB3D7946D87 /* WidgetBridge.swift */; };
+		F4A32AE3C9098AECE42E92D5 /* WidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B735428786DDEEB5F5EA936 /* WidgetBundle.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,6 +44,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = E26C745309C89008C48CCF9D;
 			remoteInfo = WeatherForecastWidgetHomeWidget;
+		};
+		94C4D9BEA087DE2B6F20DE98 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 45A9F82B32840300E8CB9AC9;
+			remoteInfo = AppStatusWidgetHomeWidget;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -59,6 +72,17 @@
 			dstSubfolderSpec = 13;
 			files = (
 				A29AA6272195655A6C09EE2D /* WeatherForecastWidgetHomeWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		ACB640E0E147B0CB875328DE /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				8439E3E721B07926507667B9 /* AppStatusWidgetHomeWidget.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -92,6 +116,14 @@
 		4EAFBB18A9456DB3D7946D83 /* WidgetBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetBridge.swift; sourceTree = "<group>"; };
 		11DDF99052155E132462830A /* WidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetBundle.swift; sourceTree = "<group>"; };
 		8315C46758865414DE08E295 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C845DA7843CAE1D15763DD2E /* AppStatusWidgetHomeWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = AppStatusWidgetHomeWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		5AD73F6BF907F3AAD2D6D071 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		CBAED286C1A6A173311DCCD4 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		862715F5B163BF1AEE2B86A7 /* AppStatusWidgetHomeWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AppStatusWidgetHomeWidget.entitlements; sourceTree = "<group>"; };
+		1255DCB0DF47550B2944A88E /* Widget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Widget.swift; sourceTree = "<group>"; };
+		4EAFBB18A9456DB3D7946D87 /* WidgetBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetBridge.swift; sourceTree = "<group>"; };
+		7B735428786DDEEB5F5EA936 /* WidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetBundle.swift; sourceTree = "<group>"; };
+		AE6CAD279758438441D105C1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -116,6 +148,15 @@
 			files = (
 				A1F3BBF31E04D32EFD7AA1E1 /* SwiftUI.framework in Frameworks */,
 				ED11FC3E9C19F7B715CA1224 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2B39A034C355D94396A47836 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				86B7144BF2C1EBC275F4AD55 /* SwiftUI.framework in Frameworks */,
+				971C48B2BBEF9B57F3100334 /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -152,6 +193,8 @@
 				CCA90FDB6B98A2278F43B900 /* Pods */,
 				4A8E3181EBEB3BA6DF11D1E7 /* WeatherForecastWidgetHomeWidget.entitlements */,
 				59ED26D96A5CE0F4979DDCEB /* WeatherForecastWidgetHomeWidget */,
+				862715F5B163BF1AEE2B86A7 /* AppStatusWidgetHomeWidget.entitlements */,
+				7F7E2A2D672F42E434865083 /* AppStatusWidgetHomeWidget */,
 			);
 			sourceTree = "<group>";
 		};
@@ -199,6 +242,17 @@
 			path = WeatherForecastWidgetHomeWidget;
 			sourceTree = "<group>";
 		};
+		7F7E2A2D672F42E434865083 /* AppStatusWidgetHomeWidget */ = {
+			isa = PBXGroup;
+			children = (
+				1255DCB0DF47550B2944A88E /* Widget.swift */,
+				4EAFBB18A9456DB3D7946D87 /* WidgetBridge.swift */,
+				7B735428786DDEEB5F5EA936 /* WidgetBundle.swift */,
+				AE6CAD279758438441D105C1 /* Info.plist */,
+			);
+			path = AppStatusWidgetHomeWidget;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -230,12 +284,14 @@
 				97C146EC1CF9000F007C117D /* Resources */,
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
 				2F1475E8361B7473C39984B2 /* Embed Foundation Extensions */,
+				ACB640E0E147B0CB875328DE /* Embed Foundation Extensions */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				45A2D0A7F076F6426DDF3C05 /* PBXTargetDependency */,
+				025F026771522E4E22003851 /* PBXTargetDependency */,
 			);
 			name = Runner;
 			packageProductDependencies = (
@@ -261,6 +317,24 @@
 			name = WeatherForecastWidgetHomeWidget;
 			productName = WeatherForecastWidgetHomeWidget;
 			productReference = 888986C01D0899857AA8FF22 /* WeatherForecastWidgetHomeWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		45A9F82B32840300E8CB9AC9 /* AppStatusWidgetHomeWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C88EE390AE493ABD94DE7BD2 /* Build configuration list for PBXNativeTarget "AppStatusWidgetHomeWidget" */;
+			buildPhases = (
+				9737613DB0285B40F7EE1B43 /* Sources */,
+				2B39A034C355D94396A47836 /* Frameworks */,
+				A8D7913E1EECB067856280B8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			
+			name = AppStatusWidgetHomeWidget;
+			productName = AppStatusWidgetHomeWidget;
+			productReference = C845DA7843CAE1D15763DD2E /* AppStatusWidgetHomeWidget.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
@@ -302,6 +376,7 @@
 				97C146ED1CF9000F007C117D /* Runner */,
 				331C8080294A63A400263BE5 /* RunnerTests */,
 				E26C745309C89008C48CCF9D /* WeatherForecastWidgetHomeWidget */,
+				45A9F82B32840300E8CB9AC9 /* AppStatusWidgetHomeWidget */,
 			);
 		};
 /* End PBXProject section */
@@ -327,6 +402,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		E007D69284530EA784F8A600 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A8D7913E1EECB067856280B8 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -397,6 +479,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9737613DB0285B40F7EE1B43 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0370AAE37BE17CAC4EE3643D /* Widget.swift in Sources */,
+				4EAFBB18A9456DB3D7946D86 /* WidgetBridge.swift in Sources */,
+				F4A32AE3C9098AECE42E92D5 /* WidgetBundle.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -409,6 +501,11 @@
 			isa = PBXTargetDependency;
 			target = E26C745309C89008C48CCF9D /* WeatherForecastWidgetHomeWidget */;
 			targetProxy = 5D46DB12BB2B2A53FC953160 /* PBXContainerItemProxy */;
+		};
+		025F026771522E4E22003851 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 45A9F82B32840300E8CB9AC9 /* AppStatusWidgetHomeWidget */;
+			targetProxy = 94C4D9BEA087DE2B6F20DE98 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -810,6 +907,100 @@
 			};
 			name = Profile;
 		};
+		AEDD7129EF6CA324A147A45B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9740EEB21CF90195004384FC /* Debug.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = AppStatusWidgetHomeWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = KU4MTZR6YX;
+				CURRENT_PROJECT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Flutter",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				INFOPLIST_FILE = AppStatusWidgetHomeWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = AppStatusWidgetHomeWidget;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nungu.codestore.AppStatusWidgetHomeWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F7BD9C573066F3FA5A18BC31 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = AppStatusWidgetHomeWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = KU4MTZR6YX;
+				CURRENT_PROJECT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Flutter",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				INFOPLIST_FILE = AppStatusWidgetHomeWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = AppStatusWidgetHomeWidget;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nungu.codestore.AppStatusWidgetHomeWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		BA7609530B678ACAC14636C9 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = AppStatusWidgetHomeWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = KU4MTZR6YX;
+				CURRENT_PROJECT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Flutter",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				INFOPLIST_FILE = AppStatusWidgetHomeWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = AppStatusWidgetHomeWidget;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nungu.codestore.AppStatusWidgetHomeWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Profile;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -849,6 +1040,16 @@
 				0A4C2FFD03F7F1346FC57623 /* Debug */,
 				DF6FF0B7D287E98659B14F65 /* Release */,
 				49710D1B5AFD18F66C528B9D /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C88EE390AE493ABD94DE7BD2 /* Build configuration list for PBXNativeTarget "AppStatusWidgetHomeWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AEDD7129EF6CA324A147A45B /* Debug */,
+				F7BD9C573066F3FA5A18BC31 /* Release */,
+				BA7609530B678ACAC14636C9 /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
