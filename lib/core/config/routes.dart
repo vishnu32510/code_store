@@ -4,6 +4,7 @@ import 'package:code_store_core/code_store_core.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/biometrics/biometrics_screen.dart';
 import '../../features/common/not_found_screen.dart';
 import '../../features/flashlight/flashlight_screen.dart';
 import '../../features/home/dashboard_screen.dart';
@@ -16,6 +17,7 @@ class AppRoutes {
   static const String homeWidget = '/home-widget';
   static const String login = '/login';
   static const String notifications = '/notifications';
+  static const String biometrics = '/biometrics';
 }
 
 class AppRouter {
@@ -32,9 +34,7 @@ class AppRouter {
     navigatorKey: _rootNavigatorKey,
     initialLocation: AppRoutes.dashboard,
     observers: [getIt<FirebaseAnalyticsObserver>()],
-    errorBuilder: (context, state) => NotFoundScreen(
-      uri: state.uri.toString(),
-    ),
+    errorBuilder: (context, state) => NotFoundScreen(uri: state.uri.toString()),
     routes: <RouteBase>[
       GoRoute(path: '/', redirect: (_, _) => AppRoutes.dashboard),
       GoRoute(
@@ -48,6 +48,10 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.notifications,
         builder: (context, state) => const NotificationsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.biometrics,
+        builder: (context, state) => const BiometricsScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {

@@ -53,6 +53,8 @@
 	<string>Camera access is required to control the device flashlight and torch features.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Photo library access is required to download and save images to your device gallery.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Authenticate securely using Face ID or Touch ID.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Photo library access is required to select, preview, and save photos within the app.</string>
 	<key>UIApplicationSceneManifest</key>

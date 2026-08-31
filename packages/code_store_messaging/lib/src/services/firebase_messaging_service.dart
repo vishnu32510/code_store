@@ -19,9 +19,9 @@ class FirebaseMessagingService implements IMessagingService {
   FirebaseMessagingService({
     FirebaseMessaging? messaging,
     ILocalNotificationService? localNotifications,
-  })  : _messaging = messaging ?? FirebaseMessaging.instance,
-        _localNotifications =
-            localNotifications ?? FlutterLocalNotificationService();
+  }) : _messaging = messaging ?? FirebaseMessaging.instance,
+       _localNotifications =
+           localNotifications ?? FlutterLocalNotificationService();
 
   final FirebaseMessaging _messaging;
   final ILocalNotificationService _localNotifications;
@@ -195,7 +195,9 @@ class FirebaseMessagingService implements IMessagingService {
     try {
       final initialMessage = await _messaging.getInitialMessage();
       if (initialMessage != null) {
-        final payload = PushNotificationPayload.fromRemoteMessage(initialMessage);
+        final payload = PushNotificationPayload.fromRemoteMessage(
+          initialMessage,
+        );
         _messageOpenedAppController.add(payload);
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _dispatchNotificationTap(payload);

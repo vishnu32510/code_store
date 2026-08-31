@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import 'local_notification_payload.dart';
 
 /// Represents an interactive button displayed on a local notification banner.

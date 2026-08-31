@@ -7,6 +7,7 @@ import 'core/di/injection.dart';
 import 'core/utils/app_constants.dart';
 
 import 'package:code_store_auth/code_store_auth.dart';
+import 'package:code_store_biometrics/code_store_biometrics.dart';
 import 'package:code_store_messaging/code_store_messaging.dart';
 import 'package:code_store_theme/code_store_theme.dart';
 
@@ -59,7 +60,15 @@ class MyApp extends StatelessWidget {
                   showNotificationPermissionPrompt(navContext);
                 }
               },
-              child: child,
+              child: BiometricLockGate(
+                shouldLock: () {
+                  final authState = context.read<AuthenticationBloc>().state;
+                  return authState.status ==
+                          AuthenticationStatus.authenticated &&
+                      authState.user.isNotEmpty;
+                },
+                child: child,
+              ),
             );
           },
         );

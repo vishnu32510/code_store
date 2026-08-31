@@ -82,6 +82,18 @@ class AppDrawer extends StatelessWidget {
                       context.push(AppRoutes.notifications);
                     },
                   ),
+                  const SizedBox(height: 4),
+                  _buildDrawerItem(
+                    context,
+                    icon: Icons.fingerprint_rounded,
+                    title: 'Biometric Auth',
+                    subtitle: 'Face ID, Touch ID & App Lock',
+                    isSelected: false,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      context.push(AppRoutes.biometrics);
+                    },
+                  ),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 8),
                     child: Divider(),

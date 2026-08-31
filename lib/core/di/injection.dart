@@ -1,6 +1,7 @@
 import 'package:code_store/core/config/routes.dart';
 import 'package:code_store/features/flashlight/flashlight_control_service.dart';
 import 'package:code_store_analytics/code_store_analytics.dart';
+import 'package:code_store_biometrics/code_store_biometrics.dart';
 import 'package:code_store_core/code_store_core.dart';
 import 'package:code_store_home_widget/code_store_home_widget.dart';
 import 'package:code_store_messaging/code_store_messaging.dart';
@@ -13,6 +14,7 @@ Future<void> setupDI() async {
   setupCoreDI(defaultBaseUrl: AppConstants.baseUrl);
   setupAnalyticsDI();
   setupMessagingDI();
+  setupBiometricsDI();
   setupHomeWidgetDI(
     appGroupId: AppConstants.appGroupId,
     defaultAndroidName: AppConstants.homeWidgetAndroidName,

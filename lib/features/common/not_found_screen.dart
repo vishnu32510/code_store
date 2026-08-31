@@ -14,10 +14,7 @@ class NotFoundScreen extends StatelessWidget {
     final colors = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Page Not Found'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Page Not Found'), centerTitle: true),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(

@@ -19,9 +19,9 @@ class FlutterLocalNotificationService implements ILocalNotificationService {
   FlutterLocalNotificationService({
     FlutterLocalNotificationsPlugin? localNotifications,
     Dio? dio,
-  })  : _localNotifications =
-            localNotifications ?? FlutterLocalNotificationsPlugin(),
-        _dio = dio ?? Dio();
+  }) : _localNotifications =
+           localNotifications ?? FlutterLocalNotificationsPlugin(),
+       _dio = dio ?? Dio();
 
   final FlutterLocalNotificationsPlugin _localNotifications;
   final Dio _dio;
@@ -112,8 +112,8 @@ class FlutterLocalNotificationService implements ILocalNotificationService {
           ?.createNotificationChannel(androidChannel);
 
       // Check cold-start launch from a notification
-      final launchDetails =
-          await _localNotifications.getNotificationAppLaunchDetails();
+      final launchDetails = await _localNotifications
+          .getNotificationAppLaunchDetails();
       if (launchDetails != null &&
           launchDetails.didNotificationLaunchApp &&
           launchDetails.notificationResponse != null) {

@@ -1,4 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
 import '../models/local_notification_action.dart';
 import '../models/local_notification_payload.dart';
 
@@ -19,7 +20,8 @@ abstract interface class ILocalNotificationService {
     String defaultAndroidIcon = '@mipmap/ic_launcher',
     String channelId = 'high_importance_channel',
     String channelName = 'High Importance Notifications',
-    String channelDescription = 'This channel is used for important notifications.',
+    String channelDescription =
+        'This channel is used for important notifications.',
     LocalNotificationTapHandler? onNotificationTapped,
     LocalNotificationActionHandler? onActionTapped,
     void Function(String routePath)? onNavigate,
