@@ -18,6 +18,7 @@ abstract interface class IMessagingService {
   /// Initializes push notification listeners, registers background handlers,
   /// initializes timezones, and configures the local notification plugin.
   Future<void> initialize({
+    bool autoRequestPermission = true,
     bool showForegroundNotifications = true,
     String defaultAndroidIcon = '@mipmap/ic_launcher',
     String channelId = 'high_importance_channel',

@@ -39,3 +39,6 @@ export 'src/services/i_messaging_service.dart';
 
 // Background & Utils
 export 'src/utils/messaging_background_handler.dart';
+
+// Widgets & Prompts
+export 'src/widgets/notification_permission_dialog.dart';

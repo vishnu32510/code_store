@@ -50,11 +50,11 @@
 		<string>remote-notification</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
-	<string>Camera access is required for certain app features.</string>
+	<string>Camera access is required to control the device flashlight and torch features.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Photo library save access is used to download images.</string>
+	<string>Photo library access is required to download and save images to your device gallery.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Photo library access is used to choose images.</string>
+	<string>Photo library access is required to select, preview, and save photos within the app.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

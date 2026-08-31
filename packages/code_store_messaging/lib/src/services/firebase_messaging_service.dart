@@ -62,6 +62,7 @@ class FirebaseMessagingService implements IMessagingService {
 
   @override
   Future<void> initialize({
+    bool autoRequestPermission = true,
     bool showForegroundNotifications = true,
     String defaultAndroidIcon = '@mipmap/ic_launcher',
     String channelId = 'high_importance_channel',
@@ -77,6 +78,15 @@ class FirebaseMessagingService implements IMessagingService {
     _channelDescription = channelDescription;
     _onNotificationTapped = onNotificationTapped;
     _onActionTapped = onActionTapped;
+
+    // 0. Auto-request notification permissions across platforms (iOS, Android 13+, Web)
+    if (autoRequestPermission) {
+      try {
+        await requestPermission();
+      } catch (e) {
+        debugPrint('Notice: Auto request permission error: $e');
+      }
+    }
 
     // 1. Initialize Timezones for scheduling
     try {
