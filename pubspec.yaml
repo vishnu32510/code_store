@@ -35,6 +35,12 @@ dependencies:
     path: packages/code_store_secure_storage
   code_store_connectivity:
     path: packages/code_store_connectivity
+  code_store_purchases:
+    path: packages/code_store_purchases
+  code_store_device_info:
+    path: packages/code_store_device_info
+  code_store_share:
+    path: packages/code_store_share
 
   # State management (used directly in app feature code)
   bloc: ^9.2.1

@@ -130,6 +130,42 @@ class AppDrawer extends StatelessWidget {
                       context.push(AppRoutes.connectivity);
                     },
                   ),
+                  const SizedBox(height: 4),
+                  _buildDrawerItem(
+                    context,
+                    icon: Icons.workspace_premium_rounded,
+                    title: 'Subscriptions & Pro',
+                    subtitle: 'RevenueCat In-App Purchases & Paywall',
+                    isSelected: false,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      context.push(AppRoutes.purchases);
+                    },
+                  ),
+                  const SizedBox(height: 4),
+                  _buildDrawerItem(
+                    context,
+                    icon: Icons.info_outline_rounded,
+                    title: 'Device & App Info',
+                    subtitle: 'Diagnostics & Package Metadata',
+                    isSelected: false,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      context.push(AppRoutes.deviceInfo);
+                    },
+                  ),
+                  const SizedBox(height: 4),
+                  _buildDrawerItem(
+                    context,
+                    icon: Icons.share_rounded,
+                    title: 'Share & Referrals',
+                    subtitle: 'Native Share Sheet & Invites',
+                    isSelected: false,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      context.push(AppRoutes.share);
+                    },
+                  ),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 8),
                     child: Divider(),

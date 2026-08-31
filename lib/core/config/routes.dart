@@ -12,7 +12,10 @@ import '../../features/home_widget/home_widget_screen.dart';
 import '../../features/notifications/notifications_screen.dart';
 import '../../features/connectivity/connectivity_screen.dart';
 import '../../features/permissions/permissions_screen.dart';
+import '../../features/device_info/device_info_screen.dart';
+import '../../features/purchases/purchases_screen.dart';
 import '../../features/secure_storage/secure_storage_screen.dart';
+import '../../features/share/share_screen.dart';
 
 class AppRoutes {
   static const String dashboard = '/dashboard';
@@ -24,6 +27,9 @@ class AppRoutes {
   static const String permissions = '/permissions';
   static const String secureStorage = '/secure-storage';
   static const String connectivity = '/connectivity';
+  static const String purchases = '/purchases';
+  static const String deviceInfo = '/device-info';
+  static const String share = '/share';
 }
 
 class AppRouter {
@@ -70,6 +76,18 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.connectivity,
         builder: (context, state) => const ConnectivityScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.purchases,
+        builder: (context, state) => const PurchasesScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.deviceInfo,
+        builder: (context, state) => const DeviceInfoScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.share,
+        builder: (context, state) => const ShareScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
