@@ -1,14 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:dio/dio.dart';
+import 'package:code_store_local_notifications/code_store_local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:timezone/data/latest_all.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
 
 import '../models/notification_action.dart';
 import '../models/push_notification_payload.dart';
@@ -16,18 +12,19 @@ import '../utils/messaging_background_handler.dart';
 import '../utils/web_notification_helper.dart';
 import 'i_messaging_service.dart';
 
-/// Concrete implementation of [IMessagingService] supporting FCM and comprehensive
-/// local notifications features (A to E: scheduling, actionable buttons, rich media, badges, grouping).
+/// Concrete implementation of [IMessagingService] supporting FCM and delegating
+/// local notification features (A to E: scheduling, actionable buttons, rich media, badges, grouping)
+/// to the modular [ILocalNotificationService].
 class FirebaseMessagingService implements IMessagingService {
   FirebaseMessagingService({
     FirebaseMessaging? messaging,
-    FlutterLocalNotificationsPlugin? localNotifications,
-  }) : _messaging = messaging ?? FirebaseMessaging.instance,
-       _localNotifications =
-           localNotifications ?? FlutterLocalNotificationsPlugin();
+    ILocalNotificationService? localNotifications,
+  })  : _messaging = messaging ?? FirebaseMessaging.instance,
+        _localNotifications =
+            localNotifications ?? FlutterLocalNotificationService();
 
   final FirebaseMessaging _messaging;
-  final FlutterLocalNotificationsPlugin _localNotifications;
+  final ILocalNotificationService _localNotifications;
 
   final _foregroundMessageController =
       StreamController<PushNotificationPayload>.broadcast();
@@ -38,6 +35,7 @@ class FirebaseMessagingService implements IMessagingService {
 
   StreamSubscription<RemoteMessage>? _foregroundSubscription;
   StreamSubscription<RemoteMessage>? _messageOpenedAppSubscription;
+  StreamSubscription<LocalNotificationActionResponse>? _actionSubscription;
 
   NotificationTapHandler? _onNotificationTapped;
   NotificationActionHandler? _onActionTapped;
@@ -84,7 +82,7 @@ class FirebaseMessagingService implements IMessagingService {
     _onActionTapped = onActionTapped;
     _onNavigate = onNavigate;
 
-    // 0. Auto-request notification permissions across platforms (iOS, Android 13+, Web)
+    // 0. Auto-request notification permissions across platforms
     if (autoRequestPermission) {
       try {
         await requestPermission();
@@ -93,12 +91,46 @@ class FirebaseMessagingService implements IMessagingService {
       }
     }
 
-    // 1. Initialize Timezones for scheduling
-    try {
-      tz.initializeTimeZones();
-    } catch (e) {
-      debugPrint('Notice: Timezone initialization error: $e');
-    }
+    // 1. Initialize local notification delegate service
+    await _localNotifications.initialize(
+      defaultAndroidIcon: defaultAndroidIcon,
+      channelId: channelId,
+      channelName: channelName,
+      channelDescription: channelDescription,
+      onNotificationTapped: (localPayload) {
+        final payload = PushNotificationPayload(
+          id: localPayload.id,
+          title: localPayload.title,
+          body: localPayload.body,
+          imageUrl: localPayload.imageUrl,
+          data: localPayload.data,
+          sentTime: localPayload.sentTime,
+          category: localPayload.category,
+        );
+        _dispatchNotificationTap(payload);
+      },
+      onActionTapped: (actionResponse) {
+        final resp = NotificationActionResponse(
+          actionId: actionResponse.actionId,
+          userText: actionResponse.userText,
+          payload: actionResponse.payload,
+          rawPayload: actionResponse.rawPayload,
+        );
+        _actionTappedController.add(resp);
+        _onActionTapped?.call(resp);
+      },
+      onNavigate: onNavigate,
+    );
+
+    _actionSubscription = _localNotifications.onActionTapped.listen((action) {
+      final resp = NotificationActionResponse(
+        actionId: action.actionId,
+        userText: action.userText,
+        payload: action.payload,
+        rawPayload: action.rawPayload,
+      );
+      _actionTappedController.add(resp);
+    });
 
     // 2. Register top-level background handler
     try {
@@ -118,10 +150,7 @@ class FirebaseMessagingService implements IMessagingService {
       debugPrint('Notice: setForegroundNotificationPresentationOptions: $e');
     }
 
-    // 4. Initialize local notifications plugin for foreground display, actions, & channels
-    await _setupLocalNotifications(defaultAndroidIcon);
-
-    // 5. Listen to foreground FCM messages
+    // 4. Listen to foreground FCM messages
     _foregroundSubscription = FirebaseMessaging.onMessage.listen((message) {
       final payload = PushNotificationPayload.fromRemoteMessage(message);
       _foregroundMessageController.add(payload);
@@ -129,7 +158,7 @@ class FirebaseMessagingService implements IMessagingService {
       // If requested, display a local heads-up notification in the system tray
       if (showForegroundNotifications && message.notification != null) {
         if (payload.imageUrl != null && payload.imageUrl!.isNotEmpty) {
-          showRichMediaNotification(
+          _localNotifications.showRichMediaNotification(
             id: message.hashCode,
             title: payload.title ?? '',
             body: payload.body ?? '',
@@ -140,7 +169,7 @@ class FirebaseMessagingService implements IMessagingService {
             channelDescription: _channelDescription,
           );
         } else {
-          showLocalNotification(
+          _localNotifications.showLocalNotification(
             id: message.hashCode,
             title: payload.title ?? '',
             body: payload.body ?? '',
@@ -153,7 +182,7 @@ class FirebaseMessagingService implements IMessagingService {
       }
     });
 
-    // 6. Listen to notification clicks when the app is in the background
+    // 5. Listen to notification clicks when the app is in the background
     _messageOpenedAppSubscription = FirebaseMessaging.onMessageOpenedApp.listen(
       (message) {
         final payload = PushNotificationPayload.fromRemoteMessage(message);
@@ -162,7 +191,7 @@ class FirebaseMessagingService implements IMessagingService {
       },
     );
 
-    // 7. Check if app was launched from a terminated state by tapping a notification
+    // 6. Check if app was launched from a terminated state by tapping a notification
     try {
       final initialMessage = await _messaging.getInitialMessage();
       if (initialMessage != null) {
@@ -187,73 +216,14 @@ class FirebaseMessagingService implements IMessagingService {
     }
   }
 
-  Future<void> _setupLocalNotifications(String defaultAndroidIcon) async {
-    if (kIsWeb) return;
-
-    const darwinInitializationSettings = DarwinInitializationSettings(
-      requestAlertPermission: false,
-      requestBadgePermission: false,
-      requestSoundPermission: false,
-    );
-
-    final androidInitializationSettings = AndroidInitializationSettings(
-      defaultAndroidIcon,
-    );
-
-    final initializationSettings = InitializationSettings(
-      android: androidInitializationSettings,
-      iOS: darwinInitializationSettings,
-      macOS: darwinInitializationSettings,
-    );
-
-    await _localNotifications.initialize(
-      initializationSettings,
-      onDidReceiveNotificationResponse: (NotificationResponse response) {
-        PushNotificationPayload? payload;
-        if (response.payload != null && response.payload!.isNotEmpty) {
-          try {
-            final map = jsonDecode(response.payload!) as Map<String, dynamic>;
-            payload = PushNotificationPayload.fromMap(map);
-          } catch (e) {
-            debugPrint('Error parsing notification response payload: $e');
-          }
-        }
-
-        // Check if an action button was clicked vs standard notification body tap
-        if (response.actionId != null && response.actionId!.isNotEmpty) {
-          final actionResponse = NotificationActionResponse(
-            actionId: response.actionId!,
-            userText: response.input,
-            payload: payload,
-            rawPayload: response.payload,
-          );
-          _actionTappedController.add(actionResponse);
-          _onActionTapped?.call(actionResponse);
-        } else if (payload != null) {
-          _dispatchNotificationTap(payload);
-        }
-      },
-    );
-
-    // Create default high-importance notification channel on Android
-    final androidChannel = AndroidNotificationChannel(
-      _channelId,
-      _channelName,
-      description: _channelDescription,
-      importance: Importance.max,
-    );
-
-    await _localNotifications
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >()
-        ?.createNotificationChannel(androidChannel);
-  }
-
   @override
   Future<String?> getToken({String? vapidKey}) async {
     try {
-      return await _messaging.getToken(vapidKey: vapidKey);
+      if (kIsWeb) {
+        final activeKey = vapidKey ?? getWebPushVapidKey();
+        return await _messaging.getToken(vapidKey: activeKey);
+      }
+      return await _messaging.getToken();
     } catch (e) {
       debugPrint('Error retrieving FCM token: $e');
       return null;
@@ -262,12 +232,16 @@ class FirebaseMessagingService implements IMessagingService {
 
   @override
   Future<String?> getAPNSToken() async {
+    if (kIsWeb) return null;
     try {
-      return await _messaging.getAPNSToken();
+      if (defaultTargetPlatform == TargetPlatform.iOS ||
+          defaultTargetPlatform == TargetPlatform.macOS) {
+        return await _messaging.getAPNSToken();
+      }
     } catch (e) {
       debugPrint('Error retrieving APNs token: $e');
-      return null;
     }
+    return null;
   }
 
   @override
@@ -298,12 +272,25 @@ class FirebaseMessagingService implements IMessagingService {
 
   @override
   Future<void> subscribeToTopic(String topic) async {
-    await _messaging.subscribeToTopic(topic);
+    if (kIsWeb) {
+      debugPrint('Notice: Topic subscription is not supported on Web.');
+      return;
+    }
+    try {
+      await _messaging.subscribeToTopic(topic);
+    } catch (e) {
+      debugPrint('Error subscribing to topic "$topic": $e');
+    }
   }
 
   @override
   Future<void> unsubscribeFromTopic(String topic) async {
-    await _messaging.unsubscribeFromTopic(topic);
+    if (kIsWeb) return;
+    try {
+      await _messaging.unsubscribeFromTopic(topic);
+    } catch (e) {
+      debugPrint('Error unsubscribing from topic "$topic": $e');
+    }
   }
 
   @override
@@ -314,7 +301,7 @@ class FirebaseMessagingService implements IMessagingService {
         return PushNotificationPayload.fromRemoteMessage(message);
       }
     } catch (e) {
-      debugPrint('Error retrieving initial FCM message: $e');
+      debugPrint('Error retrieving initial message: $e');
     }
     return null;
   }
@@ -328,44 +315,17 @@ class FirebaseMessagingService implements IMessagingService {
     String? channelId,
     String? channelName,
     String? channelDescription,
-    List<NotificationAction>? actions,
+    List<LocalNotificationAction>? actions,
   }) async {
-    if (kIsWeb) {
-      showWebBrowserNotification(title, body);
-      return;
-    }
-
-    final androidDetails = AndroidNotificationDetails(
-      channelId ?? _channelId,
-      channelName ?? _channelName,
-      channelDescription: channelDescription ?? _channelDescription,
-      importance: Importance.max,
-      priority: Priority.high,
-      showWhen: true,
-      actions: actions != null ? _buildAndroidActions(actions) : null,
-    );
-
-    final iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-      categoryIdentifier: actions != null && actions.isNotEmpty
-          ? 'custom_actions_category'
-          : null,
-    );
-
-    final notificationDetails = NotificationDetails(
-      android: androidDetails,
-      iOS: iosDetails,
-      macOS: iosDetails,
-    );
-
-    await _localNotifications.show(
-      id,
-      title,
-      body,
-      notificationDetails,
+    await _localNotifications.showLocalNotification(
+      id: id,
+      title: title,
+      body: body,
       payload: payload,
+      channelId: channelId,
+      channelName: channelName,
+      channelDescription: channelDescription,
+      actions: actions,
     );
   }
 
@@ -380,42 +340,19 @@ class FirebaseMessagingService implements IMessagingService {
     String? channelName,
     String? channelDescription,
     DateTimeComponents? matchDateTimeComponents,
-    List<NotificationAction>? actions,
+    List<LocalNotificationAction>? actions,
   }) async {
-    if (kIsWeb) return;
-
-    final scheduledTZDate = tz.TZDateTime.from(scheduledDate, tz.local);
-
-    final androidDetails = AndroidNotificationDetails(
-      channelId ?? _channelId,
-      channelName ?? _channelName,
-      channelDescription: channelDescription ?? _channelDescription,
-      importance: Importance.max,
-      priority: Priority.high,
-      actions: actions != null ? _buildAndroidActions(actions) : null,
-    );
-
-    const iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-    );
-
-    final notificationDetails = NotificationDetails(
-      android: androidDetails,
-      iOS: iosDetails,
-      macOS: iosDetails,
-    );
-
-    await _localNotifications.zonedSchedule(
-      id,
-      title,
-      body,
-      scheduledTZDate,
-      notificationDetails,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      matchDateTimeComponents: matchDateTimeComponents,
+    await _localNotifications.scheduleNotification(
+      id: id,
+      title: title,
+      body: body,
+      scheduledDate: scheduledDate,
       payload: payload,
+      channelId: channelId,
+      channelName: channelName,
+      channelDescription: channelDescription,
+      matchDateTimeComponents: matchDateTimeComponents,
+      actions: actions,
     );
   }
 
@@ -430,56 +367,32 @@ class FirebaseMessagingService implements IMessagingService {
     String? channelName,
     String? channelDescription,
   }) async {
-    if (kIsWeb) return;
-
-    final androidDetails = AndroidNotificationDetails(
-      channelId ?? _channelId,
-      channelName ?? _channelName,
-      channelDescription: channelDescription ?? _channelDescription,
-      importance: Importance.max,
-      priority: Priority.high,
-    );
-
-    const iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-    );
-
-    final notificationDetails = NotificationDetails(
-      android: androidDetails,
-      iOS: iosDetails,
-      macOS: iosDetails,
-    );
-
-    await _localNotifications.periodicallyShow(
-      id,
-      title,
-      body,
-      repeatInterval,
-      notificationDetails,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+    await _localNotifications.periodicallyShowNotification(
+      id: id,
+      title: title,
+      body: body,
+      repeatInterval: repeatInterval,
       payload: payload,
+      channelId: channelId,
+      channelName: channelName,
+      channelDescription: channelDescription,
     );
   }
 
   @override
   Future<void> cancelNotification(int id) async {
-    if (kIsWeb) return;
-    await _localNotifications.cancel(id);
+    await _localNotifications.cancelNotification(id);
   }
 
   @override
   Future<void> cancelAllNotifications() async {
-    if (kIsWeb) return;
-    await _localNotifications.cancelAll();
+    await _localNotifications.cancelAllNotifications();
   }
 
   @override
   Future<List<PendingNotificationRequest>>
   getPendingNotificationRequests() async {
-    if (kIsWeb) return const [];
-    return await _localNotifications.pendingNotificationRequests();
+    return await _localNotifications.getPendingNotificationRequests();
   }
 
   @override
@@ -493,99 +406,30 @@ class FirebaseMessagingService implements IMessagingService {
     String? channelId,
     String? channelName,
     String? channelDescription,
-    List<NotificationAction>? actions,
+    List<LocalNotificationAction>? actions,
   }) async {
-    if (kIsWeb) return;
-
-    String? localImagePath;
-    String? localLargeIconPath;
-
-    try {
-      if (imageUrl.startsWith('http')) {
-        localImagePath = await _downloadAndSaveFile(imageUrl, 'rich_media_$id');
-      } else {
-        localImagePath = imageUrl;
-      }
-
-      if (largeIconUrl != null) {
-        if (largeIconUrl.startsWith('http')) {
-          localLargeIconPath = await _downloadAndSaveFile(
-            largeIconUrl,
-            'rich_media_large_$id',
-          );
-        } else {
-          localLargeIconPath = largeIconUrl;
-        }
-      }
-    } catch (e) {
-      debugPrint('Error preparing notification image: $e');
-    }
-
-    final bigPictureStyle = localImagePath != null
-        ? BigPictureStyleInformation(
-            FilePathAndroidBitmap(localImagePath),
-            largeIcon: localLargeIconPath != null
-                ? FilePathAndroidBitmap(localLargeIconPath)
-                : null,
-            contentTitle: title,
-            summaryText: body,
-            hideExpandedLargeIcon: true,
-          )
-        : null;
-
-    final androidDetails = AndroidNotificationDetails(
-      channelId ?? _channelId,
-      channelName ?? _channelName,
-      channelDescription: channelDescription ?? _channelDescription,
-      importance: Importance.max,
-      priority: Priority.high,
-      styleInformation: bigPictureStyle,
-      actions: actions != null ? _buildAndroidActions(actions) : null,
-    );
-
-    final iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-      attachments: localImagePath != null
-          ? [DarwinNotificationAttachment(localImagePath)]
-          : null,
-    );
-
-    final notificationDetails = NotificationDetails(
-      android: androidDetails,
-      iOS: iosDetails,
-      macOS: iosDetails,
-    );
-
-    await _localNotifications.show(
-      id,
-      title,
-      body,
-      notificationDetails,
+    await _localNotifications.showRichMediaNotification(
+      id: id,
+      title: title,
+      body: body,
+      imageUrl: imageUrl,
+      largeIconUrl: largeIconUrl,
       payload: payload,
+      channelId: channelId,
+      channelName: channelName,
+      channelDescription: channelDescription,
+      actions: actions,
     );
   }
 
   @override
   Future<void> setBadgeCount(int count) async {
-    try {
-      // Direct platform channel / darwin badge integration
-      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
-        await _localNotifications
-            .resolvePlatformSpecificImplementation<
-              IOSFlutterLocalNotificationsPlugin
-            >()
-            ?.requestPermissions(badge: true);
-      }
-    } catch (e) {
-      debugPrint('Notice setting badge count: $e');
-    }
+    await _localNotifications.setBadgeCount(count);
   }
 
   @override
   Future<void> clearBadge() async {
-    await setBadgeCount(0);
+    await _localNotifications.clearBadge();
   }
 
   @override
@@ -600,82 +444,36 @@ class FirebaseMessagingService implements IMessagingService {
     String? channelName,
     String? channelDescription,
   }) async {
-    final androidDetails = AndroidNotificationDetails(
-      channelId ?? _channelId,
-      channelName ?? _channelName,
-      channelDescription: channelDescription ?? _channelDescription,
-      importance: Importance.max,
-      priority: Priority.high,
+    await _localNotifications.showGroupedNotification(
+      id: id,
+      title: title,
+      body: body,
       groupKey: groupKey,
       setAsGroupSummary: setAsGroupSummary,
-    );
-
-    final iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-      threadIdentifier: groupKey,
-    );
-
-    final notificationDetails = NotificationDetails(
-      android: androidDetails,
-      iOS: iosDetails,
-      macOS: iosDetails,
-    );
-
-    await _localNotifications.show(
-      id,
-      title,
-      body,
-      notificationDetails,
       payload: payload,
+      channelId: channelId,
+      channelName: channelName,
+      channelDescription: channelDescription,
     );
-  }
-
-  List<AndroidNotificationAction> _buildAndroidActions(
-    List<NotificationAction> actions,
-  ) {
-    return actions.map((action) {
-      final inputs = action.allowFreeFormInput
-          ? <AndroidNotificationActionInput>[
-              AndroidNotificationActionInput(
-                label: action.inputPlaceholder ?? 'Reply...',
-              ),
-            ]
-          : <AndroidNotificationActionInput>[];
-
-      return AndroidNotificationAction(
-        action.id,
-        action.title,
-        showsUserInterface: action.showsUserInterface,
-        cancelNotification: action.isDestructive,
-        inputs: inputs,
-      );
-    }).toList();
-  }
-
-  Future<String> _downloadAndSaveFile(String url, String fileName) async {
-    final directory = await getTemporaryDirectory();
-    final extension = url.contains('.png')
-        ? '.png'
-        : (url.contains('.webp') ? '.webp' : '.jpg');
-    final filePath = '${directory.path}/$fileName$extension';
-    final dio = Dio();
-    await dio.download(url, filePath);
-    return filePath;
   }
 
   @override
   Future<void> deleteToken() async {
-    await _messaging.deleteToken();
+    try {
+      await _messaging.deleteToken();
+    } catch (e) {
+      debugPrint('Error deleting FCM token: $e');
+    }
   }
 
   @override
   void dispose() {
     _foregroundSubscription?.cancel();
     _messageOpenedAppSubscription?.cancel();
+    _actionSubscription?.cancel();
     _foregroundMessageController.close();
     _messageOpenedAppController.close();
     _actionTappedController.close();
+    _localNotifications.dispose();
   }
 }

@@ -23,6 +23,8 @@ dependencies:
     path: packages/code_store_home_widget
   code_store_analytics:
     path: packages/code_store_analytics
+  code_store_local_notifications:
+    path: packages/code_store_local_notifications
   code_store_messaging:
     path: packages/code_store_messaging
 

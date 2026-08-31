@@ -1,5 +1,5 @@
+import 'package:code_store_local_notifications/code_store_local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../models/notification_action.dart';
 import '../models/push_notification_payload.dart';
@@ -16,7 +16,7 @@ typedef NotificationActionHandler = void Function(
 /// scheduling, actionable quick buttons, rich media, and badge management.
 abstract interface class IMessagingService {
   /// Initializes push notification listeners, registers background handlers,
-  /// initializes timezones, and configures the local notification plugin.
+  /// and configures the local notification delegate plugin.
   Future<void> initialize({
     bool autoRequestPermission = true,
     bool showForegroundNotifications = true,

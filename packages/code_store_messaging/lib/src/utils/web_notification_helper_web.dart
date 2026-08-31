@@ -25,3 +25,5 @@ void showWebBrowserNotification(
     debugPrint('Failed to display native Web Notification: $e');
   }
 }
+
+String? getWebPushVapidKey() => null;

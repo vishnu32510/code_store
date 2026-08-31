@@ -1,5 +1,5 @@
+import 'package:code_store_local_notifications/code_store_local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
 
 import '../services/firebase_messaging_service.dart';
@@ -7,16 +7,17 @@ import '../services/i_messaging_service.dart';
 
 /// Registers Push Notification and Firebase Messaging services into [GetIt].
 ///
-/// If [locator] is omitted, [GetIt.instance] is used.
-/// You can pass a custom [messagingInstance], [localNotificationsInstance],
-/// or [customService] for mock / unit testing environments.
+/// Automatically sets up [ILocalNotificationService] if not already registered.
 void setupMessagingDI({
   GetIt? locator,
   FirebaseMessaging? messagingInstance,
-  FlutterLocalNotificationsPlugin? localNotificationsInstance,
+  ILocalNotificationService? localNotificationsInstance,
   IMessagingService? customService,
 }) {
   final di = locator ?? GetIt.instance;
+
+  // 1. Ensure local notifications are registered
+  setupLocalNotificationsDI(sl: di);
 
   if (customService != null) {
     if (!di.isRegistered<IMessagingService>()) {
@@ -26,9 +27,11 @@ void setupMessagingDI({
   }
 
   if (!di.isRegistered<IMessagingService>()) {
+    final localNotifications =
+        localNotificationsInstance ?? di<ILocalNotificationService>();
     final service = FirebaseMessagingService(
       messaging: messagingInstance,
-      localNotifications: localNotificationsInstance,
+      localNotifications: localNotifications,
     );
     di.registerSingleton<IMessagingService>(service);
 

@@ -149,6 +149,13 @@ packages:
       relative: true
     source: path
     version: "1.0.0"
+  code_store_local_notifications:
+    dependency: "direct main"
+    description:
+      path: "packages/code_store_local_notifications"
+      relative: true
+    source: path
+    version: "1.0.0"
   code_store_messaging:
     dependency: "direct main"
     description:

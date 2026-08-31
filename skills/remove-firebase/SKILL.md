@@ -33,6 +33,8 @@ sed -i '' '/GoogleService-Info.plist/d' ios/Runner.xcodeproj/project.pbxproj
 Remove or comment out Firebase packages in `pubspec.yaml` to prevent bloated native builds:
 - `firebase_core`
 - `firebase_auth`
+- `code_store_auth` (or swap with `remove-auth`)
+- `code_store_messaging` (replace with `code_store_local_notifications` if local scheduled reminders or alarms are still needed offline)
 - `cloud_firestore`
 - `google_sign_in`
 - `sign_in_with_apple`

@@ -5,3 +5,5 @@ void showWebBrowserNotification(
   String? icon,
   String? tag,
 }) {}
+
+String? getWebPushVapidKey() => null;

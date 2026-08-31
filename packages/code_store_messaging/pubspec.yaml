@@ -1,5 +1,5 @@
 name: code_store_messaging
-description: "Modular Firebase Messaging & Push Notifications package with DI support, token management, foreground presentation, scheduling, rich media, and background handlers."
+description: "Modular Firebase Messaging & Push Notifications package with DI support, token management, foreground presentation, rich media, and background handlers."
 version: 1.0.0
 publish_to: 'none'
 
@@ -10,12 +10,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  code_store_local_notifications:
+    path: ../code_store_local_notifications
   firebase_core: ^4.13.0
   firebase_messaging: ^16.1.0
-  flutter_local_notifications: ^19.5.0
-  timezone: ^0.10.1
-  dio: ^5.11.0
-  path_provider: ^2.1.5
   get_it: ^9.2.1
   meta: ^1.19.0
   web: ^1.1.1

@@ -1,66 +1,50 @@
-import 'push_notification_payload.dart';
+import 'package:code_store_local_notifications/code_store_local_notifications.dart';
+import 'package:flutter/foundation.dart';
 
-/// Represents an interactive action button attached to a notification banner.
-class NotificationAction {
+/// Interactive action button attached to a notification banner.
+@immutable
+class NotificationAction extends LocalNotificationAction {
   const NotificationAction({
-    required this.id,
-    required this.title,
-    this.isDestructive = false,
-    this.showsUserInterface = true,
-    this.allowFreeFormInput = false,
-    this.inputPlaceholder,
+    required super.id,
+    required super.title,
+    super.icon,
+    super.isDestructive,
+    super.showsUserInterface,
+    super.allowFreeFormInput,
+    super.inputPlaceholder,
   });
 
-  /// Unique identifier for this action (e.g. 'accept_invitation', 'reply').
-  final String id;
-
-  /// Display text on the button.
-  final String title;
-
-  /// Indicates if this action is destructive (e.g. Delete, Decline - red on iOS).
-  final bool isDestructive;
-
-  /// Whether tapping this action opens the app in foreground.
-  final bool showsUserInterface;
-
-  /// Whether to show a text input field on the notification (e.g. Quick Reply).
-  final bool allowFreeFormInput;
-
-  /// Placeholder text for the quick reply input box.
-  final String? inputPlaceholder;
-
-  Map<String, dynamic> toMap() => {
-    'id': id,
-    'title': title,
-    'isDestructive': isDestructive,
-    'showsUserInterface': showsUserInterface,
-    'allowFreeFormInput': allowFreeFormInput,
-    'inputPlaceholder': inputPlaceholder,
-  };
+  factory NotificationAction.fromMap(Map<String, dynamic> map) {
+    final action = LocalNotificationAction.fromMap(map);
+    return NotificationAction(
+      id: action.id,
+      title: action.title,
+      icon: action.icon,
+      isDestructive: action.isDestructive,
+      showsUserInterface: action.showsUserInterface,
+      allowFreeFormInput: action.allowFreeFormInput,
+      inputPlaceholder: action.inputPlaceholder,
+    );
+  }
 }
 
-/// Represents the event fired when a user taps an action button or enters text reply.
-class NotificationActionResponse {
+/// Event fired when a user taps an action button or enters quick reply text.
+@immutable
+class NotificationActionResponse extends LocalNotificationActionResponse {
   const NotificationActionResponse({
-    required this.actionId,
-    this.userText,
-    this.payload,
-    this.rawPayload,
+    required super.actionId,
+    super.userText,
+    super.payload,
+    super.rawPayload,
   });
 
-  /// The ID of the action button tapped.
-  final String actionId;
-
-  /// The text entered by the user if this was a quick reply action.
-  final String? userText;
-
-  /// Parsed push notification payload.
-  final PushNotificationPayload? payload;
-
-  /// Raw JSON payload string.
-  final String? rawPayload;
-
-  @override
-  String toString() =>
-      'NotificationActionResponse(actionId: $actionId, userText: $userText, payload: $payload)';
+  factory NotificationActionResponse.fromMap(Map<String, dynamic> map) {
+    final res = LocalNotificationActionResponse.fromMap(map);
+    return NotificationActionResponse(
+      actionId: res.actionId,
+      userText: res.userText,
+      payload: res.payload,
+      rawPayload: res.rawPayload,
+    );
+  }
 }
