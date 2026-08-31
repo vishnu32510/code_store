@@ -1,6 +1,6 @@
 # `code_store_core`
 
-Modular core foundation package containing reusable utility services (`ToastService`, `DownloadService`, `OpenLinkService`, `HttpServices`, `FlashlightControlService`), global navigator keys, and DI bootstrap.
+Modular core foundation package containing reusable utility services (`ToastService`, `DownloadService`, `OpenLinkService`, `HttpServices`), global navigator keys, and DI bootstrap (`setupCoreDI`).
 
 ---
 
@@ -11,14 +11,8 @@ Depending on the core services used in your app, configure the following native 
 ### 🤖 Android (`android/app/src/main/AndroidManifest.xml`)
 
 ```xml
-<!-- Network for HttpServices & Downloads -->
+<!-- Network for HttpServices (Dio) & Downloads -->
 <uses-permission android:name="android.permission.INTERNET" />
-
-<!-- Flashlight / Torch feature -->
-<uses-feature
-    android:name="android.hardware.camera"
-    android:required="false" />
-<uses-permission android:name="android.permission.CAMERA" />
 
 <!-- URL Launcher Package Visibility (<queries>) -->
 <queries>
@@ -38,10 +32,6 @@ Depending on the core services used in your app, configure the following native 
 ### 🍎 iOS (`ios/Runner/Info.plist`)
 
 ```xml
-<!-- Camera / Torch permission -->
-<key>NSCameraUsageDescription</key>
-<string>Camera access is required for certain app features.</string>
-
 <!-- Gal / Photo Library Save (DownloadService) -->
 <key>NSPhotoLibraryAddUsageDescription</key>
 <string>Photo library save access is used to download images.</string>

@@ -5,14 +5,14 @@ Flutter app skeleton you can copy when starting a new project. It mirrors patter
 ## What is included
 
 - **Packages**:
-  - `packages/code_store_core`: Standalone modular core package containing reusable services (`ToastService`, `DownloadService`, `OpenLinkService`, `FlashlightControlService`, `HttpServices`), utils, extensions, global keys, and DI bootstrap (`setupCoreDI`).
+  - `packages/code_store_core`: Standalone modular core package containing reusable services (`ToastService`, `DownloadService`, `OpenLinkService`, `HttpServices`), utils, extensions, global keys, and DI bootstrap (`setupCoreDI`).
   - `packages/code_store_theme`: Dynamic theme engine with ThemeBloc and zero native dependencies.
   - `packages/code_store_auth`: Modular Firebase authentication package.
   - `packages/code_store_analytics`: Modular Firebase Analytics package with DI registration (`setupAnalyticsDI()`), `IAnalyticsService` interface, `FirebaseAnalyticsObserver` for GoRouter / Navigator screen tracking, and standard event helpers.
   - `packages/code_store_messaging`: Modular Firebase Cloud Messaging (FCM) & Local Push Notifications package with DI (`setupMessagingDI()`), background isolate handler, scheduled & recurring alerts, rich media big picture support, actionable quick reply buttons, badge counts, and Android notification grouping.
   - `packages/code_store_home_widget`: Modular Home Screen Widget engine for iOS (WidgetKit) and Android (Glance / AppWidgets) with payload synchronization, offscreen snapshot rendering, and deep-link routing.
 
-- **Features**: `authentication/`, `theme/`, `home/` (dashboard + home widget test card), `flashlight/`.
+- **Features**: `authentication/`, `theme/`, `home/` (dashboard), `home_widget/` (widget control screen), `flashlight/` (camera/torch feature).
 - **Core Config**: `core/di/injection.dart`, `core/config/routes.dart`, `core/utils/app_constants.dart`.
 - **Env**: `flutter_dotenv` loads `.env` if present (see assets in `pubspec.yaml`).
 

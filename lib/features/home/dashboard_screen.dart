@@ -321,46 +321,6 @@ class DashboardProfileView extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            Card(
-              elevation: 0,
-              color: colors.surfaceContainerLow,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: ListTile(
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 6,
-                ),
-                leading: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: colors.primaryContainer.withValues(alpha: 0.4),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    Icons.widgets_rounded,
-                    color: colors.primary,
-                    size: 22,
-                  ),
-                ),
-                title: Text(
-                  'Home Screen Widgets',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                subtitle: Text(
-                  'Manage iOS WidgetKit & Android Glance sync',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colors.onSurfaceVariant.withValues(alpha: 0.75),
-                  ),
-                ),
-                trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
-                onTap: () => context.push(AppRoutes.homeWidget),
-              ),
-            ),
             const SizedBox(height: 24),
             if (isSignedIn)
               OutlinedButton.icon(
