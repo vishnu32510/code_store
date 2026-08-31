@@ -2,6 +2,7 @@ import '../../../core/config/routes.dart';
 import '../../../core/utils/app_constants.dart';
 
 import 'package:code_store_auth/code_store_auth.dart';
+import 'package:code_store_messaging/code_store_messaging.dart';
 import 'package:code_store_theme/code_store_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -68,6 +69,18 @@ class AppDrawer extends StatelessWidget {
                     onTap: () {
                       Navigator.of(context).pop();
                       context.push(AppRoutes.homeWidget);
+                    },
+                  ),
+                  const SizedBox(height: 4),
+                  _buildDrawerItem(
+                    context,
+                    icon: Icons.notifications_active_rounded,
+                    title: 'Push Notifications',
+                    subtitle: 'Enable alerts & get Web FCM token',
+                    isSelected: false,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      showNotificationPermissionPrompt(context);
                     },
                   ),
                   const Padding(

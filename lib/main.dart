@@ -7,6 +7,7 @@ import 'core/di/injection.dart';
 import 'core/utils/app_constants.dart';
 
 import 'package:code_store_auth/code_store_auth.dart';
+import 'package:code_store_messaging/code_store_messaging.dart';
 import 'package:code_store_theme/code_store_theme.dart';
 
 import 'firebase_options.dart';
@@ -50,7 +51,16 @@ class MyApp extends StatelessWidget {
             if (child == null) {
               return const ColoredBox(color: Colors.black);
             }
-            return AuthenticationListenerWrapper(child: child);
+            return AuthenticationListenerWrapper(
+              onAuthenticated: () {
+                final navContext =
+                    AppRouter.router.routerDelegate.navigatorKey.currentContext;
+                if (navContext != null && navContext.mounted) {
+                  showNotificationPermissionPrompt(navContext);
+                }
+              },
+              child: child,
+            );
           },
         );
       },
