@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../models/app_subscription_package.dart';
 import '../models/customer_entitlement_info.dart';
-import '../models/purchase_result.dart';
 import '../services/i_purchase_service.dart';
 
 /// Interactive Paywall UI presenting subscription tiers, feature checklists, and purchase action.

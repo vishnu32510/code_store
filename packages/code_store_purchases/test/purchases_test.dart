@@ -161,7 +161,9 @@ void main() {
       expect(find.text('Monthly Pro'), findsOneWidget);
       expect(find.text('Annual Pro'), findsOneWidget);
 
-      // Tap to purchase selected annual plan
+      // Ensure button is scrolled into view and tap to purchase
+      await tester.ensureVisible(find.byType(ElevatedButton));
+      await tester.pumpAndSettle();
       await tester.tap(find.byType(ElevatedButton));
       await tester.pumpAndSettle();
 
