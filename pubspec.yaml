@@ -29,6 +29,8 @@ dependencies:
     path: packages/code_store_messaging
   code_store_biometrics:
     path: packages/code_store_biometrics
+  code_store_permissions:
+    path: packages/code_store_permissions
 
   # State management (used directly in app feature code)
   bloc: ^9.2.1

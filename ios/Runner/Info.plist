@@ -55,6 +55,10 @@
 	<string>Photo library access is required to download and save images to your device gallery.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Authenticate securely using Face ID or Touch ID.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Location access is required to deliver localized features and services.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Microphone access is required to record audio and voice messages.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Photo library access is required to select, preview, and save photos within the app.</string>
 	<key>UIApplicationSceneManifest</key>

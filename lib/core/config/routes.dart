@@ -10,6 +10,7 @@ import '../../features/flashlight/flashlight_screen.dart';
 import '../../features/home/dashboard_screen.dart';
 import '../../features/home_widget/home_widget_screen.dart';
 import '../../features/notifications/notifications_screen.dart';
+import '../../features/permissions/permissions_screen.dart';
 
 class AppRoutes {
   static const String dashboard = '/dashboard';
@@ -18,6 +19,7 @@ class AppRoutes {
   static const String login = '/login';
   static const String notifications = '/notifications';
   static const String biometrics = '/biometrics';
+  static const String permissions = '/permissions';
 }
 
 class AppRouter {
@@ -52,6 +54,10 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.biometrics,
         builder: (context, state) => const BiometricsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.permissions,
+        builder: (context, state) => const PermissionsScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {

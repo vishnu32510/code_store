@@ -5,6 +5,7 @@ import 'package:code_store_biometrics/code_store_biometrics.dart';
 import 'package:code_store_core/code_store_core.dart';
 import 'package:code_store_home_widget/code_store_home_widget.dart';
 import 'package:code_store_messaging/code_store_messaging.dart';
+import 'package:code_store_permissions/code_store_permissions.dart';
 import 'package:flutter/widgets.dart';
 
 import '../utils/app_constants.dart';
@@ -15,6 +16,7 @@ Future<void> setupDI() async {
   setupAnalyticsDI();
   setupMessagingDI();
   setupBiometricsDI();
+  setupPermissionsDI();
   setupHomeWidgetDI(
     appGroupId: AppConstants.appGroupId,
     defaultAndroidName: AppConstants.homeWidgetAndroidName,

@@ -94,6 +94,18 @@ class AppDrawer extends StatelessWidget {
                       context.push(AppRoutes.biometrics);
                     },
                   ),
+                  const SizedBox(height: 4),
+                  _buildDrawerItem(
+                    context,
+                    icon: Icons.security_rounded,
+                    title: 'Permissions Manager',
+                    subtitle: 'Camera, Location, Photos & Audio',
+                    isSelected: false,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      context.push(AppRoutes.permissions);
+                    },
+                  ),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 8),
                     child: Divider(),
