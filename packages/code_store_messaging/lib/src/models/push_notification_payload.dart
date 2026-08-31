@@ -41,6 +41,15 @@ class PushNotificationPayload {
   /// Collapse key used by FCM for message consolidation.
   final String? collapseKey;
 
+  /// Extracts and normalizes any routing path embedded in the notification payload (e.g. `data['route']`, `data['payload']`, `data['click_action']`).
+  String? get routePath {
+    final raw = data['route'] ?? data['payload'] ?? data['click_action'];
+    if (raw == null) return null;
+    final str = raw.toString().trim();
+    if (str.isEmpty) return null;
+    return str.startsWith('/') ? str : '/$str';
+  }
+
   /// Creates a [PushNotificationPayload] from a Firebase [RemoteMessage].
   factory PushNotificationPayload.fromRemoteMessage(RemoteMessage message) {
     final notification = message.notification;

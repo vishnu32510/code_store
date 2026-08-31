@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:home_widget/home_widget.dart';
 
 import '../models/home_widget_payload.dart';
@@ -23,6 +24,7 @@ class HomeWidgetService {
   String? _defaultAndroidName;
   String? _defaultIOSName;
   bool _initialized = false;
+  StreamSubscription<WidgetAction>? _actionSubscription;
 
   /// Whether the current platform supports native Home Screen Widgets (Android & iOS).
   static bool get isPlatformSupported {
@@ -57,11 +59,14 @@ class HomeWidgetService {
             .map((uri) => WidgetAction.fromUri(uri!))
       : const Stream.empty();
 
-  /// Initializes the Home Widget service with optional app group and widget identifiers.
+  /// Initializes the Home Widget service with optional app group, widget identifiers,
+  /// and automatic action / navigation listeners for both runtime taps and cold starts.
   Future<void> initialize({
     String? appGroupId,
     String? defaultAndroidName,
     String? defaultIOSName,
+    void Function(WidgetAction action)? onAction,
+    void Function(String routePath)? onNavigate,
   }) async {
     if (!isPlatformSupported) return;
 
@@ -77,6 +82,28 @@ class HomeWidgetService {
       _defaultIOSName = defaultIOSName;
     }
     _initialized = true;
+
+    if (onAction != null || onNavigate != null) {
+      await _actionSubscription?.cancel();
+      _actionSubscription = onActionTriggered.listen((action) {
+        onAction?.call(action);
+        onNavigate?.call(action.routePath);
+      });
+
+      final initialAction = await getInitialAction();
+      if (initialAction != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          onAction?.call(initialAction);
+          onNavigate?.call(initialAction.routePath);
+        });
+      }
+    }
+  }
+
+  /// Closes any active subscriptions.
+  void dispose() {
+    _actionSubscription?.cancel();
+    _actionSubscription = null;
   }
 
   /// Checks if the app was launched from a home screen widget and returns the parsed [WidgetAction].

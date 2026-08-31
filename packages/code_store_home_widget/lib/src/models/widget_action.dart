@@ -19,6 +19,19 @@ class WidgetAction {
   /// Timestamp when the action was captured.
   final DateTime timestamp;
 
+  /// Normalizes and returns a clean, routable path from the URI (e.g. `/notifications`, `/home-widget`).
+  String get routePath {
+    final path = uri.path.trim();
+    if (path.isNotEmpty && path != '/') {
+      return path.startsWith('/') ? path : '/$path';
+    }
+    final host = uri.host.trim();
+    if (host.isNotEmpty) {
+      return '/$host';
+    }
+    return '/';
+  }
+
   /// Creates a [WidgetAction] from a raw [Uri].
   factory WidgetAction.fromUri(Uri uri) {
     final actionId = uri.queryParameters['action'] ?? uri.host;

@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -40,6 +41,7 @@ class FirebaseMessagingService implements IMessagingService {
 
   NotificationTapHandler? _onNotificationTapped;
   NotificationActionHandler? _onActionTapped;
+  void Function(String routePath)? _onNavigate;
   bool _isInitialized = false;
   String _channelId = 'high_importance_channel';
   String _channelName = 'High Importance Notifications';
@@ -72,6 +74,7 @@ class FirebaseMessagingService implements IMessagingService {
         'This channel is used for important notifications.',
     NotificationTapHandler? onNotificationTapped,
     NotificationActionHandler? onActionTapped,
+    void Function(String routePath)? onNavigate,
   }) async {
     if (_isInitialized) return;
     _channelId = channelId;
@@ -79,6 +82,7 @@ class FirebaseMessagingService implements IMessagingService {
     _channelDescription = channelDescription;
     _onNotificationTapped = onNotificationTapped;
     _onActionTapped = onActionTapped;
+    _onNavigate = onNavigate;
 
     // 0. Auto-request notification permissions across platforms (iOS, Android 13+, Web)
     if (autoRequestPermission) {
@@ -154,11 +158,33 @@ class FirebaseMessagingService implements IMessagingService {
       (message) {
         final payload = PushNotificationPayload.fromRemoteMessage(message);
         _messageOpenedAppController.add(payload);
-        _onNotificationTapped?.call(payload);
+        _dispatchNotificationTap(payload);
       },
     );
 
+    // 7. Check if app was launched from a terminated state by tapping a notification
+    try {
+      final initialMessage = await _messaging.getInitialMessage();
+      if (initialMessage != null) {
+        final payload = PushNotificationPayload.fromRemoteMessage(initialMessage);
+        _messageOpenedAppController.add(payload);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _dispatchNotificationTap(payload);
+        });
+      }
+    } catch (e) {
+      debugPrint('Notice: getInitialMessage error: $e');
+    }
+
     _isInitialized = true;
+  }
+
+  void _dispatchNotificationTap(PushNotificationPayload payload) {
+    _onNotificationTapped?.call(payload);
+    if (_onNavigate != null) {
+      final route = payload.routePath ?? '/notifications';
+      _onNavigate?.call(route);
+    }
   }
 
   Future<void> _setupLocalNotifications(String defaultAndroidIcon) async {
@@ -204,8 +230,7 @@ class FirebaseMessagingService implements IMessagingService {
           _actionTappedController.add(actionResponse);
           _onActionTapped?.call(actionResponse);
         } else if (payload != null) {
-          _messageOpenedAppController.add(payload);
-          _onNotificationTapped?.call(payload);
+          _dispatchNotificationTap(payload);
         }
       },
     );

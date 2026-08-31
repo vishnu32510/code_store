@@ -49,6 +49,7 @@ class MockMessagingService implements IMessagingService {
         'This channel is used for important notifications.',
     NotificationTapHandler? onNotificationTapped,
     NotificationActionHandler? onActionTapped,
+    void Function(String routePath)? onNavigate,
   }) async {
     initialized = true;
   }

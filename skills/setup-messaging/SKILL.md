@@ -45,7 +45,7 @@ When triggered, you must perform the following steps:
 
 4. **Verify Dependency Injection Setup**:
    - Check `lib/core/di/injection.dart`.
-   - Ensure `setupMessagingDI()` is called and `getIt<IMessagingService>().initialize()` is called during asynchronous startup in `setupDI()`.
+   - Ensure `setupMessagingDI()` is called and `getIt<IMessagingService>().initialize(onNavigate: (route) => AppRouter.router.go(route))` is called during asynchronous startup in `setupDI()`.
 
 5. **Completion & Verification**:
    - Run `flutter analyze` to confirm zero syntax or configuration errors.

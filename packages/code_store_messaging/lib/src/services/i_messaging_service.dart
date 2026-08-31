@@ -27,6 +27,7 @@ abstract interface class IMessagingService {
         'This channel is used for important notifications.',
     NotificationTapHandler? onNotificationTapped,
     NotificationActionHandler? onActionTapped,
+    void Function(String routePath)? onNavigate,
   });
 
   /// Retrieves the current Firebase Cloud Messaging registration token for this device.

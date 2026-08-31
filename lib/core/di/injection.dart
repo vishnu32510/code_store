@@ -23,64 +23,20 @@ Future<void> setupDI() async {
     () => FlashlightControlService(toast: getIt<IToastService>()),
   );
 
-  // 2. Perform asynchronous startup initializations for registered services
+  // 2. Perform asynchronous startup initializations with centralized route navigation
   try {
-    final homeWidgetService = getIt<HomeWidgetService>();
-    await homeWidgetService.initialize();
-
-    // Listen for widget click actions while app is running
-    homeWidgetService.onActionTriggered.listen((action) {
-      _handleWidgetAction(action);
-    });
-
-    // Check if app was cold-started from a home screen widget
-    final initialAction = await homeWidgetService.getInitialAction();
-    if (initialAction != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _handleWidgetAction(initialAction);
-      });
-    }
+    await getIt<HomeWidgetService>().initialize(
+      onNavigate: (route) => AppRouter.router.go(route),
+    );
   } catch (e) {
     debugPrint('Warning: HomeWidgetService initialization failed: $e');
   }
 
   try {
     await getIt<IMessagingService>().initialize(
-      onNotificationTapped: (payload) {
-        final rawRoute = payload.data['route'] ?? payload.data['payload'];
-        if (rawRoute != null && rawRoute.toString().isNotEmpty) {
-          final target = rawRoute.toString();
-          AppRouter.router.go(target.startsWith('/') ? target : '/$target');
-        } else {
-          AppRouter.router.go(AppRoutes.notifications);
-        }
-      },
+      onNavigate: (route) => AppRouter.router.go(route),
     );
   } catch (e) {
     debugPrint('Warning: MessagingService initialization failed: $e');
-  }
-}
-
-void _handleWidgetAction(WidgetAction action) {
-  final path = action.uri.path;
-  final host = action.uri.host;
-  final raw = path.isNotEmpty
-      ? path
-      : (host.isNotEmpty ? '/$host' : AppRoutes.homeWidget);
-
-  // Normalize common target paths
-  if (raw == '/notifications' || raw == 'notifications') {
-    AppRouter.router.go(AppRoutes.notifications);
-  } else if (raw == '/home-widget' || raw == 'home-widget') {
-    AppRouter.router.go(AppRoutes.homeWidget);
-  } else if (raw == '/flashlight' || raw == 'flashlight') {
-    AppRouter.router.go(AppRoutes.flashlight);
-  } else if (raw == '/dashboard' || raw == 'dashboard') {
-    AppRouter.router.go(AppRoutes.dashboard);
-  } else if (raw == '/login' || raw == 'login') {
-    AppRouter.router.go(AppRoutes.login);
-  } else {
-    // If unknown or custom, navigate to normalized path (GoRouter will route to NotFoundScreen if unmapped)
-    AppRouter.router.go(raw.startsWith('/') ? raw : '/$raw');
   }
 }

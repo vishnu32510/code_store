@@ -146,9 +146,12 @@ To prevent Xcode from trying to build Flutter SPM plugins (`url_launcher_ios`, `
    );
    ```
 
-2. **App Bootstrap** (`lib/main.dart` or `lib/core/di/injection.dart`):
+2. **App Bootstrap** (`lib/core/di/injection.dart`):
    ```dart
-   await getIt<HomeWidgetService>().initialize();
+   // Initializes platform bridge, listens to live taps, and auto-dispatches cold starts
+   await getIt<HomeWidgetService>().initialize(
+     onNavigate: (route) => AppRouter.router.go(route),
+   );
    ```
 
 ---
