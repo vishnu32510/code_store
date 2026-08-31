@@ -9,9 +9,8 @@ import 'i_device_info_service.dart';
 
 /// Concrete implementation of [IDeviceInfoService] wrapping `package_info_plus` and `device_info_plus`.
 class DeviceInfoService implements IDeviceInfoService {
-  DeviceInfoService({
-    DeviceInfoPlugin? deviceInfoPlugin,
-  }) : _deviceInfoPlugin = deviceInfoPlugin ?? DeviceInfoPlugin();
+  DeviceInfoService({DeviceInfoPlugin? deviceInfoPlugin})
+    : _deviceInfoPlugin = deviceInfoPlugin ?? DeviceInfoPlugin();
 
   final DeviceInfoPlugin _deviceInfoPlugin;
   PackageInfo? _cachedPackageInfo;
@@ -47,7 +46,8 @@ class DeviceInfoService implements IDeviceInfoService {
         final androidInfo = await _deviceInfoPlugin.androidInfo;
         deviceModel = '${androidInfo.manufacturer} ${androidInfo.model}';
         osName = 'Android';
-        osVersion = 'SDK ${androidInfo.version.sdkInt} (${androidInfo.version.release})';
+        osVersion =
+            'SDK ${androidInfo.version.sdkInt} (${androidInfo.version.release})';
         isPhysicalDevice = androidInfo.isPhysicalDevice;
       } else if (Platform.isMacOS) {
         final macInfo = await _deviceInfoPlugin.macOsInfo;

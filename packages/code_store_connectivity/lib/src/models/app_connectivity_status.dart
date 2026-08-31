@@ -21,10 +21,7 @@ enum AppConnectivityType {
 /// Normalized connectivity status object.
 @immutable
 class AppConnectivityStatus {
-  const AppConnectivityStatus({
-    required this.types,
-    required this.isConnected,
-  });
+  const AppConnectivityStatus({required this.types, required this.isConnected});
 
   /// The active network interfaces.
   final List<AppConnectivityType> types;
@@ -40,7 +37,9 @@ class AppConnectivityStatus {
 
   /// Primary network interface name.
   String get primaryTypeName {
-    if (!isConnected || types.isEmpty || types.contains(AppConnectivityType.none)) {
+    if (!isConnected ||
+        types.isEmpty ||
+        types.contains(AppConnectivityType.none)) {
       return 'Offline';
     }
     if (types.contains(AppConnectivityType.wifi)) return 'Wi-Fi';
@@ -55,22 +54,24 @@ class AppConnectivityStatus {
       return Icons.wifi_off_rounded;
     }
     if (types.contains(AppConnectivityType.wifi)) return Icons.wifi_rounded;
-    if (types.contains(AppConnectivityType.cellular)) return Icons.signal_cellular_alt_rounded;
+    if (types.contains(AppConnectivityType.cellular))
+      return Icons.signal_cellular_alt_rounded;
     if (types.contains(AppConnectivityType.ethernet)) return Icons.lan_rounded;
     return Icons.cloud_done_rounded;
   }
 
   /// Factory for disconnected offline status.
   factory AppConnectivityStatus.offline() => const AppConnectivityStatus(
-        types: [AppConnectivityType.none],
-        isConnected: false,
-      );
+    types: [AppConnectivityType.none],
+    isConnected: false,
+  );
 
   /// Factory for connected status.
   factory AppConnectivityStatus.online(List<AppConnectivityType> types) =>
       AppConnectivityStatus(
         types: types,
-        isConnected: types.isNotEmpty && !types.contains(AppConnectivityType.none),
+        isConnected:
+            types.isNotEmpty && !types.contains(AppConnectivityType.none),
       );
 
   @override

@@ -71,7 +71,9 @@ class _PaywallViewState extends State<PaywallView> {
       _errorMessage = null;
     });
 
-    final result = await widget.purchaseService.purchasePackage(_selectedPackage!);
+    final result = await widget.purchaseService.purchasePackage(
+      _selectedPackage!,
+    );
 
     if (mounted) {
       setState(() => _isPurchasing = false);
@@ -79,7 +81,8 @@ class _PaywallViewState extends State<PaywallView> {
         widget.onPurchaseCompleted?.call(result.customerInfo!);
       } else if (!result.isCancelled) {
         setState(() {
-          _errorMessage = result.errorMessage ?? 'Purchase could not be completed.';
+          _errorMessage =
+              result.errorMessage ?? 'Purchase could not be completed.';
         });
       }
     }
@@ -127,25 +130,35 @@ class _PaywallViewState extends State<PaywallView> {
           ],
           const SizedBox(height: 24),
           ElevatedButton(
-            onPressed: _isPurchasing || _selectedPackage == null ? null : _handlePurchase,
+            onPressed: _isPurchasing || _selectedPackage == null
+                ? null
+                : _handlePurchase,
             style: ElevatedButton.styleFrom(
               backgroundColor: colors.primary,
               foregroundColor: colors.onPrimary,
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               elevation: 4,
             ),
             child: _isPurchasing
                 ? const SizedBox(
                     height: 20,
                     width: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
                   )
                 : Text(
                     _selectedPackage?.introductoryPriceString != null
                         ? 'Start 7-Day Free Trial'
                         : 'Continue with ${_selectedPackage?.title ?? "Selected Plan"}',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
           ),
           const SizedBox(height: 12),
@@ -153,7 +166,10 @@ class _PaywallViewState extends State<PaywallView> {
             onPressed: _isPurchasing ? null : _handleRestore,
             child: Text(
               'Restore Purchases',
-              style: TextStyle(color: colors.primary, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                color: colors.primary,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
           const SizedBox(height: 8),
@@ -190,7 +206,11 @@ class _PaywallViewState extends State<PaywallView> {
               ),
             ],
           ),
-          child: const Icon(Icons.workspace_premium_rounded, size: 44, color: Colors.white),
+          child: const Icon(
+            Icons.workspace_premium_rounded,
+            size: 44,
+            color: Colors.white,
+          ),
         ),
         const SizedBox(height: 16),
         Text(
@@ -225,12 +245,19 @@ class _PaywallViewState extends State<PaywallView> {
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: Row(
                   children: [
-                    Icon(Icons.check_circle_rounded, color: colors.primary, size: 18),
+                    Icon(
+                      Icons.check_circle_rounded,
+                      color: colors.primary,
+                      size: 18,
+                    ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         feat,
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                   ],
@@ -256,17 +283,23 @@ class _PaywallViewState extends State<PaywallView> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? colors.primary.withValues(alpha: 0.08) : colors.surfaceContainerLow,
+          color: isSelected
+              ? colors.primary.withValues(alpha: 0.08)
+              : colors.surfaceContainerLow,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? colors.primary : colors.outlineVariant.withValues(alpha: 0.5),
+            color: isSelected
+                ? colors.primary
+                : colors.outlineVariant.withValues(alpha: 0.5),
             width: isSelected ? 2 : 1,
           ),
         ),
         child: Row(
           children: [
             Icon(
-              isSelected ? Icons.radio_button_checked_rounded : Icons.radio_button_off_rounded,
+              isSelected
+                  ? Icons.radio_button_checked_rounded
+                  : Icons.radio_button_off_rounded,
               color: isSelected ? colors.primary : colors.outline,
             ),
             const SizedBox(width: 14),
@@ -278,12 +311,18 @@ class _PaywallViewState extends State<PaywallView> {
                     children: [
                       Text(
                         pkg.title,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
                       ),
                       if (pkg.isPopular) ...[
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: colors.primary,
                             borderRadius: BorderRadius.circular(10),

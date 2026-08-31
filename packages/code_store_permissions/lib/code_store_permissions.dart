@@ -2,10 +2,7 @@ library;
 
 // Re-export permission_handler types for consuming apps
 export 'package:permission_handler/permission_handler.dart'
-    show
-        Permission,
-        PermissionStatus,
-        openAppSettings;
+    show Permission, PermissionStatus, openAppSettings;
 
 // DI
 export 'src/di/permissions_injection.dart';

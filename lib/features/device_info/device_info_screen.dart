@@ -136,7 +136,11 @@ class _DeviceInfoScreenState extends State<DeviceInfoScreen> {
               color: colors.primary.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.info_outline_rounded, color: colors.primary, size: 32),
+            child: Icon(
+              Icons.info_outline_rounded,
+              color: colors.primary,
+              size: 32,
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -145,7 +149,10 @@ class _DeviceInfoScreenState extends State<DeviceInfoScreen> {
               children: [
                 Text(
                   _deviceInfo!.appName,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -177,7 +184,10 @@ class _DeviceInfoScreenState extends State<DeviceInfoScreen> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: ListTile(
         leading: Icon(icon, color: colors.primary, size: 22),
-        title: Text(title, style: const TextStyle(fontSize: 13, color: Colors.grey)),
+        title: Text(
+          title,
+          style: const TextStyle(fontSize: 13, color: Colors.grey),
+        ),
         subtitle: Text(
           value,
           style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),

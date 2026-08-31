@@ -65,18 +65,19 @@ class PurchasesService implements IPurchaseService {
   }
 
   @override
-  Future<void> initialize({
-    required String apiKey,
-    String? appUserId,
-  }) async {
+  Future<void> initialize({required String apiKey, String? appUserId}) async {
     if (kIsWeb) {
-      debugPrint('PurchasesService: Web platform uses Stripe / mock entitlements');
+      debugPrint(
+        'PurchasesService: Web platform uses Stripe / mock entitlements',
+      );
       _isConfigured = true;
       return;
     }
 
     if (apiKey.isEmpty || apiKey == 'placeholder_api_key') {
-      debugPrint('PurchasesService: No valid RevenueCat API key provided. Operating in demo mode.');
+      debugPrint(
+        'PurchasesService: No valid RevenueCat API key provided. Operating in demo mode.',
+      );
       _isConfigured = false;
       return;
     }
@@ -118,7 +119,8 @@ class PurchasesService implements IPurchaseService {
           identifier: r'$rc_annual',
           productIdentifier: 'com.codestore.app.pro.annual',
           title: 'Annual Pro',
-          description: 'Save 40% with annual billing. 7-day free trial included.',
+          description:
+              'Save 40% with annual billing. 7-day free trial included.',
           priceString: r'$35.99',
           rawPrice: 35.99,
           currencyCode: 'USD',
@@ -131,7 +133,8 @@ class PurchasesService implements IPurchaseService {
           identifier: r'$rc_lifetime',
           productIdentifier: 'com.codestore.app.pro.lifetime',
           title: 'Lifetime Access',
-          description: 'Pay once, unlock all current and future features forever.',
+          description:
+              'Pay once, unlock all current and future features forever.',
           priceString: r'$99.99',
           rawPrice: 99.99,
           currencyCode: 'USD',
@@ -187,7 +190,9 @@ class PurchasesService implements IPurchaseService {
       final current = offerings.current;
       final rcPackage = current?.availablePackages.firstWhere(
         (p) => p.identifier == package.identifier,
-        orElse: () => throw Exception('Package ${package.identifier} not found in offerings'),
+        orElse: () => throw Exception(
+          'Package ${package.identifier} not found in offerings',
+        ),
       );
 
       if (rcPackage == null) {

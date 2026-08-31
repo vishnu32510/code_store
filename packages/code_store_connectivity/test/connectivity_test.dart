@@ -6,7 +6,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 
 class MockConnectivityService implements IConnectivityService {
-  AppConnectivityStatus _current = AppConnectivityStatus.online([AppConnectivityType.wifi]);
+  AppConnectivityStatus _current = AppConnectivityStatus.online([
+    AppConnectivityType.wifi,
+  ]);
   final _controller = StreamController<AppConnectivityStatus>.broadcast();
 
   void emit(AppConnectivityStatus status) {
@@ -66,7 +68,9 @@ void main() {
       mockService.dispose();
     });
 
-    testWidgets('Displays child when online and banner when offline', (tester) async {
+    testWidgets('Displays child when online and banner when offline', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(

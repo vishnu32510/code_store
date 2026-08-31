@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:code_store_connectivity/code_store_connectivity.dart';
 import 'package:code_store_core/code_store_core.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +12,8 @@ class ConnectivityScreen extends StatefulWidget {
 }
 
 class _ConnectivityScreenState extends State<ConnectivityScreen> {
-  final IConnectivityService _connectivityService = getIt<IConnectivityService>();
+  final IConnectivityService _connectivityService =
+      getIt<IConnectivityService>();
 
   AppConnectivityStatus _currentStatus = AppConnectivityStatus.offline();
   StreamSubscription<AppConnectivityStatus>? _subscription;
@@ -32,7 +34,9 @@ class _ConnectivityScreenState extends State<ConnectivityScreen> {
       setState(() {
         _currentStatus = status;
         _isLoading = false;
-        _addLog('Initial state: ${status.primaryTypeName} (Connected: ${status.isConnected})');
+        _addLog(
+          'Initial state: ${status.primaryTypeName} (Connected: ${status.isConnected})',
+        );
       });
     }
 
@@ -40,14 +44,20 @@ class _ConnectivityScreenState extends State<ConnectivityScreen> {
       if (mounted) {
         setState(() {
           _currentStatus = status;
-          _addLog('Network changed: ${status.primaryTypeName} (Connected: ${status.isConnected})');
+          _addLog(
+            'Network changed: ${status.primaryTypeName} (Connected: ${status.isConnected})',
+          );
         });
       }
     });
   }
 
   void _addLog(String msg) {
-    final time = DateTime.now().toIso8601String().split('T').last.substring(0, 8);
+    final time = DateTime.now()
+        .toIso8601String()
+        .split('T')
+        .last
+        .substring(0, 8);
     _eventLogs.insert(0, '[$time] $msg');
     if (_eventLogs.length > 20) {
       _eventLogs.removeLast();
@@ -148,19 +158,12 @@ class _ConnectivityScreenState extends State<ConnectivityScreen> {
               color: statusColor.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              _currentStatus.icon,
-              size: 48,
-              color: statusColor,
-            ),
+            child: Icon(_currentStatus.icon, size: 48, color: statusColor),
           ),
           const SizedBox(height: 16),
           Text(
             isOnline ? 'Online & Connected' : 'Disconnected (Offline)',
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
           const SizedBox(height: 6),
           Text(
@@ -250,10 +253,7 @@ class _ConnectivityScreenState extends State<ConnectivityScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 3),
                 child: Text(
                   _eventLogs[i],
-                  style: const TextStyle(
-                    fontFamily: 'monospace',
-                    fontSize: 12,
-                  ),
+                  style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
                 ),
               ),
             ),

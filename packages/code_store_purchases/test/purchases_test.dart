@@ -69,7 +69,8 @@ class MockPurchaseService implements IPurchaseService {
       _customerInfo.isEntitled(entitlementId);
 
   @override
-  Future<CustomerEntitlementInfo> logIn(String appUserId) async => _customerInfo;
+  Future<CustomerEntitlementInfo> logIn(String appUserId) async =>
+      _customerInfo;
 
   @override
   Future<CustomerEntitlementInfo> logOut() async {
@@ -79,7 +80,8 @@ class MockPurchaseService implements IPurchaseService {
   }
 
   @override
-  Stream<CustomerEntitlementInfo> get onCustomerInfoUpdated => _controller.stream;
+  Stream<CustomerEntitlementInfo> get onCustomerInfoUpdated =>
+      _controller.stream;
 
   void dispose() {
     _controller.close();
@@ -140,8 +142,9 @@ void main() {
       mockService.dispose();
     });
 
-    testWidgets('Renders offerings, selects package, and triggers purchase',
-        (tester) async {
+    testWidgets('Renders offerings, selects package, and triggers purchase', (
+      tester,
+    ) async {
       CustomerEntitlementInfo? purchasedInfo;
 
       await tester.pumpWidget(

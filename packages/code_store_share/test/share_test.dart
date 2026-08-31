@@ -36,10 +36,7 @@ class MockShareService implements IShareService {
         subject: content.subject,
       );
     } else {
-      await shareText(
-        text: content.fullMessageText,
-        subject: content.subject,
-      );
+      await shareText(text: content.fullMessageText, subject: content.subject);
     }
   }
 }

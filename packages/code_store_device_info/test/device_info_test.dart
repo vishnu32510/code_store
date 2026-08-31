@@ -5,15 +5,15 @@ import 'package:get_it/get_it.dart';
 class MockDeviceInfoService implements IDeviceInfoService {
   @override
   Future<AppDeviceInfo> getDeviceInfo() async => const AppDeviceInfo(
-        appName: 'CodeStore Demo',
-        packageName: 'com.nungu.codestore',
-        version: '1.2.0',
-        buildNumber: '42',
-        deviceModel: 'Test Device',
-        osName: 'iOS',
-        osVersion: '17.4',
-        isPhysicalDevice: false,
-      );
+    appName: 'CodeStore Demo',
+    packageName: 'com.nungu.codestore',
+    version: '1.2.0',
+    buildNumber: '42',
+    deviceModel: 'Test Device',
+    osName: 'iOS',
+    osVersion: '17.4',
+    isPhysicalDevice: false,
+  );
 
   @override
   Future<String> getAppVersion() async => '1.2.0';

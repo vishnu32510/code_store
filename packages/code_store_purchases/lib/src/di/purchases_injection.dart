@@ -4,10 +4,7 @@ import '../services/i_purchase_service.dart';
 import '../services/purchases_service.dart';
 
 /// Registers [IPurchaseService] into the dependency injection locator.
-void setupPurchasesDI({
-  GetIt? locator,
-  IPurchaseService? customService,
-}) {
+void setupPurchasesDI({GetIt? locator, IPurchaseService? customService}) {
   final di = locator ?? GetIt.instance;
 
   if (customService != null) {

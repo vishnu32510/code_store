@@ -38,9 +38,9 @@ class CustomerEntitlementInfo {
 
   /// Empty / Unsubscribed customer info factory.
   factory CustomerEntitlementInfo.empty() => const CustomerEntitlementInfo(
-        activeEntitlements: {},
-        allPurchasedProductIdentifiers: {},
-      );
+    activeEntitlements: {},
+    allPurchasedProductIdentifiers: {},
+  );
 
   @override
   String toString() =>

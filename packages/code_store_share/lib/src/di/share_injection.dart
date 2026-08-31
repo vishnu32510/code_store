@@ -4,10 +4,7 @@ import '../services/i_share_service.dart';
 import '../services/share_service.dart';
 
 /// Registers [IShareService] into the dependency injection locator.
-void setupShareDI({
-  GetIt? locator,
-  IShareService? customService,
-}) {
+void setupShareDI({GetIt? locator, IShareService? customService}) {
   final di = locator ?? GetIt.instance;
 
   if (customService != null) {

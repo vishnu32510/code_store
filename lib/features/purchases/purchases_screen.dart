@@ -77,14 +77,20 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
                   purchaseService: _purchaseService,
                   onPurchaseCompleted: (info) {
                     setState(() => _customerInfo = info);
-                    getIt<IToastService>().showSuccess('Pro subscription activated!');
+                    getIt<IToastService>().showSuccess(
+                      'Pro subscription activated!',
+                    );
                   },
                   onRestoreCompleted: (info) {
                     setState(() => _customerInfo = info);
                     if (info.isPro) {
-                      getIt<IToastService>().showSuccess('Purchases restored successfully!');
+                      getIt<IToastService>().showSuccess(
+                        'Purchases restored successfully!',
+                      );
                     } else {
-                      getIt<IToastService>().showInfo('No active subscriptions found to restore.');
+                      getIt<IToastService>().showInfo(
+                        'No active subscriptions found to restore.',
+                      );
                     }
                   },
                 ),

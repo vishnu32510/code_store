@@ -90,13 +90,19 @@ class _OfflineBannerWrapperState extends State<OfflineBannerWrapper> {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
-                  color: _isOffline ? Colors.redAccent.shade700 : Colors.green.shade700,
+                  color: _isOffline
+                      ? Colors.redAccent.shade700
+                      : Colors.green.shade700,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: (_isOffline ? Colors.red : Colors.green).withValues(alpha: 0.3),
+                      color: (_isOffline ? Colors.red : Colors.green)
+                          .withValues(alpha: 0.3),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -109,7 +115,9 @@ class _OfflineBannerWrapperState extends State<OfflineBannerWrapper> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        _isOffline ? Icons.wifi_off_rounded : Icons.wifi_rounded,
+                        _isOffline
+                            ? Icons.wifi_off_rounded
+                            : Icons.wifi_rounded,
                         color: Colors.white,
                         size: 18,
                       ),

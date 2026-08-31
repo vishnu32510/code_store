@@ -56,8 +56,11 @@ class MyApp extends StatelessWidget {
             return OfflineBannerWrapper(
               child: AuthenticationListenerWrapper(
                 onAuthenticated: () {
-                  final navContext =
-                      AppRouter.router.routerDelegate.navigatorKey.currentContext;
+                  final navContext = AppRouter
+                      .router
+                      .routerDelegate
+                      .navigatorKey
+                      .currentContext;
                   if (navContext != null && navContext.mounted) {
                     showNotificationPermissionPrompt(navContext);
                   }

@@ -1,7 +1,8 @@
 library;
 
 // Re-export share_plus types
-export 'package:share_plus/share_plus.dart' show XFile, ShareResult, ShareResultStatus;
+export 'package:share_plus/share_plus.dart'
+    show XFile, ShareResult, ShareResultStatus;
 
 // DI
 export 'src/di/share_injection.dart';

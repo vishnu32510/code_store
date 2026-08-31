@@ -5,10 +5,7 @@ import '../models/purchase_result.dart';
 /// Abstract contract for RevenueCat in-app subscriptions and entitlement management.
 abstract interface class IPurchaseService {
   /// Initializes the RevenueCat Purchases SDK with the specified [apiKey] and optional [appUserId].
-  Future<void> initialize({
-    required String apiKey,
-    String? appUserId,
-  });
+  Future<void> initialize({required String apiKey, String? appUserId});
 
   /// Fetches available store packages configured in RevenueCat Offerings.
   Future<List<AppSubscriptionPackage>> getOfferings();

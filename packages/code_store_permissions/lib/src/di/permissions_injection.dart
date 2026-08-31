@@ -4,10 +4,7 @@ import '../services/i_permission_service.dart';
 import '../services/permission_service.dart';
 
 /// Registers [IPermissionService] into the dependency injection locator.
-void setupPermissionsDI({
-  GetIt? locator,
-  IPermissionService? customService,
-}) {
+void setupPermissionsDI({GetIt? locator, IPermissionService? customService}) {
   final di = locator ?? GetIt.instance;
 
   if (customService != null) {

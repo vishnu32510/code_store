@@ -55,10 +55,7 @@ class _ShareScreenState extends State<ShareScreen> {
     final colors = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Share & Referrals'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Share & Referrals'), centerTitle: true),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
@@ -96,7 +93,9 @@ class _ShareScreenState extends State<ShareScreen> {
               backgroundColor: colors.primary,
               foregroundColor: colors.onPrimary,
               padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           ),
         ],
@@ -148,7 +147,9 @@ class _ShareScreenState extends State<ShareScreen> {
             style: OutlinedButton.styleFrom(
               foregroundColor: colors.primary,
               side: BorderSide(color: colors.primary),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
           ),
         ],

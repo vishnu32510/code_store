@@ -28,8 +28,7 @@ extension AppPermissionStatusExtension on AppPermissionStatus {
       this == AppPermissionStatus.provisional;
 
   /// Whether the user permanently rejected the permission and must go to Settings.
-  bool get isPermanentlyDenied =>
-      this == AppPermissionStatus.permanentlyDenied;
+  bool get isPermanentlyDenied => this == AppPermissionStatus.permanentlyDenied;
 
   /// Whether the permission was denied.
   bool get isDenied => this == AppPermissionStatus.denied;

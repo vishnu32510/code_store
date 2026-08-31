@@ -9,7 +9,7 @@ import 'i_connectivity_service.dart';
 /// Concrete implementation of [IConnectivityService] using [Connectivity].
 class ConnectivityService implements IConnectivityService {
   ConnectivityService({Connectivity? connectivity})
-      : _connectivity = connectivity ?? Connectivity();
+    : _connectivity = connectivity ?? Connectivity();
 
   final Connectivity _connectivity;
 

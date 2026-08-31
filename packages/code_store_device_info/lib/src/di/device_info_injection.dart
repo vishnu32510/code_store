@@ -4,10 +4,7 @@ import '../services/device_info_service.dart';
 import '../services/i_device_info_service.dart';
 
 /// Registers [IDeviceInfoService] into the dependency injection locator.
-void setupDeviceInfoDI({
-  GetIt? locator,
-  IDeviceInfoService? customService,
-}) {
+void setupDeviceInfoDI({GetIt? locator, IDeviceInfoService? customService}) {
   final di = locator ?? GetIt.instance;
 
   if (customService != null) {

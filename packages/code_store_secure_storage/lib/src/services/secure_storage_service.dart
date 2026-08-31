@@ -8,23 +8,24 @@ import 'i_secure_storage_service.dart';
 /// Concrete implementation of [ISecureStorageService] using [FlutterSecureStorage].
 class SecureStorageService implements ISecureStorageService {
   SecureStorageService({FlutterSecureStorage? storage})
-      : _storage = storage ??
-            const FlutterSecureStorage(
-              aOptions: AndroidOptions(
-                encryptedSharedPreferences: true,
-                resetOnError: true,
-              ),
-              iOptions: IOSOptions(
-                accessibility: KeychainAccessibility.first_unlock,
-              ),
-              mOptions: MacOsOptions(
-                accessibility: KeychainAccessibility.first_unlock,
-              ),
-              webOptions: WebOptions(
-                dbName: 'CodeStoreSecureDB',
-                publicKey: 'CodeStoreWebVault',
-              ),
-            );
+    : _storage =
+          storage ??
+          const FlutterSecureStorage(
+            aOptions: AndroidOptions(
+              encryptedSharedPreferences: true,
+              resetOnError: true,
+            ),
+            iOptions: IOSOptions(
+              accessibility: KeychainAccessibility.first_unlock,
+            ),
+            mOptions: MacOsOptions(
+              accessibility: KeychainAccessibility.first_unlock,
+            ),
+            webOptions: WebOptions(
+              dbName: 'CodeStoreSecureDB',
+              publicKey: 'CodeStoreWebVault',
+            ),
+          );
 
   final FlutterSecureStorage _storage;
 

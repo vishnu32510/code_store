@@ -145,12 +145,14 @@ class _PermissionsScreenState extends State<PermissionsScreen>
                   ),
                 ),
                 const SizedBox(height: 12),
-                ..._trackedPermissions.map((perm) => _buildPermissionTile(
-                      context,
-                      perm,
-                      _statusMap[perm] ?? AppPermissionStatus.denied,
-                      colors,
-                    )),
+                ..._trackedPermissions.map(
+                  (perm) => _buildPermissionTile(
+                    context,
+                    perm,
+                    _statusMap[perm] ?? AppPermissionStatus.denied,
+                    colors,
+                  ),
+                ),
               ],
             ),
     );
@@ -202,10 +204,7 @@ class _PermissionsScreenState extends State<PermissionsScreen>
               children: [
                 const Text(
                   'Device Permissions',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 const SizedBox(height: 4),
                 Text(

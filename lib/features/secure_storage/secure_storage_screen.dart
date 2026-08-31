@@ -238,12 +238,14 @@ class _SecureStorageScreenState extends State<SecureStorageScreen> {
                 if (_entries.isEmpty)
                   _buildEmptyState(context, colors)
                 else
-                  ..._entries.entries.map((entry) => _buildEntryCard(
-                        context,
-                        entry.key,
-                        entry.value,
-                        colors,
-                      )),
+                  ..._entries.entries.map(
+                    (entry) => _buildEntryCard(
+                      context,
+                      entry.key,
+                      entry.value,
+                      colors,
+                    ),
+                  ),
                 const SizedBox(height: 80),
               ],
             ),
@@ -279,10 +281,7 @@ class _SecureStorageScreenState extends State<SecureStorageScreen> {
               children: [
                 const Text(
                   'Hardware-Encrypted Vault',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -309,11 +308,7 @@ class _SecureStorageScreenState extends State<SecureStorageScreen> {
       ),
       child: Column(
         children: [
-          Icon(
-            Icons.lock_open_rounded,
-            size: 48,
-            color: colors.outline,
-          ),
+          Icon(Icons.lock_open_rounded, size: 48, color: colors.outline),
           const SizedBox(height: 16),
           const Text(
             'Vault is Empty',
@@ -354,7 +349,11 @@ class _SecureStorageScreenState extends State<SecureStorageScreen> {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.vpn_key_rounded, size: 18, color: colors.primary),
+                    Icon(
+                      Icons.vpn_key_rounded,
+                      size: 18,
+                      color: colors.primary,
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       key,
@@ -396,10 +395,7 @@ class _SecureStorageScreenState extends State<SecureStorageScreen> {
               ),
               child: SelectableText(
                 value,
-                style: const TextStyle(
-                  fontFamily: 'monospace',
-                  fontSize: 12,
-                ),
+                style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
               ),
             ),
           ],

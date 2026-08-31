@@ -43,10 +43,7 @@ void main() {
     test('AppPermissionType metadata properties work', () {
       expect(AppPermissionType.camera.displayName, 'Camera');
       expect(AppPermissionType.camera.icon, Icons.camera_alt_rounded);
-      expect(
-        AppPermissionType.camera.defaultRationale.isNotEmpty,
-        true,
-      );
+      expect(AppPermissionType.camera.defaultRationale.isNotEmpty, true);
       expect(AppPermissionType.photos.displayName, 'Photo Library');
     });
 
@@ -87,8 +84,9 @@ void main() {
   });
 
   group('PermissionRationaleDialog Widget Tests', () {
-    testWidgets('Renders title, description, and handles confirmation',
-        (tester) async {
+    testWidgets('Renders title, description, and handles confirmation', (
+      tester,
+    ) async {
       bool confirmed = false;
 
       await tester.pumpWidget(
