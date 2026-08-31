@@ -106,6 +106,18 @@ class AppDrawer extends StatelessWidget {
                       context.push(AppRoutes.permissions);
                     },
                   ),
+                  const SizedBox(height: 4),
+                  _buildDrawerItem(
+                    context,
+                    icon: Icons.enhanced_encryption_rounded,
+                    title: 'Secure Storage Vault',
+                    subtitle: 'Keychain & KeyStore Encrypted Cache',
+                    isSelected: false,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      context.push(AppRoutes.secureStorage);
+                    },
+                  ),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 8),
                     child: Divider(),

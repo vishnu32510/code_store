@@ -11,6 +11,7 @@ import '../../features/home/dashboard_screen.dart';
 import '../../features/home_widget/home_widget_screen.dart';
 import '../../features/notifications/notifications_screen.dart';
 import '../../features/permissions/permissions_screen.dart';
+import '../../features/secure_storage/secure_storage_screen.dart';
 
 class AppRoutes {
   static const String dashboard = '/dashboard';
@@ -20,6 +21,7 @@ class AppRoutes {
   static const String notifications = '/notifications';
   static const String biometrics = '/biometrics';
   static const String permissions = '/permissions';
+  static const String secureStorage = '/secure-storage';
 }
 
 class AppRouter {
@@ -58,6 +60,10 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.permissions,
         builder: (context, state) => const PermissionsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.secureStorage,
+        builder: (context, state) => const SecureStorageScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {

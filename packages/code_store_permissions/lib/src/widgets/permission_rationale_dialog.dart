@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../models/app_permission_status.dart';
 import '../models/app_permission_type.dart';
 import '../services/i_permission_service.dart';
 
