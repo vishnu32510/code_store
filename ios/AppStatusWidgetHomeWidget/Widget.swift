@@ -56,8 +56,8 @@ struct AppStatusWidgetHomeWidgetEntryView: View {
             .fill(
               LinearGradient(
                 colors: [Color.purple, Color.indigo],
-                begin: .topLeading,
-                end: .bottomTrailing
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
               )
             )
             .frame(width: 24, height: 24)
