@@ -58,6 +58,18 @@ class AppDrawer extends StatelessWidget {
                       navigationShell.goBranch(1);
                     },
                   ),
+                  const SizedBox(height: 4),
+                  _buildDrawerItem(
+                    context,
+                    icon: Icons.widgets_rounded,
+                    title: 'Home Widgets',
+                    subtitle: 'iOS WidgetKit & Android Glance sync',
+                    isSelected: false,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      context.push(AppRoutes.homeWidget);
+                    },
+                  ),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 8),
                     child: Divider(),
