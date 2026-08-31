@@ -1,3 +1,5 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -98,13 +100,7 @@ Future<void> showFCMTokenDialog(
                       Navigator.of(context).pop();
                     },
                     icon: const Icon(Icons.copy_rounded, size: 18),
-                    label: const Text('Copy Token to Clipboard'),
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
+                    label: const Text('Copy FCM Token'),
                   ),
                 const SizedBox(height: 8),
                 TextButton(
@@ -122,14 +118,36 @@ Future<void> showFCMTokenDialog(
 
 /// Displays a high-converting, user-friendly pre-permission rationale dialog
 /// explaining WHY notifications are requested before triggering the OS prompt.
+///
+/// If notifications are ALREADY enabled/authorized, this returns `true` immediately
+/// without showing any dialog (unless [force] is set to `true`).
 Future<bool> showNotificationPermissionPrompt(
   BuildContext context, {
   String title = 'Stay Updated with CodeStore',
   String subtitle = 'Enable notifications so you never miss important updates, new features, and account security alerts.',
   String confirmLabel = 'Enable Notifications',
   String dismissLabel = 'Maybe Later',
+  bool force = false,
   IMessagingService? messagingService,
 }) async {
+  final service = messagingService ?? GetIt.instance<IMessagingService>();
+
+  if (!force) {
+    try {
+      final settings = await service.getNotificationSettings();
+      if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+          settings.authorizationStatus == AuthorizationStatus.provisional) {
+        return true;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error checking notification permission settings: $e');
+      }
+    }
+  }
+
+  if (!context.mounted) return false;
+
   final result = await showDialog<bool>(
     context: context,
     barrierDismissible: true,
@@ -138,7 +156,7 @@ Future<bool> showNotificationPermissionPrompt(
       subtitle: subtitle,
       confirmLabel: confirmLabel,
       dismissLabel: dismissLabel,
-      messagingService: messagingService,
+      messagingService: service,
     ),
   );
 

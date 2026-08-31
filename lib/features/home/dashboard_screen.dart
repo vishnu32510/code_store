@@ -324,6 +324,7 @@ class DashboardProfileView extends StatelessWidget {
             const SizedBox(height: 24),
             if (isSignedIn)
               OutlinedButton.icon(
+                key: const ValueKey('profile_sign_out_button'),
                 onPressed: () {
                   context.read<AuthenticationBloc>().add(
                     const LogoutRequested(),
@@ -345,6 +346,7 @@ class DashboardProfileView extends StatelessWidget {
               )
             else ...[
               ElevatedButton.icon(
+                key: const ValueKey('profile_signin_bottom_sheet_button'),
                 onPressed: () => LoginBottomSheet.show(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colors.primary,
@@ -362,6 +364,7 @@ class DashboardProfileView extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               OutlinedButton.icon(
+                key: const ValueKey('profile_fullscreen_login_button'),
                 onPressed: () => context.push(AppRoutes.login),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),

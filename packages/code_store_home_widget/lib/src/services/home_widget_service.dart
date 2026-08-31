@@ -66,9 +66,10 @@ class HomeWidgetService {
   }) async {
     if (!isPlatformSupported) return;
 
-    if (appGroupId != null) {
-      _appGroupId = appGroupId;
-      await HomeWidget.setAppGroupId(appGroupId);
+    final targetGroupId = appGroupId ?? _appGroupId;
+    if (targetGroupId != null && targetGroupId.isNotEmpty) {
+      _appGroupId = targetGroupId;
+      await HomeWidget.setAppGroupId(targetGroupId);
     }
     if (defaultAndroidName != null) {
       _defaultAndroidName = defaultAndroidName;
