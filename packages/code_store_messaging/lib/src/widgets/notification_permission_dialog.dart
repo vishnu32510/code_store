@@ -8,8 +8,7 @@ import '../services/i_messaging_service.dart';
 Future<bool> showNotificationPermissionPrompt(
   BuildContext context, {
   String title = 'Stay Updated with CodeStore',
-  String subtitle =
-      'Enable notifications so you never miss important updates, new features, and account security alerts.',
+  String subtitle = 'Enable notifications so you never miss important updates, new features, and account security alerts.',
   String confirmLabel = 'Enable Notifications',
   String dismissLabel = 'Maybe Later',
   IMessagingService? messagingService,
@@ -34,8 +33,7 @@ class NotificationPermissionPromptDialog extends StatelessWidget {
   const NotificationPermissionPromptDialog({
     super.key,
     this.title = 'Stay Updated with CodeStore',
-    this.subtitle =
-        'Enable notifications so you never miss important updates, new features, and account security alerts.',
+    this.subtitle = 'Enable notifications so you never miss important updates, new features, and account security alerts.',
     this.confirmLabel = 'Enable Notifications',
     this.dismissLabel = 'Maybe Later',
     this.messagingService,

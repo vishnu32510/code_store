@@ -425,27 +425,28 @@ void main() {
       },
     );
 
-    testWidgets('NotificationPermissionPromptDialog renders title and buttons', (
-      tester,
-    ) async {
-      final mockService = MockMessagingService();
+    testWidgets(
+      'NotificationPermissionPromptDialog renders title and buttons',
+      (tester) async {
+        final mockService = MockMessagingService();
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: NotificationPermissionPromptDialog(
-              title: 'Custom Title',
-              subtitle: 'Custom Subtitle',
-              messagingService: mockService,
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: NotificationPermissionPromptDialog(
+                title: 'Custom Title',
+                subtitle: 'Custom Subtitle',
+                messagingService: mockService,
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      expect(find.text('Custom Title'), findsOneWidget);
-      expect(find.text('Custom Subtitle'), findsOneWidget);
-      expect(find.text('Enable Notifications'), findsOneWidget);
-      expect(find.text('Maybe Later'), findsOneWidget);
-    });
+        expect(find.text('Custom Title'), findsOneWidget);
+        expect(find.text('Custom Subtitle'), findsOneWidget);
+        expect(find.text('Enable Notifications'), findsOneWidget);
+        expect(find.text('Maybe Later'), findsOneWidget);
+      },
+    );
   });
 }
