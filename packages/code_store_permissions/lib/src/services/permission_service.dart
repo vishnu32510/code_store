@@ -33,12 +33,21 @@ class PermissionService implements IPermissionService {
   }
 
   AppPermissionStatus _toAppStatus(ph.PermissionStatus status) {
-    if (status.isGranted) return AppPermissionStatus.granted;
-    if (status.isPermanentlyDenied)
+    if (status.isGranted) {
+      return AppPermissionStatus.granted;
+    }
+    if (status.isPermanentlyDenied) {
       return AppPermissionStatus.permanentlyDenied;
-    if (status.isRestricted) return AppPermissionStatus.restricted;
-    if (status.isLimited) return AppPermissionStatus.limited;
-    if (status.isProvisional) return AppPermissionStatus.provisional;
+    }
+    if (status.isRestricted) {
+      return AppPermissionStatus.restricted;
+    }
+    if (status.isLimited) {
+      return AppPermissionStatus.limited;
+    }
+    if (status.isProvisional) {
+      return AppPermissionStatus.provisional;
+    }
     return AppPermissionStatus.denied;
   }
 

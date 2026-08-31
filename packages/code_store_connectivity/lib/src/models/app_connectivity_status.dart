@@ -42,9 +42,15 @@ class AppConnectivityStatus {
         types.contains(AppConnectivityType.none)) {
       return 'Offline';
     }
-    if (types.contains(AppConnectivityType.wifi)) return 'Wi-Fi';
-    if (types.contains(AppConnectivityType.cellular)) return 'Cellular';
-    if (types.contains(AppConnectivityType.ethernet)) return 'Ethernet';
+    if (types.contains(AppConnectivityType.wifi)) {
+      return 'Wi-Fi';
+    }
+    if (types.contains(AppConnectivityType.cellular)) {
+      return 'Cellular';
+    }
+    if (types.contains(AppConnectivityType.ethernet)) {
+      return 'Ethernet';
+    }
     return 'Connected';
   }
 
@@ -53,10 +59,15 @@ class AppConnectivityStatus {
     if (!isConnected || types.contains(AppConnectivityType.none)) {
       return Icons.wifi_off_rounded;
     }
-    if (types.contains(AppConnectivityType.wifi)) return Icons.wifi_rounded;
-    if (types.contains(AppConnectivityType.cellular))
+    if (types.contains(AppConnectivityType.wifi)) {
+      return Icons.wifi_rounded;
+    }
+    if (types.contains(AppConnectivityType.cellular)) {
       return Icons.signal_cellular_alt_rounded;
-    if (types.contains(AppConnectivityType.ethernet)) return Icons.lan_rounded;
+    }
+    if (types.contains(AppConnectivityType.ethernet)) {
+      return Icons.lan_rounded;
+    }
     return Icons.cloud_done_rounded;
   }
 
