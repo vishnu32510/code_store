@@ -176,7 +176,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                         ),
                         const SizedBox(height: 24),
-                        // Email Login Button
+                        // Email Continue (Login / Silent Signup) Button
                         ElevatedButton(
                           onPressed: isLoading
                               ? null
@@ -184,7 +184,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   if (_formKey.currentState?.validate() ??
                                       false) {
                                     context.read<LoginBloc>().add(
-                                      LoginWithEmailAndPassword(
+                                      ContinueWithEmailAndPassword(
                                         email: _emailController.text.trim(),
                                         password: _passwordController.text,
                                       ),
@@ -206,7 +206,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 )
                               : const Text(
-                                  'Sign In with Email',
+                                  'Continue with Email',
                                   style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
                         ),

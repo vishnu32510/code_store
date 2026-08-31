@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'cache.dart';
+import 'src/utils/google_one_tap_helper.dart';
 import 'user.dart';
 
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
@@ -31,6 +32,49 @@ class FirebaseAuthenticationRepository extends AuthenticationRepository {
           ? serverClientId
           : null,
     );
+  }
+
+  /// Initializes Google One Tap for Web applications.
+  ///
+  /// When a user taps "Continue as..." in the floating One Tap prompt,
+  /// they will automatically be authenticated into Firebase.
+  void initializeOneTap({
+    required String webClientId,
+    bool autoSelect = false,
+    void Function(User user)? onSuccess,
+    void Function(Object error)? onError,
+  }) {
+    if (!kIsWeb) return;
+    GoogleOneTapHelper.initialize(
+      clientId: webClientId,
+      autoSelect: autoSelect,
+      onCredential: (idToken) async {
+        try {
+          final credential = firebase_auth.GoogleAuthProvider.credential(
+            idToken: idToken,
+          );
+          final userCredential =
+              await _firebaseAuth.signInWithCredential(credential);
+          final user = userCredential.user?.toUser ?? User.empty;
+          onSuccess?.call(user);
+        } catch (e) {
+          debugPrint('One Tap sign in failed: $e');
+          onError?.call(e);
+        }
+      },
+    );
+  }
+
+  /// Displays the Google One Tap floating prompt in the top-right corner (Web only).
+  void showOneTapPrompt() {
+    if (!kIsWeb) return;
+    GoogleOneTapHelper.prompt();
+  }
+
+  /// Dismisses or cancels the active Google One Tap prompt (Web only).
+  void cancelOneTap() {
+    if (!kIsWeb) return;
+    GoogleOneTapHelper.cancel();
   }
 
   static const userCacheKey = '__user_cache_key__';
@@ -70,6 +114,9 @@ class FirebaseAuthenticationRepository extends AuthenticationRepository {
     try {
       if (kIsWeb) {
         final googleProvider = firebase_auth.GoogleAuthProvider();
+        googleProvider.addScope('email');
+        googleProvider.addScope('profile');
+        googleProvider.setCustomParameters({'prompt': 'select_account'});
         await _firebaseAuth.signInWithPopup(googleProvider);
         return;
       }
@@ -97,8 +144,8 @@ class FirebaseAuthenticationRepository extends AuthenticationRepository {
       }
       throw LogInWithGoogleFailure.fromCode(e.code, messageString: e.message);
     } catch (e) {
-      debugPrint(e.toString());
-      throw const LogInWithGoogleFailure();
+      debugPrint('Google Sign In unexpected error: $e');
+      throw LogInWithGoogleFailure(e.toString());
     }
   }
 
@@ -324,9 +371,25 @@ class LogInWithGoogleFailure implements Exception {
         return const LogInWithGoogleFailure(
           'This user has been disabled. Please contact support.',
         );
+      case 'unauthorized-domain':
+        return const LogInWithGoogleFailure(
+          'This domain is not authorized in Firebase Console (Authentication > Settings > Authorized Domains).',
+        );
+      case 'popup-blocked':
+        return const LogInWithGoogleFailure(
+          'Sign-in popup was blocked by your browser. Please allow popups for this site.',
+        );
+      case 'operation-not-allowed':
+        return const LogInWithGoogleFailure(
+          'Google sign-in is not enabled in Firebase Console (Authentication > Sign-in method).',
+        );
+      case 'network-request-failed':
+        return const LogInWithGoogleFailure(
+          'Network error. Please check your connection and try again.',
+        );
       default:
         return LogInWithGoogleFailure(
-          messageString ?? 'An unknown error occurred.',
+          messageString ?? 'An unknown error occurred ($code).',
         );
     }
   }
