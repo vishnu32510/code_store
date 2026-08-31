@@ -2,7 +2,6 @@ import '../../../core/config/routes.dart';
 import '../../../core/utils/app_constants.dart';
 
 import 'package:code_store_auth/code_store_auth.dart';
-import 'package:code_store_messaging/code_store_messaging.dart';
 import 'package:code_store_theme/code_store_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -76,11 +75,11 @@ class AppDrawer extends StatelessWidget {
                     context,
                     icon: Icons.notifications_active_rounded,
                     title: 'Push Notifications',
-                    subtitle: 'View & copy FCM registration token',
+                    subtitle: 'Permissions, token & local alerts',
                     isSelected: false,
                     onTap: () {
                       Navigator.of(context).pop();
-                      showFCMTokenDialog(context);
+                      context.push(AppRoutes.notifications);
                     },
                   ),
                   const Padding(

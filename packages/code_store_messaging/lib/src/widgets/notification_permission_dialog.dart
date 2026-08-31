@@ -76,7 +76,8 @@ Future<void> showFCMTokenDialog(
                     ),
                   ),
                   child: SelectableText(
-                    token ?? 'Token not generated yet. Request permission first.',
+                    token ??
+                        'Token not generated yet. Request permission first.',
                     style: theme.textTheme.bodySmall?.copyWith(
                       fontFamily: 'monospace',
                       color: colors.onSurface,
@@ -124,8 +125,7 @@ Future<void> showFCMTokenDialog(
 Future<bool> showNotificationPermissionPrompt(
   BuildContext context, {
   String title = 'Stay Updated with CodeStore',
-  String subtitle =
-      'Enable notifications so you never miss important updates, new features, and account security alerts.',
+  String subtitle = 'Enable notifications so you never miss important updates, new features, and account security alerts.',
   String confirmLabel = 'Enable Notifications',
   String dismissLabel = 'Maybe Later',
   IMessagingService? messagingService,

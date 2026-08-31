@@ -5,6 +5,7 @@ import 'package:code_store_core/code_store_core.dart';
 import '../../features/flashlight/flashlight_screen.dart';
 import '../../features/home/dashboard_screen.dart';
 import '../../features/home_widget/home_widget_screen.dart';
+import '../../features/notifications/notifications_screen.dart';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -14,6 +15,7 @@ class AppRoutes {
   static const String flashlight = '/flashlight';
   static const String homeWidget = '/home-widget';
   static const String login = '/login';
+  static const String notifications = '/notifications';
 }
 
 class AppRouter {
@@ -39,6 +41,10 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.homeWidget,
         builder: (context, state) => const HomeWidgetScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.notifications,
+        builder: (context, state) => const NotificationsScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
