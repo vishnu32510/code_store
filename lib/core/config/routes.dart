@@ -1,14 +1,14 @@
 import 'package:code_store_analytics/code_store_analytics.dart';
 import 'package:code_store_auth/code_store_auth.dart';
 import 'package:code_store_core/code_store_core.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../features/common/not_found_screen.dart';
 import '../../features/flashlight/flashlight_screen.dart';
 import '../../features/home/dashboard_screen.dart';
 import '../../features/home_widget/home_widget_screen.dart';
 import '../../features/notifications/notifications_screen.dart';
-
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class AppRoutes {
   static const String dashboard = '/dashboard';
@@ -32,6 +32,9 @@ class AppRouter {
     navigatorKey: _rootNavigatorKey,
     initialLocation: AppRoutes.dashboard,
     observers: [getIt<FirebaseAnalyticsObserver>()],
+    errorBuilder: (context, state) => NotFoundScreen(
+      uri: state.uri.toString(),
+    ),
     routes: <RouteBase>[
       GoRoute(path: '/', redirect: (_, _) => AppRoutes.dashboard),
       GoRoute(

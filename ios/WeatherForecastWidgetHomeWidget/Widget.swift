@@ -24,7 +24,7 @@ struct Provider: TimelineProvider {
     let title = WidgetBridge.string(forKey: "title", fallback: "Weather Forecast")
     let message = WidgetBridge.string(forKey: "message", fallback: "Sunny, 72°F")
     let status = WidgetBridge.string(forKey: "status", fallback: "NYC")
-    let actionUrl = WidgetBridge.actionUrl(forKey: "action_uri") ?? WidgetBridge.actionUrl(forKey: "title")
+    let actionUrl = WidgetBridge.actionUrl(forKey: "action_uri") ?? URL(string: "codestore://home-widget")
 
     return WeatherForecastWidgetHomeWidgetEntry(
       date: Date(),

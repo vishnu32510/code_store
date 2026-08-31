@@ -39,7 +39,7 @@ class _HomeWidgetCardState extends State<HomeWidgetCard> {
           : _statusController.text.trim(),
       updatedAt: DateTime.now(),
       badgeCount: 1,
-      actionUri: 'codestore://dashboard',
+      actionUri: 'codestore://notifications',
     );
   }
 
