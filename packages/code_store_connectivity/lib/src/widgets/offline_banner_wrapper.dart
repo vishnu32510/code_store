@@ -106,6 +106,7 @@ class _OfflineBannerWrapperState extends State<OfflineBannerWrapper> {
                   color: Colors.transparent,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         _isOffline ? Icons.wifi_off_rounded : Icons.wifi_rounded,
@@ -113,14 +114,17 @@ class _OfflineBannerWrapperState extends State<OfflineBannerWrapper> {
                         size: 18,
                       ),
                       const SizedBox(width: 8),
-                      Text(
-                        _isOffline
-                            ? 'No Internet Connection (Offline)'
-                            : 'Back Online',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
+                      Flexible(
+                        child: Text(
+                          _isOffline
+                              ? 'No Internet Connection (Offline)'
+                              : 'Back Online',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
