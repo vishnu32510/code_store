@@ -1,14 +1,131 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 
 import '../services/i_messaging_service.dart';
+
+/// Opens a dialog displaying the device's FCM registration token with a one-tap copy button.
+Future<void> showFCMTokenDialog(
+  BuildContext context, {
+  IMessagingService? messagingService,
+}) async {
+  final service = messagingService ?? GetIt.instance<IMessagingService>();
+  final token = await service.getToken();
+
+  if (!context.mounted) return;
+
+  final theme = Theme.of(context);
+  final colors = theme.colorScheme;
+
+  await showDialog<void>(
+    context: context,
+    builder: (context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: colors.primaryContainer.withValues(alpha: 0.5),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.key_rounded,
+                        color: colors.primary,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'FCM Registration Token',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  'Paste this token into the Firebase Console ("Test this campaign" or "Send test message") to target this device.',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colors.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: colors.surfaceContainerHighest.withValues(
+                      alpha: 0.5,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: colors.outlineVariant.withValues(alpha: 0.5),
+                    ),
+                  ),
+                  child: SelectableText(
+                    token ?? 'Token not generated yet. Request permission first.',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      fontFamily: 'monospace',
+                      color: colors.onSurface,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                if (token != null)
+                  FilledButton.icon(
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: token));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('✅ FCM Token copied to clipboard!'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                      Navigator.of(context).pop();
+                    },
+                    icon: const Icon(Icons.copy_rounded, size: 18),
+                    label: const Text('Copy Token to Clipboard'),
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: 8),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Close'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
 
 /// Displays a high-converting, user-friendly pre-permission rationale dialog
 /// explaining WHY notifications are requested before triggering the OS prompt.
 Future<bool> showNotificationPermissionPrompt(
   BuildContext context, {
   String title = 'Stay Updated with CodeStore',
-  String subtitle = 'Enable notifications so you never miss important updates, new features, and account security alerts.',
+  String subtitle =
+      'Enable notifications so you never miss important updates, new features, and account security alerts.',
   String confirmLabel = 'Enable Notifications',
   String dismissLabel = 'Maybe Later',
   IMessagingService? messagingService,

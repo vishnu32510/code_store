@@ -76,11 +76,11 @@ class AppDrawer extends StatelessWidget {
                     context,
                     icon: Icons.notifications_active_rounded,
                     title: 'Push Notifications',
-                    subtitle: 'Enable alerts & get Web FCM token',
+                    subtitle: 'View & copy FCM registration token',
                     isSelected: false,
                     onTap: () {
                       Navigator.of(context).pop();
-                      showNotificationPermissionPrompt(context);
+                      showFCMTokenDialog(context);
                     },
                   ),
                   const Padding(
