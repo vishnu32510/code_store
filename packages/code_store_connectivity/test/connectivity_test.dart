@@ -77,14 +77,14 @@ void main() {
           ),
         ),
       );
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(find.text('Main Screen Content'), findsOneWidget);
       expect(find.text('No Internet Connection (Offline)'), findsNothing);
 
       // Simulate offline drop
       mockService.emit(AppConnectivityStatus.offline());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(find.text('No Internet Connection (Offline)'), findsOneWidget);
     });
