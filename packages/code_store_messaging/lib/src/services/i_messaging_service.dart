@@ -29,7 +29,8 @@ abstract interface class IMessagingService {
   });
 
   /// Retrieves the current Firebase Cloud Messaging registration token for this device.
-  Future<String?> getToken();
+  /// On Web, provide [vapidKey] (Web Push certificate key pair).
+  Future<String?> getToken({String? vapidKey});
 
   /// Retrieves the Apple Push Notification Service (APNs) device token (iOS/macOS only).
   Future<String?> getAPNSToken();

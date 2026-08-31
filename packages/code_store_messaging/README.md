@@ -69,6 +69,38 @@ import UIKit
 
 ---
 
+### 🌐 Web (`web/firebase-messaging-sw.js`)
+
+For Web Push Notifications to work in the background when the tab is closed, ensure `web/firebase-messaging-sw.js` is present in your web root with your Web Firebase config:
+
+```javascript
+importScripts("https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js");
+importScripts("https://www.gstatic.com/firebasejs/10.7.0/firebase-messaging-compat.js");
+
+firebase.initializeApp({
+  apiKey: "AIzaSy...",
+  authDomain: "...",
+  projectId: "...",
+  storageBucket: "...",
+  messagingSenderId: "...",
+  appId: "...",
+  measurementId: "..."
+});
+
+const messaging = firebase.messaging();
+messaging.onBackgroundMessage((payload) => {
+  const title = (payload.notification && payload.notification.title) || 'Notification';
+  const options = {
+    body: (payload.notification && payload.notification.body) || '',
+    icon: '/icons/Icon-192.png',
+    data: payload.data,
+  };
+  self.registration.showNotification(title, options);
+});
+```
+
+---
+
 ## 🚀 Quick Start & DI Integration
 
 ### 1. Register in DI

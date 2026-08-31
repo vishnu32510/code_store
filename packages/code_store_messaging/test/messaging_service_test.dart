@@ -52,7 +52,7 @@ class MockMessagingService implements IMessagingService {
   }
 
   @override
-  Future<String?> getToken() async => currentToken;
+  Future<String?> getToken({String? vapidKey}) async => currentToken;
 
   @override
   Future<String?> getAPNSToken() async => 'mock_apns_token_456';

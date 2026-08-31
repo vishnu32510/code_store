@@ -151,6 +151,8 @@ class FirebaseMessagingService implements IMessagingService {
   }
 
   Future<void> _setupLocalNotifications(String defaultAndroidIcon) async {
+    if (kIsWeb) return;
+
     const darwinInitializationSettings = DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,
@@ -213,9 +215,9 @@ class FirebaseMessagingService implements IMessagingService {
   }
 
   @override
-  Future<String?> getToken() async {
+  Future<String?> getToken({String? vapidKey}) async {
     try {
-      return await _messaging.getToken();
+      return await _messaging.getToken(vapidKey: vapidKey);
     } catch (e) {
       debugPrint('Error retrieving FCM token: $e');
       return null;
@@ -292,6 +294,8 @@ class FirebaseMessagingService implements IMessagingService {
     String? channelDescription,
     List<NotificationAction>? actions,
   }) async {
+    if (kIsWeb) return;
+
     final androidDetails = AndroidNotificationDetails(
       channelId ?? _channelId,
       channelName ?? _channelName,
@@ -339,6 +343,8 @@ class FirebaseMessagingService implements IMessagingService {
     DateTimeComponents? matchDateTimeComponents,
     List<NotificationAction>? actions,
   }) async {
+    if (kIsWeb) return;
+
     final scheduledTZDate = tz.TZDateTime.from(scheduledDate, tz.local);
 
     final androidDetails = AndroidNotificationDetails(
@@ -385,6 +391,8 @@ class FirebaseMessagingService implements IMessagingService {
     String? channelName,
     String? channelDescription,
   }) async {
+    if (kIsWeb) return;
+
     final androidDetails = AndroidNotificationDetails(
       channelId ?? _channelId,
       channelName ?? _channelName,
@@ -418,17 +426,20 @@ class FirebaseMessagingService implements IMessagingService {
 
   @override
   Future<void> cancelNotification(int id) async {
+    if (kIsWeb) return;
     await _localNotifications.cancel(id);
   }
 
   @override
   Future<void> cancelAllNotifications() async {
+    if (kIsWeb) return;
     await _localNotifications.cancelAll();
   }
 
   @override
   Future<List<PendingNotificationRequest>>
   getPendingNotificationRequests() async {
+    if (kIsWeb) return const [];
     return await _localNotifications.pendingNotificationRequests();
   }
 
@@ -445,6 +456,8 @@ class FirebaseMessagingService implements IMessagingService {
     String? channelDescription,
     List<NotificationAction>? actions,
   }) async {
+    if (kIsWeb) return;
+
     String? localImagePath;
     String? localLargeIconPath;
 
