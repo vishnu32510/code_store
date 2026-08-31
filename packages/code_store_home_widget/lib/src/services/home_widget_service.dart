@@ -48,15 +48,14 @@ class HomeWidgetService {
   String? get appGroupId => _appGroupId;
 
   /// Stream of raw URIs triggered when a user taps a widget on their home screen.
-  Stream<Uri?> get widgetClickedStream => isPlatformSupported
-      ? HomeWidget.widgetClicked
-      : const Stream.empty();
+  Stream<Uri?> get widgetClickedStream =>
+      isPlatformSupported ? HomeWidget.widgetClicked : const Stream.empty();
 
   /// Stream of parsed [WidgetAction] events triggered when a user taps a widget.
   Stream<WidgetAction> get onActionTriggered => isPlatformSupported
       ? HomeWidget.widgetClicked
-          .where((uri) => uri != null)
-          .map((uri) => WidgetAction.fromUri(uri!))
+            .where((uri) => uri != null)
+            .map((uri) => WidgetAction.fromUri(uri!))
       : const Stream.empty();
 
   /// Initializes the Home Widget service with optional app group and widget identifiers.

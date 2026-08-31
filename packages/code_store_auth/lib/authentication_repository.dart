@@ -53,8 +53,9 @@ class FirebaseAuthenticationRepository extends AuthenticationRepository {
           final credential = firebase_auth.GoogleAuthProvider.credential(
             idToken: idToken,
           );
-          final userCredential =
-              await _firebaseAuth.signInWithCredential(credential);
+          final userCredential = await _firebaseAuth.signInWithCredential(
+            credential,
+          );
           final user = userCredential.user?.toUser ?? User.empty;
           onSuccess?.call(user);
         } catch (e) {
