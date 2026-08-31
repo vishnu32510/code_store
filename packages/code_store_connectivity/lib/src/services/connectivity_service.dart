@@ -21,12 +21,13 @@ class ConnectivityService implements IConnectivityService {
         return AppConnectivityType.cellular;
       case ConnectivityResult.ethernet:
         return AppConnectivityType.ethernet;
+      case ConnectivityResult.none:
+        return AppConnectivityType.none;
       case ConnectivityResult.bluetooth:
       case ConnectivityResult.vpn:
       case ConnectivityResult.other:
+      default:
         return AppConnectivityType.other;
-      case ConnectivityResult.none:
-        return AppConnectivityType.none;
     }
   }
 
