@@ -12,6 +12,7 @@ import 'package:timezone/timezone.dart' as tz;
 import '../models/notification_action.dart';
 import '../models/push_notification_payload.dart';
 import '../utils/messaging_background_handler.dart';
+import '../utils/web_notification_helper.dart';
 import 'i_messaging_service.dart';
 
 /// Concrete implementation of [IMessagingService] supporting FCM and comprehensive
@@ -304,7 +305,10 @@ class FirebaseMessagingService implements IMessagingService {
     String? channelDescription,
     List<NotificationAction>? actions,
   }) async {
-    if (kIsWeb) return;
+    if (kIsWeb) {
+      showWebBrowserNotification(title, body);
+      return;
+    }
 
     final androidDetails = AndroidNotificationDetails(
       channelId ?? _channelId,

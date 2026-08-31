@@ -78,17 +78,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Future<void> _sendTestLocalNotification() async {
     final id = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     try {
-      if (kIsWeb) {
-        _toast.showInfo('Test Notification triggered (Foreground Web Event)');
-      } else {
-        await _messaging.showLocalNotification(
-          id: id,
-          title: '🚀 CodeStore Test Notification',
-          body: 'Local push notifications are working smoothly!',
-          payload: '{"type": "test_notification", "id": $id}',
-        );
-        _toast.showSuccess('Local notification sent!');
-      }
+      await _messaging.showLocalNotification(
+        id: id,
+        title: '🚀 CodeStore Test Notification',
+        body: 'Local push notifications are working smoothly!',
+        payload: '{"type": "test_notification", "id": $id}',
+      );
+      _toast.showSuccess(
+        kIsWeb
+            ? 'Web notification triggered (Browser + Toast)!'
+            : 'Local notification sent!',
+      );
     } catch (e) {
       _toast.showError('Error showing notification: $e');
     }
