@@ -182,17 +182,28 @@ struct IslandAnimationAttributes: ActivityAttributes {
           return
         }
         let appGroupId = args["appGroupId"] as? String ?? "group.com.nungu.codestore"
+        let data = typedData.data
+        let baseName = (fileName as NSString).deletingPathExtension
+
+        // 1. Write to App Group container if available
         if let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupId) {
           let fileURL = containerURL.appendingPathComponent(fileName)
-          do {
-            try typedData.data.write(to: fileURL)
-            result(true)
-          } catch {
-            result(FlutterError(code: "WRITE_ERROR", message: error.localizedDescription, details: nil))
-          }
-        } else {
-          result(FlutterError(code: "CONTAINER_ERROR", message: "App group container not found", details: nil))
+          try? data.write(to: fileURL)
         }
+
+        // 2. Always write to UserDefaults suite for fast memory/data fallback
+        if let defaults = UserDefaults(suiteName: appGroupId) {
+          defaults.set(data, forKey: baseName)
+          defaults.set(data, forKey: fileName)
+        }
+
+        // 3. Write to documents directory as simulator fallback
+        if let docURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+          let fileURL = docURL.appendingPathComponent(fileName)
+          try? data.write(to: fileURL)
+        }
+
+        result(true)
 
       default:
         result(FlutterMethodNotImplemented)
