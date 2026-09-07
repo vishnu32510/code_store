@@ -163,6 +163,13 @@ packages:
       relative: true
     source: path
     version: "1.0.0"
+  code_store_dynamic_island:
+    dependency: "direct main"
+    description:
+      path: "packages/code_store_dynamic_island"
+      relative: true
+    source: path
+    version: "1.0.0"
   code_store_home_widget:
     dependency: "direct main"
     description:

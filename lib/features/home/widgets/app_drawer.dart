@@ -166,6 +166,18 @@ class AppDrawer extends StatelessWidget {
                       context.push(AppRoutes.share);
                     },
                   ),
+                  const SizedBox(height: 4),
+                  _buildDrawerItem(
+                    context,
+                    icon: Icons.animation_rounded,
+                    title: 'Dynamic Island',
+                    subtitle: 'Live Activity Sprite Animations',
+                    isSelected: false,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      context.push(AppRoutes.dynamicIsland);
+                    },
+                  ),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 8),
                     child: Divider(),

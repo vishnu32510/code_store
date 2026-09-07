@@ -16,6 +16,7 @@ import '../../features/device_info/device_info_screen.dart';
 import '../../features/purchases/purchases_screen.dart';
 import '../../features/secure_storage/secure_storage_screen.dart';
 import '../../features/share/share_screen.dart';
+import '../../features/dynamic_island/dynamic_island_screen.dart';
 
 class AppRoutes {
   static const String dashboard = '/dashboard';
@@ -30,6 +31,7 @@ class AppRoutes {
   static const String purchases = '/purchases';
   static const String deviceInfo = '/device-info';
   static const String share = '/share';
+  static const String dynamicIsland = '/dynamic-island';
 }
 
 class AppRouter {
@@ -88,6 +90,10 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.share,
         builder: (context, state) => const ShareScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.dynamicIsland,
+        builder: (context, state) => const DynamicIslandScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {

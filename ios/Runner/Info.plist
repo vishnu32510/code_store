@@ -49,6 +49,8 @@
 		<string>fetch</string>
 		<string>remote-notification</string>
 	</array>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Camera access is required to control the device flashlight and torch features.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>

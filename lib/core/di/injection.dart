@@ -6,6 +6,7 @@ import 'package:code_store_core/code_store_core.dart';
 import 'package:code_store_home_widget/code_store_home_widget.dart';
 import 'package:code_store_messaging/code_store_messaging.dart';
 import 'package:code_store_connectivity/code_store_connectivity.dart';
+import 'package:code_store_dynamic_island/code_store_dynamic_island.dart';
 import 'package:code_store_device_info/code_store_device_info.dart';
 import 'package:code_store_permissions/code_store_permissions.dart';
 import 'package:code_store_purchases/code_store_purchases.dart';
@@ -27,6 +28,7 @@ Future<void> setupDI() async {
   setupPurchasesDI();
   setupDeviceInfoDI();
   setupShareDI();
+  setupDynamicIslandDI(appGroupId: AppConstants.appGroupId);
   setupHomeWidgetDI(
     appGroupId: AppConstants.appGroupId,
     defaultAndroidName: AppConstants.homeWidgetAndroidName,
