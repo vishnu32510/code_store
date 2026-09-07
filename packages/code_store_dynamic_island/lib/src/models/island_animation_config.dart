@@ -44,13 +44,13 @@ class IslandAnimationConfig {
   final IslandPlacement placement;
 
   Map<String, dynamic> toMap() => {
-        'animationName': animationName,
-        'totalFrames': totalFrames,
-        'framesPerSecond': framesPerSecond,
-        'frameWidth': frameWidth,
-        'frameHeight': frameHeight,
-        'placement': placement.name,
-      };
+    'animationName': animationName,
+    'totalFrames': totalFrames,
+    'framesPerSecond': framesPerSecond,
+    'frameWidth': frameWidth,
+    'frameHeight': frameHeight,
+    'placement': placement.name,
+  };
 
   factory IslandAnimationConfig.fromMap(Map<String, dynamic> map) {
     return IslandAnimationConfig(

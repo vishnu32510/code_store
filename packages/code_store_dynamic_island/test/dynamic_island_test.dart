@@ -115,10 +115,7 @@ void main() {
 
     test('IslandStatus copyWith', () {
       const status = IslandStatus(title: 'Hello');
-      final updated = status.copyWith(
-        subtitle: 'World',
-        isActive: false,
-      );
+      final updated = status.copyWith(subtitle: 'World', isActive: false);
 
       expect(updated.title, 'Hello');
       expect(updated.subtitle, 'World');
@@ -174,10 +171,7 @@ void main() {
       expect(mock.startStatusCalled, true);
 
       await mock.startAnimation(
-        const IslandAnimationConfig(
-          animationName: 'cat',
-          totalFrames: 4,
-        ),
+        const IslandAnimationConfig(animationName: 'cat', totalFrames: 4),
       );
       expect(mock.startAnimationCalled, true);
 

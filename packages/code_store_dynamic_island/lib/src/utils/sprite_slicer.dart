@@ -94,9 +94,6 @@ class SpriteSlicer {
       throw ArgumentError('Failed to decode PNG sprite sheet');
     }
 
-    return {
-      'width': decoded.width,
-      'height': decoded.height,
-    };
+    return {'width': decoded.width, 'height': decoded.height};
   }
 }

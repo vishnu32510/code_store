@@ -199,7 +199,9 @@ class PurchasesService implements IPurchaseService {
         return PurchaseResult.error('Package not found');
       }
 
-      final result = await Purchases.purchase(PurchaseParams.package(rcPackage));
+      final result = await Purchases.purchase(
+        PurchaseParams.package(rcPackage),
+      );
       final mapped = _mapCustomerInfo(result.customerInfo);
       return PurchaseResult.success(mapped);
     } on PlatformException catch (e) {

@@ -134,10 +134,7 @@ class _DynamicIslandScreenState extends State<DynamicIslandScreen> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dynamic Island'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Dynamic Island'), centerTitle: true),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -200,10 +197,7 @@ class _DynamicIslandScreenState extends State<DynamicIslandScreen> {
           Icon(icon, size: 28),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              label,
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
+            child: Text(label, style: Theme.of(context).textTheme.titleSmall),
           ),
         ],
       ),
@@ -213,9 +207,8 @@ class _DynamicIslandScreenState extends State<DynamicIslandScreen> {
   Widget _buildSectionHeader(String title) {
     return Text(
       title,
-      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+      style: Theme.of(context).textTheme.titleMedium
+          ?.copyWith(fontWeight: FontWeight.bold),
     );
   }
 
@@ -225,10 +218,7 @@ class _DynamicIslandScreenState extends State<DynamicIslandScreen> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       color: colorScheme.surfaceContainerHighest,
       child: ListTile(
-        leading: Icon(
-          Icons.text_fields_rounded,
-          color: colorScheme.primary,
-        ),
+        leading: Icon(Icons.text_fields_rounded, color: colorScheme.primary),
         title: const Text('Start Simple Status'),
         subtitle: const Text('Display text & icon in the Dynamic Island'),
         trailing: FilledButton.tonal(
@@ -245,10 +235,7 @@ class _DynamicIslandScreenState extends State<DynamicIslandScreen> {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: colorScheme.outlineVariant,
-          width: 1,
-        ),
+        border: Border.all(color: colorScheme.outlineVariant, width: 1),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
@@ -289,10 +276,7 @@ class _DynamicIslandScreenState extends State<DynamicIslandScreen> {
         underline: const SizedBox.shrink(),
         borderRadius: BorderRadius.circular(16),
         items: _animations.map((anim) {
-          return DropdownMenuItem(
-            value: anim.name,
-            child: Text(anim.label),
-          );
+          return DropdownMenuItem(value: anim.name, child: Text(anim.label));
         }).toList(),
         onChanged: (value) {
           if (value != null) {
@@ -323,9 +307,9 @@ class _DynamicIslandScreenState extends State<DynamicIslandScreen> {
               Text(
                 '${_fps.round()} FPS',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.primary,
-                    ),
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.primary,
+                ),
               ),
             ],
           ),
@@ -359,14 +343,12 @@ class _DynamicIslandScreenState extends State<DynamicIslandScreen> {
         _isSlicing
             ? 'Slicing Sprite Sheet...'
             : _slicedFrameCount > 0
-                ? 'Slice & Animate ($_slicedFrameCount frames ready)'
-                : 'Slice & Animate',
+            ? 'Slice & Animate ($_slicedFrameCount frames ready)'
+            : 'Slice & Animate',
       ),
       style: FilledButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
     );
   }
@@ -380,9 +362,7 @@ class _DynamicIslandScreenState extends State<DynamicIslandScreen> {
         backgroundColor: colorScheme.error,
         foregroundColor: colorScheme.onError,
         padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
     );
   }

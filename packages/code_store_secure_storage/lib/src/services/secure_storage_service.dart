@@ -11,9 +11,7 @@ class SecureStorageService implements ISecureStorageService {
     : _storage =
           storage ??
           const FlutterSecureStorage(
-            aOptions: AndroidOptions(
-              resetOnError: true,
-            ),
+            aOptions: AndroidOptions(resetOnError: true),
             iOptions: IOSOptions(
               accessibility: KeychainAccessibility.first_unlock,
             ),

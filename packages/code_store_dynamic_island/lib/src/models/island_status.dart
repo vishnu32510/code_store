@@ -23,11 +23,11 @@ class IslandStatus {
   final bool isActive;
 
   Map<String, dynamic> toMap() => {
-        'title': title,
-        'subtitle': subtitle,
-        'iconSystemName': iconSystemName,
-        'isActive': isActive,
-      };
+    'title': title,
+    'subtitle': subtitle,
+    'iconSystemName': iconSystemName,
+    'isActive': isActive,
+  };
 
   factory IslandStatus.fromMap(Map<String, dynamic> map) {
     return IslandStatus(
