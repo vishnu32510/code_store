@@ -34,16 +34,29 @@ struct IslandAnimationAttributes: ActivityAttributes {
     }
     GeneratedPluginRegistrant.register(with: self)
 
+    let result = super.application(application, didFinishLaunchingWithOptions: launchOptions)
     setupDynamicIslandChannel()
-
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    return result
   }
 
   private func setupDynamicIslandChannel() {
-    guard let controller = window?.rootViewController as? FlutterViewController else { return }
+    let messenger: FlutterBinaryMessenger?
+    if let registrar = self.registrar(forPlugin: "DynamicIslandPlugin") {
+      messenger = registrar.messenger()
+    } else if let controller = window?.rootViewController as? FlutterViewController {
+      messenger = controller.binaryMessenger
+    } else {
+      messenger = nil
+    }
+
+    guard let binaryMessenger = messenger else {
+      NSLog("DynamicIsland: Failed to obtain FlutterBinaryMessenger")
+      return
+    }
+
     let channel = FlutterMethodChannel(
       name: "com.nungu.codestore/dynamic_island",
-      binaryMessenger: controller.binaryMessenger
+      binaryMessenger: binaryMessenger
     )
 
     channel.setMethodCallHandler { (call, result) in
