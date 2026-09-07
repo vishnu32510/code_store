@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:purchases_flutter/purchases_flutter.dart' hide PurchaseResult;
 
 import '../models/app_subscription_package.dart';
 import '../models/customer_entitlement_info.dart';
@@ -199,8 +199,8 @@ class PurchasesService implements IPurchaseService {
         return PurchaseResult.error('Package not found');
       }
 
-      final customerInfo = await Purchases.purchasePackage(rcPackage);
-      final mapped = _mapCustomerInfo(customerInfo);
+      final result = await Purchases.purchase(PurchaseParams.package(rcPackage));
+      final mapped = _mapCustomerInfo(result.customerInfo);
       return PurchaseResult.success(mapped);
     } on PlatformException catch (e) {
       final errorCode = PurchasesErrorHelper.getErrorCode(e);
