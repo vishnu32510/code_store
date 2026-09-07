@@ -12,7 +12,6 @@ class SecureStorageService implements ISecureStorageService {
           storage ??
           const FlutterSecureStorage(
             aOptions: AndroidOptions(
-              encryptedSharedPreferences: true,
               resetOnError: true,
             ),
             iOptions: IOSOptions(
