@@ -11,7 +11,7 @@ class ShareService implements IShareService {
   @override
   Future<void> shareText({required String text, String? subject}) async {
     try {
-      await Share.share(text, subject: subject);
+      await SharePlus.instance.share(ShareParams(text: text, subject: subject));
     } catch (e) {
       debugPrint('Error sharing text: $e');
     }
@@ -20,7 +20,7 @@ class ShareService implements IShareService {
   @override
   Future<void> shareUri({required Uri uri, String? text}) async {
     try {
-      await Share.shareUri(uri);
+      await SharePlus.instance.share(ShareParams(uri: uri));
     } catch (e) {
       debugPrint('Error sharing URI: $e');
     }
@@ -34,7 +34,9 @@ class ShareService implements IShareService {
   }) async {
     try {
       final xfiles = filePaths.map((p) => XFile(p)).toList();
-      await Share.shareXFiles(xfiles, text: text, subject: subject);
+      await SharePlus.instance.share(
+        ShareParams(files: xfiles, text: text, subject: subject),
+      );
     } catch (e) {
       debugPrint('Error sharing files: $e');
     }
