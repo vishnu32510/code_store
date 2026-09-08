@@ -246,6 +246,58 @@ class AppThemeConfig extends Equatable {
         surfaceContainerHighest: BondedPalette.pinkDark,
         outline: BondedPalette.subtleBorderDark,
       ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: BondedPalette.scaffoldDark,
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: IconThemeData(color: BondedPalette.hotPink),
+        titleTextStyle: TextStyle(
+          color: BondedPalette.textLight,
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: BondedPalette.hotPink,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+      ),
+      cardTheme: CardThemeData(
+        color: BondedPalette.cardDark,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(
+            color: BondedPalette.subtleBorderDark,
+            width: 1,
+          ),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: BondedPalette.cardDark,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: BondedPalette.subtleBorderDark),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: BondedPalette.subtleBorderDark),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(
+            color: BondedPalette.hotPink,
+            width: 1.8,
+          ),
+        ),
+      ),
     ),
     themeMode: ThemeMode.dark,
   );
