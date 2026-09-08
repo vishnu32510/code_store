@@ -1,6 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
+import '../palettes/bonded_palette.dart';
+
 /// Represents a dynamic theme configuration registered in [ThemeBloc].
 @immutable
 class AppThemeConfig extends Equatable {
@@ -159,7 +161,98 @@ class AppThemeConfig extends Equatable {
     themeMode: ThemeMode.dark,
   );
 
+  static AppThemeConfig get bonded => AppThemeConfig(
+    id: 'bonded',
+    name: 'Bonded',
+    icon: Icons.favorite_rounded,
+    themeData: ThemeData(
+      useMaterial3: true,
+      colorScheme: const ColorScheme.light(
+        primary: BondedPalette.hotPink,
+        onPrimary: Colors.white,
+        secondary: BondedPalette.deepPink,
+        onSecondary: Colors.white,
+        surface: BondedPalette.cardWhite,
+        onSurface: BondedPalette.textDark,
+        surfaceContainerHighest: BondedPalette.blushPink,
+        outline: BondedPalette.subtleBorder,
+      ),
+      scaffoldBackgroundColor: BondedPalette.scaffoldLight,
+      appBarTheme: const AppBarTheme(
+        backgroundColor: BondedPalette.scaffoldLight,
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: IconThemeData(color: BondedPalette.hotPink),
+        titleTextStyle: TextStyle(
+          color: BondedPalette.textDark,
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: BondedPalette.hotPink,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+      ),
+      cardTheme: CardThemeData(
+        color: BondedPalette.cardWhite,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: BondedPalette.subtleBorder, width: 1),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: BondedPalette.cardWhite,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: BondedPalette.subtleBorder),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: BondedPalette.subtleBorder),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(
+            color: BondedPalette.hotPink,
+            width: 1.8,
+          ),
+        ),
+      ),
+    ),
+    themeMode: ThemeMode.light,
+  );
+
+  static AppThemeConfig get bondedDark => AppThemeConfig(
+    id: 'bonded_dark',
+    name: 'Bonded Dark',
+    icon: Icons.favorite_border_rounded,
+    themeData: ThemeData.dark(useMaterial3: true).copyWith(
+      scaffoldBackgroundColor: BondedPalette.scaffoldDark,
+      colorScheme: const ColorScheme.dark(
+        primary: BondedPalette.hotPink,
+        onPrimary: Colors.white,
+        secondary: BondedPalette.rosePink,
+        surface: BondedPalette.cardDark,
+        onSurface: BondedPalette.textLight,
+        surfaceContainerHighest: BondedPalette.pinkDark,
+        outline: BondedPalette.subtleBorderDark,
+      ),
+    ),
+    themeMode: ThemeMode.dark,
+  );
+
   static List<AppThemeConfig> get defaultThemes => [
+    bonded,
+    bondedDark,
     dark,
     light,
     plushie,
