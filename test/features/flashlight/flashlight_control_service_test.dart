@@ -26,7 +26,9 @@ void main() {
       service = FlashlightControlService(toast: mockToastService);
 
       // Mock the TorchLight method channel to avoid native calls failing
-      const MethodChannel('torch_light').setMockMethodCallHandler((MethodCall methodCall) async {
+      const MethodChannel('torch_light').setMockMethodCallHandler((
+        MethodCall methodCall,
+      ) async {
         if (methodCall.method == 'enable_torch') {
           return true;
         } else if (methodCall.method == 'disable_torch') {
@@ -43,15 +45,18 @@ void main() {
     });
 
     group('stopEffectsAndTorch', () {
-      test('clears all effects and turns off torch when none are active', () async {
-        // Act
-        await service.stopEffectsAndTorch();
+      test(
+        'clears all effects and turns off torch when none are active',
+        () async {
+          // Act
+          await service.stopEffectsAndTorch();
 
-        // Assert
-        expect(service.strobeActive, isFalse);
-        expect(service.sosActive, isFalse);
-        expect(service.isTorchOn, isFalse);
-      });
+          // Assert
+          expect(service.strobeActive, isFalse);
+          expect(service.sosActive, isFalse);
+          expect(service.isTorchOn, isFalse);
+        },
+      );
 
       test('stops strobe if it is running', () async {
         // Arrange

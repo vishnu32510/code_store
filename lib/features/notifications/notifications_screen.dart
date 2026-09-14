@@ -106,7 +106,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         id: id,
         title: '🎨 Rich Media Alert',
         body: 'This notification includes high-resolution image preview!',
-        imageUrl: 'https://raw.githubusercontent.com/flutter/website/main/src/assets/images/shared/brand/flutter/logo/flutter-lockup.png',
+        imageUrl:
+            'https://raw.githubusercontent.com/flutter/website/main/src/assets/images/shared/brand/flutter/logo/flutter-lockup.png',
         payload: '{"type": "rich_media_test"}',
       );
       _toast.showSuccess('Rich media notification sent!');
@@ -168,7 +169,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   context,
                   icon: Icons.security_rounded,
                   title: 'Notification Permission',
-                  subtitle: 'Required to receive alerts, background updates, and order notifications.',
+                  subtitle:
+                      'Required to receive alerts, background updates, and order notifications.',
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -259,7 +261,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   context,
                   icon: Icons.key_rounded,
                   title: 'FCM Registration Token',
-                  subtitle: 'Use this token in Firebase Console (Test Campaign) to target this exact device.',
+                  subtitle:
+                      'Use this token in Firebase Console (Test Campaign) to target this exact device.',
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -322,7 +325,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   context,
                   icon: Icons.phonelink_ring_rounded,
                   title: 'Test Local Notifications',
-                  subtitle: 'Test heads-up banners, rich media attachments, and background scheduled alarms.',
+                  subtitle:
+                      'Test heads-up banners, rich media attachments, and background scheduled alarms.',
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
