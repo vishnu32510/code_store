@@ -85,11 +85,13 @@ class PermissionService implements IPermissionService {
   Future<Map<AppPermissionType, AppPermissionStatus>> requestPermissions(
     List<AppPermissionType> types,
   ) async {
-    final Map<AppPermissionType, AppPermissionStatus> results = {};
-    for (final type in types) {
-      results[type] = await requestPermission(type);
-    }
-    return results;
+    final futures = types.map((type) async {
+      final result = await requestPermission(type);
+      return MapEntry(type, result);
+    });
+
+    final results = await Future.wait(futures);
+    return Map.fromEntries(results);
   }
 
   @override
