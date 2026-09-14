@@ -19,15 +19,16 @@ class DynamicIslandService implements IDynamicIslandService {
   DynamicIslandService({
     MethodChannel? channel,
     SpriteSlicer? spriteSlicer,
-    String appGroupId = 'group.com.nungu.codestore',
+    this.appGroupId = 'group.com.nungu.codestore',
   }) : _channel =
            channel ?? const MethodChannel('com.nungu.codestore/dynamic_island'),
-       _spriteSlicer = spriteSlicer ?? const SpriteSlicer(),
-       _appGroupId = appGroupId;
+       _spriteSlicer = spriteSlicer ?? const SpriteSlicer();
 
   final MethodChannel _channel;
   final SpriteSlicer _spriteSlicer;
-  final String _appGroupId;
+  final String appGroupId;
+
+  String get _appGroupId => appGroupId;
 
   String? _currentActivityId;
 
