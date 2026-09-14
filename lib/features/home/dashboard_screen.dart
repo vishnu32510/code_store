@@ -39,6 +39,7 @@ class DashboardScreen extends StatelessWidget {
         foregroundColor: colors.onPrimary,
         shape: const CircleBorder(),
         elevation: 6,
+        tooltip: 'Architecture Guide',
         onPressed: () => _showArchitectureGuide(context),
         child: const Icon(Icons.info_outline_rounded, size: 28),
       ),
