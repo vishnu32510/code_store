@@ -55,8 +55,8 @@ class HomeWidgetService {
   /// Stream of parsed [WidgetAction] events triggered when a user taps a widget.
   Stream<WidgetAction> get onActionTriggered => isPlatformSupported
       ? HomeWidget.widgetClicked
-          .where((uri) => uri != null)
-          .map((uri) => WidgetAction.fromUri(uri!))
+            .where((uri) => uri != null)
+            .map((uri) => WidgetAction.fromUri(uri!))
       : const Stream.empty();
 
   /// Initializes the Home Widget service with optional app group, widget identifiers,
@@ -136,8 +136,9 @@ class HomeWidgetService {
     String? androidName,
     String? iOSName,
   }) async {
-    final Map<String, dynamic> map =
-        toJson != null ? toJson(model) : (model as dynamic).toJson();
+    final Map<String, dynamic> map = toJson != null
+        ? toJson(model)
+        : (model as dynamic).toJson();
     final jsonStr = jsonEncode(map);
     final saved = await saveData<String>(key, jsonStr);
 
