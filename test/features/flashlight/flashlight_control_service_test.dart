@@ -62,21 +62,23 @@ void main() {
     Object? disableResponse,
   }) {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(const MethodChannel(channelName), (MethodCall methodCall) async {
-      if (methodCall.method == methodEnable) {
-        if (enableResponse is Exception) {
-          throw enableResponse;
-        }
-        return enableResponse;
-      }
-      if (methodCall.method == methodDisable) {
-        if (disableResponse is Exception) {
-          throw disableResponse;
-        }
-        return disableResponse;
-      }
-      return null;
-    });
+        .setMockMethodCallHandler(const MethodChannel(channelName), (
+          MethodCall methodCall,
+        ) async {
+          if (methodCall.method == methodEnable) {
+            if (enableResponse is Exception) {
+              throw enableResponse;
+            }
+            return enableResponse;
+          }
+          if (methodCall.method == methodDisable) {
+            if (disableResponse is Exception) {
+              throw disableResponse;
+            }
+            return disableResponse;
+          }
+          return null;
+        });
   }
 
   group('FlashlightControlService.handleMainTap', () {
@@ -127,7 +129,9 @@ void main() {
 
     test('handles EnableTorchExistentUserException correctly', () async {
       mockTorchLightResponse(
-        enableResponse: PlatformException(code: 'enable_torch_error_existent_user'),
+        enableResponse: PlatformException(
+          code: 'enable_torch_error_existent_user',
+        ),
       );
 
       final result = await service.handleMainTap();
@@ -144,7 +148,9 @@ void main() {
 
       // Then mock disable to throw
       mockTorchLightResponse(
-        disableResponse: PlatformException(code: 'disable_torch_error_existent_user'),
+        disableResponse: PlatformException(
+          code: 'disable_torch_error_existent_user',
+        ),
       );
 
       final result = await service.handleMainTap();
@@ -163,7 +169,10 @@ void main() {
 
       expect(result, TorchMainTapOutcome.unchanged);
       expect(service.isTorchOn, isFalse);
-      expect(mockToast.errorMessages, contains('Torch is not available on this device.'));
+      expect(
+        mockToast.errorMessages,
+        contains('Torch is not available on this device.'),
+      );
     });
 
     test('handles generic EnableTorchException correctly', () async {
@@ -195,26 +204,29 @@ void main() {
       expect(mockToast.errorMessages, contains('Could not disable torch.'));
     });
 
-    test('handles generic Exception correctly (via mocked method call handler)', () async {
-      // Note: TorchLight methods internally catch PlatformException and throw specific
-      // exceptions (EnableTorchException, etc). If they get something that is not
-      // a PlatformException, it will bubble up and be caught by the generic catch (_) in handleMainTap.
-      // However, a MethodChannel mock handler's thrown exception will be wrapped into PlatformException.
-      // To test the final catch (_) block, we can simulate an error during disable where
-      // the error is anything else. But wait, we can't easily throw a non-PlatformException
-      // from a MethodChannel mock.
-      // Another way is to trigger it by mocking the kIsWeb part if we can't do it via MethodChannel.
-      // Actually, if we throw MissingPluginException from the channel, does it get caught as PlatformException?
-      // MissingPluginException is NOT a PlatformException.
-      mockTorchLightResponse(
-        enableResponse: MissingPluginException('No implementation found'),
-      );
+    test(
+      'handles generic Exception correctly (via mocked method call handler)',
+      () async {
+        // Note: TorchLight methods internally catch PlatformException and throw specific
+        // exceptions (EnableTorchException, etc). If they get something that is not
+        // a PlatformException, it will bubble up and be caught by the generic catch (_) in handleMainTap.
+        // However, a MethodChannel mock handler's thrown exception will be wrapped into PlatformException.
+        // To test the final catch (_) block, we can simulate an error during disable where
+        // the error is anything else. But wait, we can't easily throw a non-PlatformException
+        // from a MethodChannel mock.
+        // Another way is to trigger it by mocking the kIsWeb part if we can't do it via MethodChannel.
+        // Actually, if we throw MissingPluginException from the channel, does it get caught as PlatformException?
+        // MissingPluginException is NOT a PlatformException.
+        mockTorchLightResponse(
+          enableResponse: MissingPluginException('No implementation found'),
+        );
 
-      final result = await service.handleMainTap();
+        final result = await service.handleMainTap();
 
-      expect(result, TorchMainTapOutcome.unchanged);
-      expect(service.isTorchOn, isFalse);
-      expect(mockToast.errorMessages, contains('Torch action failed.'));
-    });
+        expect(result, TorchMainTapOutcome.unchanged);
+        expect(service.isTorchOn, isFalse);
+        expect(mockToast.errorMessages, contains('Torch action failed.'));
+      },
+    );
   });
 }
