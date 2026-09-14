@@ -63,14 +63,11 @@ class BiometricAuthResult {
       );
 
   /// Convenience factory for no enrolled biometrics.
-  factory BiometricAuthResult.notEnrolled([
-    String? message,
-  ]) => BiometricAuthResult(
-    status: BiometricAuthStatus.notEnrolled,
-    errorMessage:
-        message ??
-        'No biometrics are enrolled. Please set up Face ID or Fingerprint in Settings.',
-  );
+  factory BiometricAuthResult.notEnrolled([String? message]) =>
+      BiometricAuthResult(
+        status: BiometricAuthStatus.notEnrolled,
+        errorMessage: message ?? 'No biometrics are enrolled. Please set up Face ID or Fingerprint in Settings.',
+      );
 
   /// Convenience factory for temporary lockout.
   factory BiometricAuthResult.lockedOut([String? message]) =>
@@ -82,14 +79,11 @@ class BiometricAuthResult {
       );
 
   /// Convenience factory for permanent lockout.
-  factory BiometricAuthResult.permanentlyLockedOut([
-    String? message,
-  ]) => BiometricAuthResult(
-    status: BiometricAuthStatus.permanentlyLockedOut,
-    errorMessage:
-        message ??
-        'Biometrics permanently locked out. Please unlock with device passcode.',
-  );
+  factory BiometricAuthResult.permanentlyLockedOut([String? message]) =>
+      BiometricAuthResult(
+        status: BiometricAuthStatus.permanentlyLockedOut,
+        errorMessage: message ?? 'Biometrics permanently locked out. Please unlock with device passcode.',
+      );
 
   /// Convenience factory for unexpected errors.
   factory BiometricAuthResult.error(String message) => BiometricAuthResult(

@@ -124,8 +124,7 @@ Future<void> showFCMTokenDialog(
 Future<bool> showNotificationPermissionPrompt(
   BuildContext context, {
   String title = 'Stay Updated with CodeStore',
-  String subtitle =
-      'Enable notifications so you never miss important updates, new features, and account security alerts.',
+  String subtitle = 'Enable notifications so you never miss important updates, new features, and account security alerts.',
   String confirmLabel = 'Enable Notifications',
   String dismissLabel = 'Maybe Later',
   bool force = false,
@@ -169,8 +168,7 @@ class NotificationPermissionPromptDialog extends StatelessWidget {
   const NotificationPermissionPromptDialog({
     super.key,
     this.title = 'Stay Updated with CodeStore',
-    this.subtitle =
-        'Enable notifications so you never miss important updates, new features, and account security alerts.',
+    this.subtitle = 'Enable notifications so you never miss important updates, new features, and account security alerts.',
     this.confirmLabel = 'Enable Notifications',
     this.dismissLabel = 'Maybe Later',
     this.messagingService,

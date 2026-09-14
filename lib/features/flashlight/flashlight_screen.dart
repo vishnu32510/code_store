@@ -182,12 +182,10 @@ class _FlashlightBody extends StatelessWidget {
                           ? [
                               BoxShadow(
                                 color: isDark
-                                    ? const Color(
-                                        0xFFFFFFFF,
-                                      ).withValues(alpha: 0.75)
-                                    : const Color(
-                                        0xFFFFC107,
-                                      ).withValues(alpha: 0.5),
+                                    ? const Color(0xFFFFFFFF)
+                                          .withValues(alpha: 0.75)
+                                    : const Color(0xFFFFC107)
+                                          .withValues(alpha: 0.5),
                                 blurRadius: 36,
                                 spreadRadius: 2,
                               ),
