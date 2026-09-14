@@ -2,7 +2,7 @@ import 'package:code_store/features/flashlight/flashlight_control_service.dart';
 import 'package:code_store_core/code_store_core.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:torch_light/torch_light.dart';
+
 
 class MockToastService implements IToastService {
   final List<String> infoMessages = [];
