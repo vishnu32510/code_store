@@ -174,9 +174,9 @@ class HomeWidgetService {
     String? androidName,
     String? iOSName,
   }) async {
-    for (final entry in data.entries) {
-      await saveData(entry.key, entry.value);
-    }
+    await Future.wait(
+      data.entries.map((entry) => saveData(entry.key, entry.value)),
+    );
     if (update) {
       return await updateWidget(androidName: androidName, iOSName: iOSName);
     }
@@ -214,9 +214,9 @@ class HomeWidgetService {
   }) async {
     _ensurePlatformSupported();
     final map = payload.toMap();
-    for (final entry in map.entries) {
-      await saveData(entry.key, entry.value);
-    }
+    await Future.wait(
+      map.entries.map((entry) => saveData(entry.key, entry.value)),
+    );
     return await updateWidget(
       androidName: androidName ?? _defaultAndroidName,
       iOSName: iOSName ?? _defaultIOSName,

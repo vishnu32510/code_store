@@ -20,6 +20,9 @@ on:
           - android_internal
           - android_production
 
+permissions:
+  contents: write
+
 env:
   LC_ALL: en_US.UTF-8
   LANG: en_US.UTF-8
@@ -97,3 +100,16 @@ jobs:
           else
             bundle exec fastlane production
           fi
+
+      - name: Tag Release
+        if: success()
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}')
+          TIMESTAMP=$(date +'%Y%m%d%H%M%S')
+          LANE=${{ inputs.lane || 'android_internal' }}
+          TAG_NAME="android-${LANE}-v${VERSION}-${TIMESTAMP}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
+          git push origin "$TAG_NAME"

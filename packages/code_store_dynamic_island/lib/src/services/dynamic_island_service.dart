@@ -19,14 +19,16 @@ class DynamicIslandService implements IDynamicIslandService {
   DynamicIslandService({
     MethodChannel? channel,
     SpriteSlicer? spriteSlicer,
-    this._appGroupId = 'group.com.nungu.codestore',
+    this.appGroupId = 'group.com.nungu.codestore',
   }) : _channel =
            channel ?? const MethodChannel('com.nungu.codestore/dynamic_island'),
        _spriteSlicer = spriteSlicer ?? const SpriteSlicer();
 
   final MethodChannel _channel;
   final SpriteSlicer _spriteSlicer;
-  final String _appGroupId;
+  final String appGroupId;
+
+  String get _appGroupId => appGroupId;
 
   String? _currentActivityId;
 
@@ -190,18 +192,22 @@ class DynamicIslandService implements IDynamicIslandService {
 
       // Transfer frame files directly to the App Group container via MethodChannel
       if (!kIsWeb && Platform.isIOS) {
+        final futures = <Future<void>>[];
         for (int i = 0; i < frameCount; i++) {
-          final framePath = '$outputDir/${animationName}_$i.png';
-          final frameFile = File(framePath);
-          if (frameFile.existsSync()) {
-            final frameBytes = await frameFile.readAsBytes();
-            await _channel.invokeMethod('saveFrame', {
-              'fileName': '${animationName}_$i.png',
-              'bytes': Uint8List.fromList(frameBytes),
-              'appGroupId': _appGroupId,
-            });
-          }
+          futures.add(() async {
+            final framePath = '$outputDir/${animationName}_$i.png';
+            final frameFile = File(framePath);
+            if (frameFile.existsSync()) {
+              final frameBytes = await frameFile.readAsBytes();
+              await _channel.invokeMethod('saveFrame', {
+                'fileName': '${animationName}_$i.png',
+                'bytes': Uint8List.fromList(frameBytes),
+                'appGroupId': _appGroupId,
+              });
+            }
+          }());
         }
+        await Future.wait(futures);
       }
 
       debugPrint(
