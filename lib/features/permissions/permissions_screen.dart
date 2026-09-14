@@ -49,10 +49,13 @@ class _PermissionsScreenState extends State<PermissionsScreen>
   Future<void> _refreshAllPermissions() async {
     setState(() => _isLoading = true);
 
-    final Map<AppPermissionType, AppPermissionStatus> updated = {};
-    for (final perm in _trackedPermissions) {
-      updated[perm] = await _permissionService.checkPermission(perm);
-    }
+    final results = await Future.wait(
+      _trackedPermissions.map((perm) async {
+        final status = await _permissionService.checkPermission(perm);
+        return MapEntry(perm, status);
+      }),
+    );
+    final updated = Map.fromEntries(results);
 
     if (mounted) {
       setState(() {
