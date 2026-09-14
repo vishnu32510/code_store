@@ -4,14 +4,12 @@ import '../models/local_notification_action.dart';
 import '../models/local_notification_payload.dart';
 
 /// Callback invoked when a local notification banner is tapped by the user.
-typedef LocalNotificationTapHandler = void Function(
-  LocalNotificationPayload payload,
-);
+typedef LocalNotificationTapHandler =
+    void Function(LocalNotificationPayload payload);
 
 /// Callback invoked when an interactive action button is tapped.
-typedef LocalNotificationActionHandler = void Function(
-  LocalNotificationActionResponse response,
-);
+typedef LocalNotificationActionHandler =
+    void Function(LocalNotificationActionResponse response);
 
 /// Abstract contract defining local notifications, scheduling, alarms, rich media, and badges.
 abstract interface class ILocalNotificationService {

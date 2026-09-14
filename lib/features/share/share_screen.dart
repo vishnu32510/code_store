@@ -13,7 +13,8 @@ class _ShareScreenState extends State<ShareScreen> {
   final IShareService _shareService = getIt<IShareService>();
 
   final TextEditingController _textController = TextEditingController(
-    text: '🚀 Check out CodeStore - the ultimate production-ready Flutter modular boilerplate!',
+    text:
+        '🚀 Check out CodeStore - the ultimate production-ready Flutter modular boilerplate!',
   );
   final TextEditingController _urlController = TextEditingController(
     text: 'https://github.com/vishnu32510/code_store',
@@ -44,7 +45,8 @@ class _ShareScreenState extends State<ShareScreen> {
 
   void _shareReferralCode() {
     _shareService.shareText(
-      text: 'Join me on CodeStore! Use my referral code: CODESTORE-PRO-2026 to get 1 month of Pro access free.\nhttps://codestore.app/ref/CODESTORE-PRO-2026',
+      text:
+          'Join me on CodeStore! Use my referral code: CODESTORE-PRO-2026 to get 1 month of Pro access free.\nhttps://codestore.app/ref/CODESTORE-PRO-2026',
       subject: 'Your Exclusive CodeStore Invitation',
     );
   }
