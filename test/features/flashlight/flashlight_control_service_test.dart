@@ -3,7 +3,6 @@ import 'package:code_store_core/code_store_core.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-
 class MockToastService implements IToastService {
   final List<String> infoMessages = [];
   final List<String> warningMessages = [];
