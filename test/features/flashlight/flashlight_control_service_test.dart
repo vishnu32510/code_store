@@ -55,7 +55,8 @@ void main() {
 
     tearDown(() {
       service.dispose();
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(const MethodChannel('torch_light'), null);
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(const MethodChannel(channelName), null);
     });
 
     void mockTorchLightResponse({
@@ -139,7 +140,10 @@ void main() {
 
         expect(result, TorchMainTapOutcome.turnedOn);
         expect(service.isTorchOn, isTrue);
-        expect(mockToast.warningMessages, contains('Torch is already enabled.'));
+        expect(
+          mockToast.warningMessages,
+          contains('Torch is already enabled.'),
+        );
       });
 
       test('handles DisableTorchExistentUserException correctly', () async {
@@ -158,7 +162,10 @@ void main() {
 
         expect(result, TorchMainTapOutcome.turnedOff);
         expect(service.isTorchOn, isFalse);
-        expect(mockToast.warningMessages, contains('Torch is already disabled.'));
+        expect(
+          mockToast.warningMessages,
+          contains('Torch is already disabled.'),
+        );
       });
 
       test('handles EnableTorchNotAvailableException correctly', () async {
@@ -235,16 +242,17 @@ void main() {
       setUp(() {
         // Mock the TorchLight method channel to avoid native calls failing for stopEffectsAndTorch
         // Since stopEffectsAndTorch relies on basic true/false mock
-        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(const MethodChannel('torch_light'), (
-          MethodCall methodCall,
-        ) async {
-          if (methodCall.method == 'enable_torch') {
-            return true;
-          } else if (methodCall.method == 'disable_torch') {
-            return true;
-          }
-          return null;
-        });
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(const MethodChannel(channelName), (
+              MethodCall methodCall,
+            ) async {
+              if (methodCall.method == 'enable_torch') {
+                return true;
+              } else if (methodCall.method == 'disable_torch') {
+                return true;
+              }
+              return null;
+            });
       });
       test(
         'clears all effects and turns off torch when none are active',

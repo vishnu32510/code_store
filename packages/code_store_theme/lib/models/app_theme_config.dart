@@ -37,9 +37,8 @@ class AppThemeConfig extends Equatable {
     id: 'dark',
     name: 'Dark',
     icon: Icons.nightlight_round,
-    themeData: ThemeData.dark(
-      useMaterial3: true,
-    ).copyWith(colorScheme: const ColorScheme.dark()),
+    themeData: ThemeData.dark(useMaterial3: true)
+        .copyWith(colorScheme: const ColorScheme.dark()),
     themeMode: ThemeMode.dark,
   );
 
@@ -47,9 +46,8 @@ class AppThemeConfig extends Equatable {
     id: 'light',
     name: 'Light',
     icon: Icons.wb_sunny_rounded,
-    themeData: ThemeData.light(
-      useMaterial3: true,
-    ).copyWith(colorScheme: const ColorScheme.light()),
+    themeData: ThemeData.light(useMaterial3: true)
+        .copyWith(colorScheme: const ColorScheme.light()),
     themeMode: ThemeMode.light,
   );
 
@@ -57,9 +55,8 @@ class AppThemeConfig extends Equatable {
     id: 'system',
     name: 'System',
     icon: Icons.sync_sharp,
-    themeData: ThemeData.light(
-      useMaterial3: true,
-    ).copyWith(colorScheme: const ColorScheme.light()),
+    themeData: ThemeData.light(useMaterial3: true)
+        .copyWith(colorScheme: const ColorScheme.light()),
     themeMode: ThemeMode.system,
   );
 
