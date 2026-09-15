@@ -303,6 +303,7 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
                 icon: Icons.lock_outline_rounded,
                 colors: colors,
                 suffix: IconButton(
+                  tooltip: _obscurePassword ? 'Show password' : 'Hide password',
                   icon: Icon(
                     _obscurePassword
                         ? Icons.visibility_outlined
