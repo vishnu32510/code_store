@@ -141,6 +141,7 @@ class _SecureStorageScreenState extends State<SecureStorageScreen> {
                 TextField(
                   controller: _keyController,
                   enabled: initialKey == null,
+                  textInputAction: TextInputAction.next,
                   decoration: const InputDecoration(
                     labelText: 'Key Identifier',
                     hintText: 'e.g. auth_token, user_pin',
@@ -151,6 +152,7 @@ class _SecureStorageScreenState extends State<SecureStorageScreen> {
                 TextField(
                   controller: _valueController,
                   maxLines: 3,
+                  textInputAction: TextInputAction.done,
                   decoration: const InputDecoration(
                     labelText: 'Encrypted Value',
                     hintText: 'e.g. secret_value_123',
