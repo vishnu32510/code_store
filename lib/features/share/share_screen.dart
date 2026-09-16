@@ -71,6 +71,7 @@ class _ShareScreenState extends State<ShareScreen> {
           TextField(
             controller: _textController,
             maxLines: 3,
+            textInputAction: TextInputAction.next,
             decoration: const InputDecoration(
               labelText: 'Message Body',
               border: OutlineInputBorder(),
@@ -79,6 +80,7 @@ class _ShareScreenState extends State<ShareScreen> {
           const SizedBox(height: 12),
           TextField(
             controller: _urlController,
+            textInputAction: TextInputAction.done,
             decoration: const InputDecoration(
               labelText: 'Link / URL (Optional)',
               border: OutlineInputBorder(),

@@ -144,6 +144,7 @@ class _HomeWidgetCardState extends State<HomeWidgetCard> {
             const SizedBox(height: 16),
             TextField(
               controller: _titleController,
+              textInputAction: TextInputAction.next,
               decoration: const InputDecoration(
                 labelText: 'Widget Title',
                 border: OutlineInputBorder(),
@@ -153,6 +154,7 @@ class _HomeWidgetCardState extends State<HomeWidgetCard> {
             const SizedBox(height: 12),
             TextField(
               controller: _messageController,
+              textInputAction: TextInputAction.next,
               decoration: const InputDecoration(
                 labelText: 'Widget Message',
                 border: OutlineInputBorder(),
@@ -163,6 +165,7 @@ class _HomeWidgetCardState extends State<HomeWidgetCard> {
             const SizedBox(height: 12),
             TextField(
               controller: _statusController,
+              textInputAction: TextInputAction.done,
               decoration: const InputDecoration(
                 labelText: 'Status Badge (e.g. Active, Operational)',
                 border: OutlineInputBorder(),
