@@ -247,9 +247,9 @@ class DashboardProfileView extends StatelessWidget {
                     size: 48,
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Welcome back,',
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
+                  Text(
+                    isSignedIn ? 'Welcome back,' : 'Welcome,',
+                    style: const TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                   if (!isSignedIn) ...[
                     const SizedBox(height: 4),
