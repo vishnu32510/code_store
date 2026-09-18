@@ -292,7 +292,10 @@ class _FlashlightBody extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: colors.errorContainer.withValues(alpha: 0.8),
                   borderRadius: BorderRadius.circular(12),
