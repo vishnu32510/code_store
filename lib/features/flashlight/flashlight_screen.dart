@@ -290,13 +290,32 @@ class _FlashlightBody extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              Text(
-                'Strobe flashes about once per second. Not for people with photosensitive epilepsy.',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: onSurface.withValues(alpha: 0.55),
-                  height: 1.35,
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: colors.errorContainer.withValues(alpha: 0.8),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      color: colors.onErrorContainer,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Strobe flashes about once per second.\nNot for people with photosensitive epilepsy.',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colors.onErrorContainer,
+                          fontWeight: FontWeight.w600,
+                          height: 1.35,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
