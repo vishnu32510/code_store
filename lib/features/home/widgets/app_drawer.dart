@@ -466,7 +466,7 @@ class AppDrawer extends StatelessWidget {
                       ),
                       icon: const Icon(Icons.login_rounded, size: 20),
                       label: const Text(
-                        'Sign In (Bottom Sheet)',
+                        'Quick Sign In',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -484,7 +484,7 @@ class AppDrawer extends StatelessWidget {
                       ),
                       icon: const Icon(Icons.fullscreen_rounded, size: 20),
                       label: const Text(
-                        'Push Login Screen',
+                        'Sign In (Standard)',
                         style: TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ),
