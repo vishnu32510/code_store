@@ -62,7 +62,7 @@ class _ShareScreenState extends State<ShareScreen> {
           _buildReferralHero(context, colors),
           const SizedBox(height: 24),
           Text(
-            'Custom Message Share Sheet',
+            'Share a Custom Message',
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -90,7 +90,7 @@ class _ShareScreenState extends State<ShareScreen> {
           ElevatedButton.icon(
             onPressed: _shareCustomMessage,
             icon: const Icon(Icons.share_rounded),
-            label: const Text('Open System Share Sheet'),
+            label: const Text('Share Message'),
             style: ElevatedButton.styleFrom(
               backgroundColor: colors.primary,
               foregroundColor: colors.onPrimary,
