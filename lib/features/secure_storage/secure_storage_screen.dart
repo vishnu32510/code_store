@@ -55,9 +55,35 @@ class _SecureStorageScreenState extends State<SecureStorageScreen> {
   }
 
   Future<void> _deleteEntry(String key) async {
-    await _storageService.delete(key: key);
-    await _loadEntries();
-    getIt<IToastService>().showInfo('Deleted key "$key"');
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Secure Data?'),
+        content: Text(
+          'Are you sure you want to delete the key "$key"? This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await _storageService.delete(key: key);
+      await _loadEntries();
+      getIt<IToastService>().showInfo('Deleted key "$key"');
+    }
   }
 
   Future<void> _clearAll() async {

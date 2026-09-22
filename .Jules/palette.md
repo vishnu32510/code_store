@@ -2,3 +2,6 @@
 ## 2026-10-27 - Add textInputAction to TextFields for improved keyboard navigation
 **Learning:** TextFields without a specified `textInputAction` can make keyboard navigation feel clunky, as the default return key behavior is applied (which is usually a newline). Using `TextInputAction.next` and `TextInputAction.done` guides the user through forms more intuitively. Setting a `textInputAction` on a `TextField` with `maxLines > 1` overrides the default newline behavior, making the return key trigger the action (next/done) instead.
 **Action:** When implementing forms with multiple fields, always provide appropriate `textInputAction` values to allow seamless keyboard traversal and submission.
+## 2024-03-21 - Destructive Action Confirmations
+**Learning:** Destructive actions, such as deleting entries in the secure storage vault, can easily be clicked by mistake and lead to data loss. This was noted where the `_clearAll()` method correctly requested confirmation, but deleting individual entries via `_deleteEntry()` did not.
+**Action:** Always add a confirmation dialog before completing destructive actions (e.g., deleting data, unlinking accounts) to prevent accidental data loss and maintain consistency across similar actions in the UI.
