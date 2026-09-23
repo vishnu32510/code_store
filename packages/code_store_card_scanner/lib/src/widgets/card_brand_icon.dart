@@ -31,12 +31,14 @@ class CardBrandIcon extends StatelessWidget {
     if (!animate) return badge;
 
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 250),
+      duration: const Duration(milliseconds: 300),
+      switchInCurve: Curves.easeOutBack,
+      switchOutCurve: Curves.easeInQuad,
       transitionBuilder: (child, animation) {
         return FadeTransition(
           opacity: animation,
           child: ScaleTransition(
-            scale: Tween<double>(begin: 0.85, end: 1.0).animate(animation),
+            scale: Tween<double>(begin: 0.8, end: 1.0).animate(animation),
             child: child,
           ),
         );

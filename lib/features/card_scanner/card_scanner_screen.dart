@@ -12,7 +12,7 @@ class CardScannerScreen extends StatefulWidget {
 }
 
 class _CardScannerScreenState extends State<CardScannerScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   final ICardScannerService _scannerService = getIt<ICardScannerService>();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -28,9 +28,15 @@ class _CardScannerScreenState extends State<CardScannerScreen>
   final FocusNode _expiryFocus = FocusNode();
   final FocusNode _cvvFocus = FocusNode();
 
-  // Animation controller for 3D card flip
+  // Animation Controllers
   late final AnimationController _flipController;
   late final Animation<double> _flipAnimation;
+
+  late final AnimationController _scanLaserController;
+  late final Animation<double> _scanLaserAnimation;
+
+  late final AnimationController _pulseController;
+  late final Animation<double> _pulseAnimation;
 
   // Card State
   CardType _detectedType = CardType.unknown;
@@ -43,13 +49,31 @@ class _CardScannerScreenState extends State<CardScannerScreen>
   void initState() {
     super.initState();
 
+    // 1. Smooth 3D Card Flip Animation (450ms cubic ease)
     _flipController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 450),
     );
-
     _flipAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(parent: _flipController, curve: Curves.easeInOutCubic),
+    );
+
+    // 2. Futuristic Laser Scanner Animation (1400ms repeating sweep)
+    _scanLaserController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    );
+    _scanLaserAnimation = Tween<double>(begin: 0.05, end: 0.95).animate(
+      CurvedAnimation(parent: _scanLaserController, curve: Curves.easeInOutSine),
+    );
+
+    // 3. Subtle ambient pulse animation for viewfinder
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+    _pulseAnimation = Tween<double>(begin: 0.6, end: 1.0).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
     // Auto flip card to back when CVV field is focused
@@ -67,6 +91,8 @@ class _CardScannerScreenState extends State<CardScannerScreen>
   @override
   void dispose() {
     _flipController.dispose();
+    _scanLaserController.dispose();
+    _pulseController.dispose();
     _cardNumberController.removeListener(_onCardNumberChanged);
     _cardNumberController.dispose();
     _cardHolderController.dispose();
@@ -105,6 +131,8 @@ class _CardScannerScreenState extends State<CardScannerScreen>
 
   Future<void> _startScan() async {
     setState(() => _isScanning = true);
+    _scanLaserController.repeat(reverse: true);
+    _pulseController.repeat(reverse: true);
     FocusScope.of(context).unfocus();
 
     try {
@@ -165,6 +193,10 @@ class _CardScannerScreenState extends State<CardScannerScreen>
       );
     } finally {
       if (mounted) {
+        _scanLaserController.stop();
+        _scanLaserController.reset();
+        _pulseController.stop();
+        _pulseController.reset();
         setState(() => _isScanning = false);
       }
     }
@@ -359,50 +391,127 @@ class _CardScannerScreenState extends State<CardScannerScreen>
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // 1. Interactive 3D Card Preview
-              GestureDetector(
-                onTap: () => _flipCard(),
-                child: AnimatedBuilder(
-                  animation: _flipAnimation,
-                  builder: (context, child) {
-                    final angle = _flipAnimation.value * math.pi;
-                    final isUnder = _flipAnimation.value > 0.5;
-
-                    return Transform(
-                      transform: Matrix4.identity()
-                        ..setEntry(3, 2, 0.0012)
-                        ..rotateY(angle),
-                      alignment: Alignment.center,
-                      child: isUnder
-                          ? Transform(
-                              transform: Matrix4.identity()..rotateY(math.pi),
-                              alignment: Alignment.center,
-                              child: _buildCardBack(context),
-                            )
-                          : _buildCardFront(context),
-                    );
-                  },
-                ),
-              ),
-
-              const SizedBox(height: 8),
+              // 1. Compact, Small-Sized Interactive 3D Card Preview with Scanning Effects
               Center(
-                child: Text(
-                  _isCardFlipped ? 'Tap card to view front' : 'Tap card to view back & CVV',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colors.onSurfaceVariant.withValues(alpha: 0.7),
-                    fontStyle: FontStyle.italic,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 330, maxHeight: 184),
+                  child: GestureDetector(
+                    onTap: () => _flipCard(),
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        // The 3D Flippable Card with Dynamic Scale & Perspective
+                        AnimatedBuilder(
+                          animation: _flipAnimation,
+                          builder: (context, child) {
+                            final angle = _flipAnimation.value * math.pi;
+                            final isUnder = _flipAnimation.value > 0.5;
+                            // Realistic 3D scale compression during rotation
+                            final scale = 1.0 - math.sin(_flipAnimation.value * math.pi) * 0.08;
+
+                            return Transform(
+                              transform: Matrix4.identity()
+                                ..setEntry(3, 2, 0.0014)
+                                ..scaleByDouble(scale, scale, 1.0, 1.0)
+                                ..rotateY(angle),
+                              alignment: Alignment.center,
+                              child: isUnder
+                                  ? Transform(
+                                      transform: Matrix4.identity()..rotateY(math.pi),
+                                      alignment: Alignment.center,
+                                      child: _buildCardBack(context),
+                                    )
+                                  : _buildCardFront(context),
+                            );
+                          },
+                        ),
+
+                        // Viewfinder Corner Brackets when scanning is active
+                        if (_isScanning)
+                          Positioned.fill(
+                            child: IgnorePointer(
+                              child: AnimatedBuilder(
+                                animation: _pulseAnimation,
+                                builder: (context, _) {
+                                  return Opacity(
+                                    opacity: _pulseAnimation.value,
+                                    child: CustomPaint(
+                                      painter: _ViewfinderCornerPainter(
+                                        color: Colors.cyanAccent,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+
+                        // Animated Scanning Laser Beam Overlay
+                        if (_isScanning)
+                          Positioned.fill(
+                            child: IgnorePointer(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
+                                child: AnimatedBuilder(
+                                  animation: _scanLaserAnimation,
+                                  builder: (context, _) {
+                                    return Align(
+                                      alignment: Alignment(0, (_scanLaserAnimation.value * 2) - 1),
+                                      child: Container(
+                                        height: 3.5,
+                                        width: double.infinity,
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Colors.cyanAccent.withValues(alpha: 0.1),
+                                              Colors.cyanAccent,
+                                              Colors.white,
+                                              Colors.cyanAccent,
+                                              Colors.cyanAccent.withValues(alpha: 0.1),
+                                            ],
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.cyanAccent.withValues(alpha: 0.9),
+                                              blurRadius: 10,
+                                              spreadRadius: 2,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 6),
 
-              // 2. Scan Card Action Button
+              // Flip Helper Hint
+              Center(
+                child: Text(
+                  _isCardFlipped ? 'Tap card to view front' : 'Tap card to view back & CVV',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colors.onSurfaceVariant.withValues(alpha: 0.75),
+                    fontStyle: FontStyle.italic,
+                    fontSize: 11.5,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              // 2. Scan Card Action Button with Micro-Animation
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -413,7 +522,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: [
                     BoxShadow(
-                      color: colors.primary.withValues(alpha: 0.3),
+                      color: colors.primary.withValues(alpha: 0.28),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -425,47 +534,47 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                     backgroundColor: Colors.transparent,
                     shadowColor: Colors.transparent,
                     foregroundColor: colors.onPrimary,
-                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    padding: const EdgeInsets.symmetric(vertical: 13),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
                   icon: _isScanning
                       ? const SizedBox(
-                          width: 20,
-                          height: 20,
+                          width: 18,
+                          height: 18,
                           child: CircularProgressIndicator(
-                            strokeWidth: 2.2,
+                            strokeWidth: 2,
                             color: Colors.white,
                           ),
                         )
-                      : const Icon(Icons.photo_camera_rounded, size: 22),
+                      : const Icon(Icons.document_scanner_rounded, size: 20),
                   label: Text(
                     _isScanning ? 'Opening Card Scanner...' : 'Scan Debit / Credit Card',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 15,
                       letterSpacing: 0.3,
                     ),
                   ),
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 14),
 
               // 3. Quick Preset Test Chips
               _buildPresetChipsSection(context),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 14),
 
               // 4. Manual Card Details Form
               Container(
-                padding: const EdgeInsets.all(18),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: colors.surfaceContainerHighest.withValues(alpha: 0.35),
-                  borderRadius: BorderRadius.circular(18),
+                  color: colors.surfaceContainerHighest.withValues(alpha: 0.32),
+                  borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: colors.outlineVariant.withValues(alpha: 0.4),
+                    color: colors.outlineVariant.withValues(alpha: 0.35),
                   ),
                 ),
                 child: Form(
@@ -477,7 +586,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                         children: [
                           Icon(
                             Icons.credit_card_rounded,
-                            size: 20,
+                            size: 19,
                             color: colors.primary,
                           ),
                           const SizedBox(width: 8),
@@ -488,41 +597,46 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                             ),
                           ),
                           const Spacer(),
-                          if (_isLuhnValid)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.green.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.check_circle_rounded,
-                                    size: 13,
-                                    color: Colors.green,
-                                  ),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    'Valid Checksum',
-                                    style: TextStyle(
-                                      color: Colors.green,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.bold,
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 250),
+                            child: _isLuhnValid
+                                ? Container(
+                                    key: const ValueKey('valid_badge'),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 2.5,
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green.withValues(alpha: 0.15),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: const Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.check_circle_rounded,
+                                          size: 13,
+                                          color: Colors.green,
+                                        ),
+                                        SizedBox(width: 4),
+                                        Text(
+                                          'Valid Checksum',
+                                          style: TextStyle(
+                                            color: Colors.green,
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                : const SizedBox.shrink(key: ValueKey('empty_badge')),
+                          ),
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 14),
 
-                      // Card Number with Real-time Regex Brand Detection and Postfix Icon!
+                      // Card Number Field with Real-time Regex Brand Detection and Postfix Icon!
                       TextFormField(
                         controller: _cardNumberController,
                         focusNode: _cardNumberFocus,
@@ -537,7 +651,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                           labelText: 'Card Number',
                           hintText: '•••• •••• •••• ••••',
                           prefixIcon: const Icon(Icons.pin_rounded),
-                          // Postfix icon showing the real-time detected card brand!
+                          // Postfix icon showing real-time detected card brand!
                           suffixIcon: Padding(
                             padding: const EdgeInsets.only(right: 10),
                             child: Row(
@@ -582,7 +696,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                         },
                       ),
 
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 12),
 
                       // Cardholder Name
                       TextFormField(
@@ -610,7 +724,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                         },
                       ),
 
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 12),
 
                       // Expiry Date and CVV Row
                       Row(
@@ -703,7 +817,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                         ],
                       ),
 
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 18),
 
                       // Save Card Button
                       SizedBox(
@@ -713,7 +827,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                           style: ElevatedButton.styleFrom(
                             backgroundColor: colors.primary,
                             foregroundColor: colors.onPrimary,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            padding: const EdgeInsets.symmetric(vertical: 13),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -722,7 +836,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                             'Save Card Details',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                              fontSize: 15,
                             ),
                           ),
                         ),
@@ -732,7 +846,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -740,7 +854,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
     );
   }
 
-  // MARK: - Card Front View
+  // MARK: - Card Front View (Compact, Smoothly Animated Gradient)
   Widget _buildCardFront(BuildContext context) {
     final gradientColors = _detectedType.gradientColors;
     final formattedNumber = _cardNumberController.text.isEmpty
@@ -753,96 +867,103 @@ class _CardScannerScreenState extends State<CardScannerScreen>
         ? 'MM/YY'
         : _expiryController.text;
 
-    return Container(
-      height: 215,
-      padding: const EdgeInsets.all(22),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOutCubic,
+      height: 180,
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: gradientColors,
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: gradientColors.first.withValues(alpha: 0.4),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
+            color: gradientColors.first.withValues(alpha: 0.38),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Top Row: Chip + Brand
+          // Top Row: Chip + Contactless + Brand
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // EMV Chip
+              // EMV Chip (Compact 36x26)
               Container(
-                width: 44,
-                height: 32,
+                width: 36,
+                height: 26,
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [Color(0xFFFFDF7A), Color(0xFFD4AF37)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: BorderRadius.circular(5),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.2),
-                      blurRadius: 3,
+                      color: Colors.black.withValues(alpha: 0.25),
+                      blurRadius: 2.5,
                     ),
                   ],
                 ),
                 child: Center(
                   child: Container(
-                    width: 32,
-                    height: 22,
+                    width: 26,
+                    height: 17,
                     decoration: BoxDecoration(
                       border: Border.all(
                         color: Colors.brown.withValues(alpha: 0.5),
-                        width: 1,
+                        width: 0.9,
                       ),
-                      borderRadius: BorderRadius.circular(3),
+                      borderRadius: BorderRadius.circular(2.5),
                     ),
                   ),
                 ),
               ),
+              const SizedBox(width: 8),
               const Icon(
                 Icons.contactless_rounded,
                 color: Colors.white70,
-                size: 26,
+                size: 21,
               ),
               const Spacer(),
               // Detected Brand Badge
               CardBrandIcon(
                 cardType: _detectedType,
-                width: 52,
-                height: 32,
+                width: 46,
+                height: 28,
               ),
             ],
           ),
 
           const Spacer(),
 
-          // Card Number
-          Text(
-            formattedNumber,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              letterSpacing: 2.2,
-              fontWeight: FontWeight.w600,
-              fontFamily: 'monospace',
-              shadows: [
-                Shadow(
-                  color: Colors.black45,
-                  blurRadius: 3,
-                  offset: Offset(0, 1.5),
-                ),
-              ],
+          // Card Number with Monospace Styling
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            child: Text(
+              formattedNumber,
+              key: ValueKey(formattedNumber),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16.5,
+                letterSpacing: 2.0,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'monospace',
+                shadows: [
+                  Shadow(
+                    color: Colors.black45,
+                    blurRadius: 3,
+                    offset: Offset(0, 1.2),
+                  ),
+                ],
+              ),
             ),
           ),
 
@@ -860,21 +981,21 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                       'CARDHOLDER',
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.7),
-                        fontSize: 9,
-                        letterSpacing: 1.1,
+                        fontSize: 8,
+                        letterSpacing: 1.0,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 1.5),
                     Text(
                       cardHolder,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 13,
+                        fontSize: 11.5,
                         fontWeight: FontWeight.bold,
-                        letterSpacing: 0.8,
+                        letterSpacing: 0.7,
                       ),
                     ),
                   ],
@@ -887,17 +1008,17 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                     'EXPIRES',
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.7),
-                      fontSize: 9,
-                      letterSpacing: 1.1,
+                      fontSize: 8,
+                      letterSpacing: 1.0,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 1.5),
                   Text(
                     expiry,
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 13,
+                      fontSize: 11.5,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1,
                       fontFamily: 'monospace',
@@ -912,7 +1033,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
     );
   }
 
-  // MARK: - Card Back View (with CVV and Magnetic Stripe)
+  // MARK: - Card Back View (Compact & Clean)
   Widget _buildCardBack(BuildContext context) {
     final gradientColors = _detectedType.gradientColors;
     final cvvText = _cvvController.text.isEmpty
@@ -921,43 +1042,45 @@ class _CardScannerScreenState extends State<CardScannerScreen>
             ? '•' * _cvvController.text.length
             : _cvvController.text;
 
-    return Container(
-      height: 215,
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOutCubic,
+      height: 180,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: gradientColors,
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: gradientColors.first.withValues(alpha: 0.4),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
+            color: gradientColors.first.withValues(alpha: 0.38),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 22),
+          const SizedBox(height: 18),
           // Magnetic Stripe
           Container(
-            height: 44,
+            height: 38,
             width: double.infinity,
-            color: const Color(0xFF1B1B1B),
+            color: const Color(0xFF161616),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 14),
           // Signature Bar & CVV
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
                 Expanded(
                   child: Container(
-                    height: 38,
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    height: 32,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
                     color: Colors.white,
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -968,14 +1091,14 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                         color: Colors.black87,
                         fontStyle: FontStyle.italic,
                         fontWeight: FontWeight.bold,
-                        fontSize: 11,
+                        fontSize: 10.5,
                       ),
                     ),
                   ),
                 ),
                 Container(
-                  height: 38,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  height: 32,
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
                   color: Colors.amber.shade100,
                   alignment: Alignment.center,
                   child: Text(
@@ -984,7 +1107,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                       color: Colors.black,
                       fontFamily: 'monospace',
                       fontWeight: FontWeight.bold,
-                      fontSize: 14,
+                      fontSize: 13,
                       letterSpacing: 2,
                     ),
                   ),
@@ -994,18 +1117,23 @@ class _CardScannerScreenState extends State<CardScannerScreen>
           ),
           const Spacer(),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Authorized Signature • Not Transferable',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.65),
-                    fontSize: 8.5,
+                const Expanded(
+                  child: Text(
+                    'Authorized Signature • Not Transferable',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 8,
+                    ),
                   ),
                 ),
-                CardBrandIcon(cardType: _detectedType, width: 38, height: 22),
+                const SizedBox(width: 8),
+                CardBrandIcon(cardType: _detectedType, width: 36, height: 22),
               ],
             ),
           ),
@@ -1023,20 +1151,20 @@ class _CardScannerScreenState extends State<CardScannerScreen>
           children: [
             Icon(
               Icons.flash_on_rounded,
-              size: 16,
+              size: 15,
               color: Theme.of(context).colorScheme.primary,
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 5),
             Text(
               'Quick Test Presets (Simulator)',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     fontWeight: FontWeight.bold,
-                    letterSpacing: 0.5,
+                    letterSpacing: 0.4,
                   ),
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -1101,6 +1229,78 @@ class _CardScannerScreenState extends State<CardScannerScreen>
         cvv: cvv,
       ),
     );
+  }
+}
+
+// MARK: - Viewfinder Corner Painter for Scanner Animation
+class _ViewfinderCornerPainter extends CustomPainter {
+  _ViewfinderCornerPainter({required this.color});
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 2.5
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    const cornerLength = 16.0;
+    const offset = 4.0;
+
+    // Top-Left
+    canvas.drawLine(
+      const Offset(-offset, -offset + cornerLength),
+      const Offset(-offset, -offset),
+      paint,
+    );
+    canvas.drawLine(
+      const Offset(-offset, -offset),
+      const Offset(-offset + cornerLength, -offset),
+      paint,
+    );
+
+    // Top-Right
+    canvas.drawLine(
+      Offset(size.width + offset - cornerLength, -offset),
+      Offset(size.width + offset, -offset),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(size.width + offset, -offset),
+      Offset(size.width + offset, -offset + cornerLength),
+      paint,
+    );
+
+    // Bottom-Left
+    canvas.drawLine(
+      Offset(-offset, size.height + offset - cornerLength),
+      Offset(-offset, size.height + offset),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(-offset, size.height + offset),
+      Offset(-offset + cornerLength, size.height + offset),
+      paint,
+    );
+
+    // Bottom-Right
+    canvas.drawLine(
+      Offset(size.width + offset - cornerLength, size.height + offset),
+      Offset(size.width + offset, size.height + offset),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(size.width + offset, size.height + offset),
+      Offset(size.width + offset, size.height + offset - cornerLength),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _ViewfinderCornerPainter oldDelegate) {
+    return oldDelegate.color != color;
   }
 }
 
