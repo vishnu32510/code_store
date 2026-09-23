@@ -7,16 +7,17 @@ class CardValidator {
   // MARK: - Regex Brand Detection
 
   static final RegExp _visaRegex = RegExp(r'^4[0-9]*$');
-  static final RegExp _mastercardRegex =
-      RegExp(r'^(5[1-5]|222[1-9]|22[3-9]|2[3-6]|27[0-1]|2720)[0-9]*$');
+  static final RegExp _mastercardRegex = RegExp(
+    r'^(5[1-5]|222[1-9]|22[3-9]|2[3-6]|27[0-1]|2720)[0-9]*$',
+  );
   static final RegExp _amexRegex = RegExp(r'^3[47][0-9]*$');
-  static final RegExp _discoverRegex =
-      RegExp(r'^(6011|65|64[4-9]|622)[0-9]*$');
+  static final RegExp _discoverRegex = RegExp(r'^(6011|65|64[4-9]|622)[0-9]*$');
   static final RegExp _jcbRegex = RegExp(r'^(35[2-8]|2131|1800)[0-9]*$');
   static final RegExp _dinersRegex = RegExp(r'^(30[0-5]|36|38|39)[0-9]*$');
   static final RegExp _unionPayRegex = RegExp(r'^(62|81)[0-9]*$');
-  static final RegExp _maestroRegex =
-      RegExp(r'^(5018|5020|5038|5893|6304|6759|6761|6762|6763)[0-9]*$');
+  static final RegExp _maestroRegex = RegExp(
+    r'^(5018|5020|5038|5893|6304|6759|6761|6762|6763)[0-9]*$',
+  );
   static final RegExp _eloRegex = RegExp(
     r'^(4011|4312|4389|4514|4576|5041|5066|5090|6277|6362|6363|6516|6550)[0-9]*$',
   );

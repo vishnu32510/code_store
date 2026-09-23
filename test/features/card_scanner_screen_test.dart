@@ -20,24 +20,31 @@ class MockCardScannerService implements ICardScannerService {
   Future<bool> isAvailable() async => true;
 
   @override
-  Future<CardScanResult> scanCard({bool mockFallbackIfUnavailable = false}) async {
+  Future<CardScanResult> scanCard({
+    bool mockFallbackIfUnavailable = false,
+  }) async {
     return scanResult;
   }
 
   @override
-  CardType detectCardType(String cardNumber) => CardValidator.detectType(cardNumber);
+  CardType detectCardType(String cardNumber) =>
+      CardValidator.detectType(cardNumber);
 
   @override
-  bool validateCardNumber(String cardNumber) => CardValidator.validateLuhn(cardNumber);
+  bool validateCardNumber(String cardNumber) =>
+      CardValidator.validateLuhn(cardNumber);
 
   @override
-  bool validateExpiryDate(int? month, int? year) => CardValidator.validateExpiry(month, year);
+  bool validateExpiryDate(int? month, int? year) =>
+      CardValidator.validateExpiry(month, year);
 
   @override
-  bool validateCvv(String cvv, CardType type) => CardValidator.validateCvv(cvv, type);
+  bool validateCvv(String cvv, CardType type) =>
+      CardValidator.validateCvv(cvv, type);
 
   @override
-  String formatCardNumber(String cardNumber) => CardValidator.formatNumber(cardNumber);
+  String formatCardNumber(String cardNumber) =>
+      CardValidator.formatNumber(cardNumber);
 }
 
 void main() {
@@ -52,9 +59,7 @@ void main() {
   });
 
   Widget buildTestableWidget() {
-    return const MaterialApp(
-      home: CardScannerScreen(),
-    );
+    return const MaterialApp(home: CardScannerScreen());
   }
 
   void setTestSurfaceSize(WidgetTester tester) {
@@ -82,7 +87,10 @@ void main() {
 
     // Verify Form Fields
     expect(find.widgetWithText(TextFormField, 'Card Number'), findsOneWidget);
-    expect(find.widgetWithText(TextFormField, 'Cardholder Name'), findsOneWidget);
+    expect(
+      find.widgetWithText(TextFormField, 'Cardholder Name'),
+      findsOneWidget,
+    );
     expect(find.widgetWithText(TextFormField, 'Expires'), findsOneWidget);
     expect(find.widgetWithText(TextFormField, 'CVV'), findsOneWidget);
 
@@ -173,7 +181,10 @@ void main() {
 
     // Verify back is showing
     expect(find.text('Tap card to view front'), findsOneWidget);
-    expect(find.text('Authorized Signature • Not Transferable'), findsOneWidget);
+    expect(
+      find.text('Authorized Signature • Not Transferable'),
+      findsOneWidget,
+    );
 
     // Tap again to flip back to front
     await tester.tap(find.text('Authorized Signature • Not Transferable'));
@@ -196,7 +207,10 @@ void main() {
     // Verify fields populated from mock scanner
     expect(find.text('SCANNED USER'), findsWidgets);
     expect(find.text('12/28'), findsWidgets);
-    expect(find.text('Card details extracted successfully (Visa)'), findsOneWidget);
+    expect(
+      find.text('Card details extracted successfully (Visa)'),
+      findsOneWidget,
+    );
     expect(find.text('Valid Checksum'), findsOneWidget);
   });
 

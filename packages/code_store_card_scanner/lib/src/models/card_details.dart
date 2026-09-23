@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+
 import 'card_type.dart';
 
 /// Immutable model representing credit or debit card details.
@@ -164,14 +165,14 @@ class CardDetails {
 
   @override
   int get hashCode => Object.hash(
-        cardNumber,
-        cardHolderName,
-        expiryMonth,
-        expiryYear,
-        cvv,
-        cardType,
-        isValidNumber,
-      );
+    cardNumber,
+    cardHolderName,
+    expiryMonth,
+    expiryYear,
+    cvv,
+    cardType,
+    isValidNumber,
+  );
 
   @override
   String toString() {

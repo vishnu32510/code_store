@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:card_scanner/card_scanner.dart' as plugin;
 import 'package:flutter/foundation.dart';
 
@@ -21,12 +22,16 @@ class CardScannerService implements ICardScannerService {
   }
 
   @override
-  Future<CardScanResult> scanCard({bool mockFallbackIfUnavailable = false}) async {
+  Future<CardScanResult> scanCard({
+    bool mockFallbackIfUnavailable = false,
+  }) async {
     if (kIsWeb) {
       if (mockFallbackIfUnavailable) {
         return CardScanResult.success(_generateMockCard());
       }
-      return const CardScanResult.failure('Card scanning is not supported on web.');
+      return const CardScanResult.failure(
+        'Card scanning is not supported on web.',
+      );
     }
 
     try {

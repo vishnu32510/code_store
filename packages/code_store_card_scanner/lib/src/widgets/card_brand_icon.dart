@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../models/card_type.dart';
 
 /// Crisp, vector-rendered card brand badge suitable for input field suffix/postfix icons
@@ -43,10 +44,7 @@ class CardBrandIcon extends StatelessWidget {
           ),
         );
       },
-      child: KeyedSubtree(
-        key: ValueKey<CardType>(cardType),
-        child: badge,
-      ),
+      child: KeyedSubtree(key: ValueKey<CardType>(cardType), child: badge),
     );
   }
 
@@ -57,10 +55,7 @@ class CardBrandIcon extends StatelessWidget {
       decoration: BoxDecoration(
         color: _badgeBackgroundColor,
         borderRadius: BorderRadius.circular(5),
-        border: Border.all(
-          color: _badgeBorderColor,
-          width: 0.8,
-        ),
+        border: Border.all(color: _badgeBorderColor, width: 0.8),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.08),

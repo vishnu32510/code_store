@@ -17,8 +17,14 @@ void main() {
     });
 
     test('detects American Express brand correctly', () {
-      expect(CardValidator.detectType('340000000000000'), CardType.americanExpress);
-      expect(CardValidator.detectType('378282246310005'), CardType.americanExpress);
+      expect(
+        CardValidator.detectType('340000000000000'),
+        CardType.americanExpress,
+      );
+      expect(
+        CardValidator.detectType('378282246310005'),
+        CardType.americanExpress,
+      );
     });
 
     test('detects Discover brand correctly', () {
@@ -90,8 +96,14 @@ void main() {
     test('validates CVV lengths according to brand', () {
       expect(CardValidator.validateCvv('123', CardType.visa), isTrue);
       expect(CardValidator.validateCvv('1234', CardType.visa), isFalse);
-      expect(CardValidator.validateCvv('1234', CardType.americanExpress), isTrue);
-      expect(CardValidator.validateCvv('123', CardType.americanExpress), isFalse);
+      expect(
+        CardValidator.validateCvv('1234', CardType.americanExpress),
+        isTrue,
+      );
+      expect(
+        CardValidator.validateCvv('123', CardType.americanExpress),
+        isFalse,
+      );
     });
   });
 
