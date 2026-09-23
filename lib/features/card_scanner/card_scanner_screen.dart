@@ -267,6 +267,9 @@ class _CardScannerScreenState extends State<CardScannerScreen>
       cardType: _detectedType,
     );
 
+    // Commit OS Autofill context so iOS Keychain or Android Google Autofill can save/update the card
+    TextInput.finishAutofillContext();
+
     showModalBottomSheet<void>(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -609,288 +612,298 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                 ),
                 child: Form(
                   key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.credit_card_rounded,
-                            size: 19,
-                            color: colors.primary,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Card Details',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
+                  child: AutofillGroup(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.credit_card_rounded,
+                              size: 19,
+                              color: colors.primary,
                             ),
-                          ),
-                          const Spacer(),
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 250),
-                            child: _isLuhnValid
-                                ? Container(
-                                    key: const ValueKey('valid_badge'),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 2.5,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.green.withValues(
-                                        alpha: 0.15,
+                            const SizedBox(width: 8),
+                            Text(
+                              'Card Details',
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const Spacer(),
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 250),
+                              child: _isLuhnValid
+                                  ? Container(
+                                      key: const ValueKey('valid_badge'),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 2.5,
                                       ),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: const Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(
-                                          Icons.check_circle_rounded,
-                                          size: 13,
-                                          color: Colors.green,
+                                      decoration: BoxDecoration(
+                                        color: Colors.green.withValues(
+                                          alpha: 0.15,
                                         ),
-                                        SizedBox(width: 4),
-                                        Text(
-                                          'Valid Checksum',
-                                          style: TextStyle(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: const Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.check_circle_rounded,
+                                            size: 13,
                                             color: Colors.green,
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.bold,
                                           ),
-                                        ),
-                                      ],
+                                          SizedBox(width: 4),
+                                          Text(
+                                            'Valid Checksum',
+                                            style: TextStyle(
+                                              color: Colors.green,
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  : const SizedBox.shrink(
+                                      key: ValueKey('empty_badge'),
                                     ),
-                                  )
-                                : const SizedBox.shrink(
-                                    key: ValueKey('empty_badge'),
-                                  ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 14),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
 
-                      // Card Number Field with Real-time Regex Brand Detection and Postfix Icon!
-                      TextFormField(
-                        controller: _cardNumberController,
-                        focusNode: _cardNumberFocus,
-                        keyboardType: TextInputType.number,
-                        textInputAction: TextInputAction.next,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(19),
-                          _CardNumberFormatter(),
-                        ],
-                        decoration: InputDecoration(
-                          labelText: 'Card Number',
-                          hintText: '•••• •••• •••• ••••',
-                          prefixIcon: const Icon(Icons.pin_rounded),
-                          // Postfix icon showing real-time detected card brand!
-                          suffixIcon: Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                if (_isLuhnValid)
-                                  const Padding(
-                                    padding: EdgeInsets.only(right: 6),
-                                    child: Icon(
-                                      Icons.check_circle_rounded,
-                                      color: Colors.green,
-                                      size: 18,
+                        // Card Number Field with Real-time Regex Brand Detection and Postfix Icon!
+                        TextFormField(
+                          controller: _cardNumberController,
+                          focusNode: _cardNumberFocus,
+                          keyboardType: TextInputType.number,
+                          textInputAction: TextInputAction.next,
+                          autofillHints: const [AutofillHints.creditCardNumber],
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(19),
+                            _CardNumberFormatter(),
+                          ],
+                          decoration: InputDecoration(
+                            labelText: 'Card Number',
+                            hintText: '•••• •••• •••• ••••',
+                            prefixIcon: const Icon(Icons.pin_rounded),
+                            // Postfix icon showing real-time detected card brand!
+                            suffixIcon: Padding(
+                              padding: const EdgeInsets.only(right: 10),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (_isLuhnValid)
+                                    const Padding(
+                                      padding: EdgeInsets.only(right: 6),
+                                      child: Icon(
+                                        Icons.check_circle_rounded,
+                                        color: Colors.green,
+                                        size: 18,
+                                      ),
                                     ),
+                                  CardBrandIcon(
+                                    cardType: _detectedType,
+                                    width: 40,
+                                    height: 26,
                                   ),
-                                CardBrandIcon(
-                                  cardType: _detectedType,
-                                  width: 40,
-                                  height: 26,
-                                ),
-                              ],
-                            ),
-                          ),
-                          helperText: _detectedType != CardType.unknown
-                              ? 'Detected: ${_detectedType.displayName}'
-                              : 'Supports Visa, Mastercard, Amex, Discover, etc.',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        validator: (value) {
-                          final clean = (value ?? '').replaceAll(
-                            RegExp(r'\D'),
-                            '',
-                          );
-                          if (clean.isEmpty) {
-                            return 'Please enter a card number';
-                          }
-                          if (clean.length < 13) {
-                            return 'Card number is too short';
-                          }
-                          if (!CardValidator.validateLuhn(clean)) {
-                            return 'Invalid card number checksum (Luhn check)';
-                          }
-                          return null;
-                        },
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      // Cardholder Name
-                      TextFormField(
-                        controller: _cardHolderController,
-                        focusNode: _cardHolderFocus,
-                        textCapitalization: TextCapitalization.characters,
-                        textInputAction: TextInputAction.next,
-                        inputFormatters: [LengthLimitingTextInputFormatter(32)],
-                        decoration: InputDecoration(
-                          labelText: 'Cardholder Name',
-                          hintText: 'JOHN DOE',
-                          prefixIcon: const Icon(Icons.person_outline_rounded),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        onChanged: (_) => setState(() {}),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Please enter the cardholder name';
-                          }
-                          return null;
-                        },
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      // Expiry Date and CVV Row
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Expiry Field
-                          Expanded(
-                            flex: 3,
-                            child: TextFormField(
-                              controller: _expiryController,
-                              focusNode: _expiryFocus,
-                              keyboardType: TextInputType.number,
-                              textInputAction: TextInputAction.next,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                                LengthLimitingTextInputFormatter(4),
-                                _CardExpiryFormatter(),
-                              ],
-                              decoration: InputDecoration(
-                                labelText: 'Expires',
-                                hintText: 'MM/YY',
-                                prefixIcon: const Icon(
-                                  Icons.calendar_today_outlined,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
+                                ],
                               ),
-                              onChanged: (_) => setState(() {}),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Enter MM/YY';
-                                }
-                                final parts = value.split('/');
-                                if (parts.length != 2) return 'Invalid MM/YY';
-                                final month = int.tryParse(parts[0]);
-                                final year = int.tryParse(parts[1]);
-                                if (!CardValidator.validateExpiry(
-                                  month,
-                                  year,
-                                )) {
-                                  return 'Expired / invalid';
-                                }
-                                return null;
-                              },
                             ),
-                          ),
-
-                          const SizedBox(width: 12),
-
-                          // CVV Field
-                          Expanded(
-                            flex: 2,
-                            child: TextFormField(
-                              controller: _cvvController,
-                              focusNode: _cvvFocus,
-                              keyboardType: TextInputType.number,
-                              obscureText: _obscureCvv,
-                              textInputAction: TextInputAction.done,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                                LengthLimitingTextInputFormatter(
-                                  _detectedType.cvvLength,
-                                ),
-                              ],
-                              decoration: InputDecoration(
-                                labelText: 'CVV',
-                                hintText: _detectedType.cvvLength == 4
-                                    ? '1234'
-                                    : '123',
-                                prefixIcon: const Icon(
-                                  Icons.lock_outline_rounded,
-                                ),
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    _obscureCvv
-                                        ? Icons.visibility_off_outlined
-                                        : Icons.visibility_outlined,
-                                    size: 18,
-                                  ),
-                                  onPressed: () {
-                                    setState(() => _obscureCvv = !_obscureCvv);
-                                  },
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              onChanged: (_) => setState(() {}),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Required';
-                                }
-                                if (!CardValidator.validateCvv(
-                                  value,
-                                  _detectedType,
-                                )) {
-                                  return '${_detectedType.cvvLength} digits';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 18),
-
-                      // Save Card Button
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _saveCardDetails,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: colors.primary,
-                            foregroundColor: colors.onPrimary,
-                            padding: const EdgeInsets.symmetric(vertical: 13),
-                            shape: RoundedRectangleBorder(
+                            helperText: _detectedType != CardType.unknown
+                                ? 'Detected: ${_detectedType.displayName}'
+                                : 'Supports Visa, Mastercard, Amex, Discover, etc.',
+                            border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text(
-                            'Save Card Details',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
+                          validator: (value) {
+                            final clean = (value ?? '').replaceAll(
+                              RegExp(r'\D'),
+                              '',
+                            );
+                            if (clean.isEmpty) {
+                              return 'Please enter a card number';
+                            }
+                            if (clean.length < 13) {
+                              return 'Card number is too short';
+                            }
+                            if (!CardValidator.validateLuhn(clean)) {
+                              return 'Invalid card number checksum (Luhn check)';
+                            }
+                            return null;
+                          },
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // Cardholder Name
+                        TextFormField(
+                          controller: _cardHolderController,
+                          focusNode: _cardHolderFocus,
+                          textCapitalization: TextCapitalization.characters,
+                          textInputAction: TextInputAction.next,
+                          autofillHints: const [AutofillHints.creditCardName],
+                          inputFormatters: [LengthLimitingTextInputFormatter(32)],
+                          decoration: InputDecoration(
+                            labelText: 'Cardholder Name',
+                            hintText: 'JOHN DOE',
+                            prefixIcon: const Icon(Icons.person_outline_rounded),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          onChanged: (_) => setState(() {}),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Please enter the cardholder name';
+                            }
+                            return null;
+                          },
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // Expiry Date and CVV Row
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Expiry Field
+                            Expanded(
+                              flex: 3,
+                              child: TextFormField(
+                                controller: _expiryController,
+                                focusNode: _expiryFocus,
+                                keyboardType: TextInputType.number,
+                                textInputAction: TextInputAction.next,
+                                autofillHints: const [
+                                  AutofillHints.creditCardExpirationDate,
+                                ],
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                  LengthLimitingTextInputFormatter(4),
+                                  _CardExpiryFormatter(),
+                                ],
+                                decoration: InputDecoration(
+                                  labelText: 'Expires',
+                                  hintText: 'MM/YY',
+                                  prefixIcon: const Icon(
+                                    Icons.calendar_today_outlined,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                onChanged: (_) => setState(() {}),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Enter MM/YY';
+                                  }
+                                  final parts = value.split('/');
+                                  if (parts.length != 2) return 'Invalid MM/YY';
+                                  final month = int.tryParse(parts[0]);
+                                  final year = int.tryParse(parts[1]);
+                                  if (!CardValidator.validateExpiry(
+                                    month,
+                                    year,
+                                  )) {
+                                    return 'Expired / invalid';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+
+                            const SizedBox(width: 12),
+
+                            // CVV Field
+                            Expanded(
+                              flex: 2,
+                              child: TextFormField(
+                                controller: _cvvController,
+                                focusNode: _cvvFocus,
+                                keyboardType: TextInputType.number,
+                                obscureText: _obscureCvv,
+                                textInputAction: TextInputAction.done,
+                                autofillHints: const [
+                                  AutofillHints.creditCardSecurityCode,
+                                ],
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                  LengthLimitingTextInputFormatter(
+                                    _detectedType.cvvLength,
+                                  ),
+                                ],
+                                decoration: InputDecoration(
+                                  labelText: 'CVV',
+                                  hintText: _detectedType.cvvLength == 4
+                                      ? '1234'
+                                      : '123',
+                                  prefixIcon: const Icon(
+                                    Icons.lock_outline_rounded,
+                                  ),
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _obscureCvv
+                                          ? Icons.visibility_off_outlined
+                                          : Icons.visibility_outlined,
+                                      size: 18,
+                                    ),
+                                    onPressed: () {
+                                      setState(() => _obscureCvv = !_obscureCvv);
+                                    },
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                onChanged: (_) => setState(() {}),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Required';
+                                  }
+                                  if (!CardValidator.validateCvv(
+                                    value,
+                                    _detectedType,
+                                  )) {
+                                    return '${_detectedType.cvvLength} digits';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 18),
+
+                        // Save Card Button
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: _saveCardDetails,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: colors.primary,
+                              foregroundColor: colors.onPrimary,
+                              padding: const EdgeInsets.symmetric(vertical: 13),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text(
+                              'Save Card Details',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

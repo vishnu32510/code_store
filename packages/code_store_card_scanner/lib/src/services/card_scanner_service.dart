@@ -26,6 +26,7 @@ class CardScannerService implements ICardScannerService {
   }) async {
     if (kIsWeb) {
       if (mockFallbackIfUnavailable) {
+        await Future.delayed(const Duration(milliseconds: 1400));
         return CardScanResult.success(_generateMockCard());
       }
       return const CardScanResult.failure(
@@ -35,6 +36,8 @@ class CardScannerService implements ICardScannerService {
 
     try {
       if (mockFallbackIfUnavailable) {
+        // Simulated scan delay to allow the laser viewfinder animation to display
+        await Future.delayed(const Duration(milliseconds: 1400));
         return CardScanResult.success(_generateMockCard());
       }
       return const CardScanResult.failure(
@@ -43,6 +46,7 @@ class CardScannerService implements ICardScannerService {
     } catch (e) {
       debugPrint('CardScannerService: scan failed: $e');
       if (mockFallbackIfUnavailable) {
+        await Future.delayed(const Duration(milliseconds: 1400));
         return CardScanResult.success(_generateMockCard());
       }
       return CardScanResult.failure(e.toString());
