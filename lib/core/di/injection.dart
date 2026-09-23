@@ -11,6 +11,7 @@ import 'package:code_store_device_info/code_store_device_info.dart';
 import 'package:code_store_permissions/code_store_permissions.dart';
 import 'package:code_store_purchases/code_store_purchases.dart';
 import 'package:code_store_secure_storage/code_store_secure_storage.dart';
+import 'package:code_store_card_scanner/code_store_card_scanner.dart';
 import 'package:code_store_share/code_store_share.dart';
 import 'package:flutter/widgets.dart';
 
@@ -28,6 +29,7 @@ Future<void> setupDI() async {
   setupPurchasesDI();
   setupDeviceInfoDI();
   setupShareDI();
+  setupCardScannerDI();
   setupDynamicIslandDI(appGroupId: AppConstants.appGroupId);
   setupHomeWidgetDI(
     appGroupId: AppConstants.appGroupId,

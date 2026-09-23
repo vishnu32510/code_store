@@ -178,6 +178,18 @@ class AppDrawer extends StatelessWidget {
                       context.push(AppRoutes.dynamicIsland);
                     },
                   ),
+                  const SizedBox(height: 4),
+                  _buildDrawerItem(
+                    context,
+                    icon: Icons.credit_card_rounded,
+                    title: 'Card Scanner',
+                    subtitle: 'Scan & Manual Entry with Card Badges',
+                    isSelected: false,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      context.push(AppRoutes.cardScanner);
+                    },
+                  ),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 8),
                     child: Divider(),

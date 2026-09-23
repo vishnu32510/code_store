@@ -54,7 +54,7 @@
 	<key>NSSupportsLiveActivitiesFrequentUpdates</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Camera access is required to control the device flashlight and torch features.</string>
+	<string>Camera access is required for scanning debit and credit cards and flashlight control.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Photo library access is required to download and save images to your device gallery.</string>
 	<key>NSFaceIDUsageDescription</key>

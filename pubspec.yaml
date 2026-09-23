@@ -43,6 +43,8 @@ dependencies:
     path: packages/code_store_share
   code_store_dynamic_island:
     path: packages/code_store_dynamic_island
+  code_store_card_scanner:
+    path: packages/code_store_card_scanner
 
   # State management (used directly in app feature code)
   bloc: ^9.2.1
