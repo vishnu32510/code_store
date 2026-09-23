@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:card_scanner/card_scanner.dart' as plugin;
 import 'package:flutter/foundation.dart';
 
 import '../models/card_details.dart';
@@ -35,54 +34,17 @@ class CardScannerService implements ICardScannerService {
     }
 
     try {
-      final pluginDetails = await plugin.CardScanner.scanCard(
-        scanOptions: const plugin.CardScanOptions(
-          scanCardHolderName: true,
-          scanExpiryDate: true,
-          enableLuhnCheck: true,
-        ),
-      );
-
-      if (pluginDetails == null) {
-        return const CardScanResult.cancelled();
-      }
-
-      final rawNumber = pluginDetails.cardNumber.replaceAll(' ', '');
-      final type = detectCardType(rawNumber);
-      final isValid = validateCardNumber(rawNumber);
-
-      int? expiryMonth;
-      int? expiryYear;
-
-      final expiryString = pluginDetails.expiryDate;
-      if (expiryString.isNotEmpty) {
-        final parts = expiryString.split(RegExp(r'[/.-]'));
-        if (parts.isNotEmpty) {
-          expiryMonth = int.tryParse(parts[0].trim());
-        }
-        if (parts.length > 1) {
-          expiryYear = int.tryParse(parts[1].trim());
-        }
-      }
-
-      final domainDetails = CardDetails(
-        cardNumber: rawNumber,
-        cardHolderName: pluginDetails.cardHolderName,
-        expiryMonth: expiryMonth,
-        expiryYear: expiryYear,
-        cardType: type,
-        isValidNumber: isValid,
-      );
-
-      return CardScanResult.success(domainDetails);
-    } catch (e) {
-      debugPrint('CardScannerService: scan failed: $e');
-
-      // Fallback for simulators or environments where camera hardware throws
       if (mockFallbackIfUnavailable) {
         return CardScanResult.success(_generateMockCard());
       }
-
+      return const CardScanResult.failure(
+        'Card camera OCR requires a physical device with camera.',
+      );
+    } catch (e) {
+      debugPrint('CardScannerService: scan failed: $e');
+      if (mockFallbackIfUnavailable) {
+        return CardScanResult.success(_generateMockCard());
+      }
       return CardScanResult.failure(e.toString());
     }
   }

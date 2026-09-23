@@ -44,27 +44,22 @@
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>fetch</string>
-		<string>remote-notification</string>
-	</array>
-	<key>NSSupportsLiveActivities</key>
-	<true/>
-	<key>NSSupportsLiveActivitiesFrequentUpdates</key>
-	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Camera access is required for scanning debit and credit cards and flashlight control.</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Photo library access is required to download and save images to your device gallery.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Authenticate securely using Face ID or Touch ID.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Location access is required to deliver localized features and services.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Microphone access is required to record audio and voice messages.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Photo library access is required to download and save images to your device gallery.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Photo library access is required to select, preview, and save photos within the app.</string>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
+	<key>NSSupportsLiveActivitiesFrequentUpdates</key>
+	<true/>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -88,6 +83,11 @@
 	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
