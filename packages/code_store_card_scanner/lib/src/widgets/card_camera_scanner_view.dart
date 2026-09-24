@@ -133,7 +133,10 @@ class _CardCameraScannerViewState extends State<CardCameraScannerView> {
                 children: [
                   IconButton.filledTonal(
                     onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+                    icon: const Icon(
+                      Icons.arrow_back_rounded,
+                      color: Colors.white,
+                    ),
                     style: IconButton.styleFrom(
                       backgroundColor: Colors.black.withValues(alpha: 0.5),
                     ),
@@ -164,14 +167,16 @@ class _CardCameraScannerViewState extends State<CardCameraScannerView> {
               decoration: BoxDecoration(
                 color: Colors.black.withValues(alpha: 0.7),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.2),
-                ),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
               ),
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.crop_free_rounded, color: Colors.cyanAccent, size: 20),
+                  Icon(
+                    Icons.crop_free_rounded,
+                    color: Colors.cyanAccent,
+                    size: 20,
+                  ),
                   SizedBox(width: 10),
                   Text(
                     'Align card within the frame',

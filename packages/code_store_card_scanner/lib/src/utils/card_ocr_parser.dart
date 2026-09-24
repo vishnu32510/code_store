@@ -128,7 +128,8 @@ class CardOcrParser {
     // 3. Extract Cardholder Name (Uppercase words excluding blacklist)
     // On physical cards, name is usually below card number; search lines after card number first
     final candidateLines = <String>[];
-    if (cardNumberLineIndex != -1 && cardNumberLineIndex + 1 < cleanedLines.length) {
+    if (cardNumberLineIndex != -1 &&
+        cardNumberLineIndex + 1 < cleanedLines.length) {
       candidateLines.addAll(cleanedLines.sublist(cardNumberLineIndex + 1));
     }
     candidateLines.addAll(cleanedLines);

@@ -145,10 +145,7 @@ class _BiometricLockGateState extends State<BiometricLockGate>
             ),
             if (isLocked)
               Positioned.fill(
-                child: FocusScope(
-                  autofocus: true,
-                  child: lockScreen,
-                ),
+                child: FocusScope(autofocus: true, child: lockScreen),
               ),
           ],
         );

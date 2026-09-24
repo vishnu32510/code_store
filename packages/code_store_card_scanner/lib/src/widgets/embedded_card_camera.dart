@@ -112,15 +112,13 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
       ),
     );
 
-    _numberSlideAnimation = Tween<Offset>(
-      begin: const Offset(0, -0.32),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _successController,
-        curve: const Interval(0.12, 0.65, curve: Curves.easeOutCubic),
-      ),
-    );
+    _numberSlideAnimation =
+        Tween<Offset>(begin: const Offset(0, -0.32), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _successController,
+            curve: const Interval(0.12, 0.65, curve: Curves.easeOutCubic),
+          ),
+        );
 
     _cardDetailsFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
@@ -129,15 +127,13 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
       ),
     );
 
-    _bottomElementsSlideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.38),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _successController,
-        curve: const Interval(0.35, 0.85, curve: Curves.easeOutCubic),
-      ),
-    );
+    _bottomElementsSlideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.38), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _successController,
+            curve: const Interval(0.35, 0.85, curve: Curves.easeOutCubic),
+          ),
+        );
 
     _initCamera();
   }
@@ -581,9 +577,8 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
                             vertical: 3,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF00E676).withValues(
-                              alpha: 0.25,
-                            ),
+                            color: const Color(0xFF00E676)
+                                .withValues(alpha: 0.25),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
                               color: const Color(0xFF00E676),
@@ -591,9 +586,8 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF00E676).withValues(
-                                  alpha: 0.3,
-                                ),
+                                color: const Color(0xFF00E676)
+                                    .withValues(alpha: 0.3),
                                 blurRadius: 6,
                               ),
                             ],
@@ -769,7 +763,7 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
                                     _detectedDetails!.cardHolderName.isEmpty
                                         ? 'CARDHOLDER NAME'
                                         : _detectedDetails!.cardHolderName
-                                            .toUpperCase(),
+                                              .toUpperCase(),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(

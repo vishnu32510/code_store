@@ -247,34 +247,35 @@ void main() {
     expect(find.text('Card Added Successfully'), findsNothing);
   });
 
-  testWidgets('Triggering real scanner activates in-place embedded camera flow', (
-    WidgetTester tester,
-  ) async {
-    setTestSurfaceSize(tester);
-    await getIt.reset();
-    getIt.registerSingleton<ICardScannerService>(CardScannerService());
+  testWidgets(
+    'Triggering real scanner activates in-place embedded camera flow',
+    (WidgetTester tester) async {
+      setTestSurfaceSize(tester);
+      await getIt.reset();
+      getIt.registerSingleton<ICardScannerService>(CardScannerService());
 
-    await tester.pumpWidget(buildTestableWidget());
-    await tester.pumpAndSettle();
+      await tester.pumpWidget(buildTestableWidget());
+      await tester.pumpAndSettle();
 
-    // Verify initial state
-    expect(find.text('Scan Debit / Credit Card'), findsOneWidget);
-    expect(find.text('Tap card to view back & CVV'), findsOneWidget);
+      // Verify initial state
+      expect(find.text('Scan Debit / Credit Card'), findsOneWidget);
+      expect(find.text('Tap card to view back & CVV'), findsOneWidget);
 
-    // Tap Scan button to open in-place camera
-    await tester.tap(find.text('Scan Debit / Credit Card'));
-    await tester.pump();
+      // Tap Scan button to open in-place camera
+      await tester.tap(find.text('Scan Debit / Credit Card'));
+      await tester.pump();
 
-    // Verify EmbeddedCardCamera is mounted directly in place of the 3D card
-    expect(find.byType(EmbeddedCardCamera), findsOneWidget);
-    expect(find.text('Stop Camera Scanner'), findsOneWidget);
+      // Verify EmbeddedCardCamera is mounted directly in place of the 3D card
+      expect(find.byType(EmbeddedCardCamera), findsOneWidget);
+      expect(find.text('Stop Camera Scanner'), findsOneWidget);
 
-    // Tap Stop Camera Scanner to close camera and return to 3D card
-    await tester.tap(find.text('Stop Camera Scanner'));
-    await tester.pump();
+      // Tap Stop Camera Scanner to close camera and return to 3D card
+      await tester.tap(find.text('Stop Camera Scanner'));
+      await tester.pump();
 
-    // Verify back to 3D card
-    expect(find.byType(EmbeddedCardCamera), findsNothing);
-    expect(find.text('Scan Debit / Credit Card'), findsOneWidget);
-  });
+      // Verify back to 3D card
+      expect(find.byType(EmbeddedCardCamera), findsNothing);
+      expect(find.text('Scan Debit / Credit Card'), findsOneWidget);
+    },
+  );
 }

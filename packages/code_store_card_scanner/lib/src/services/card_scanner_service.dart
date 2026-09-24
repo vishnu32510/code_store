@@ -86,7 +86,9 @@ class CardScannerService implements ICardScannerService {
     return CardValidator.formatNumber(cardNumber);
   }
 
-  CardDetails _generateMockCard([CardScannerEngine engine = CardScannerEngine.mlKitVision]) {
+  CardDetails _generateMockCard([
+    CardScannerEngine engine = CardScannerEngine.mlKitVision,
+  ]) {
     switch (engine) {
       case CardScannerEngine.flutterCreditCardScanner:
         return const CardDetails(

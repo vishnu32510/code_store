@@ -3,24 +3,27 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('CardOcrParser', () {
-    test('extracts Visa card number, expiry date, and cardholder name correctly', () {
-      final ocrLines = [
-        'CHASE SAPPHIRE',
-        '4532 0151 1283 0366',
-        'VALID THRU 12/28',
-        'ALEX MORGAN',
-        'VISA SIGNATURE',
-      ];
+    test(
+      'extracts Visa card number, expiry date, and cardholder name correctly',
+      () {
+        final ocrLines = [
+          'CHASE SAPPHIRE',
+          '4532 0151 1283 0366',
+          'VALID THRU 12/28',
+          'ALEX MORGAN',
+          'VISA SIGNATURE',
+        ];
 
-      final result = CardOcrParser.parseRecognizedLines(ocrLines);
+        final result = CardOcrParser.parseRecognizedLines(ocrLines);
 
-      expect(result.isValidNumber, isTrue);
-      expect(result.cardNumber, '4532015112830366');
-      expect(result.cardType, CardType.visa);
-      expect(result.expiryMonth, 12);
-      expect(result.expiryYear, 28);
-      expect(result.cardHolderName, 'ALEX MORGAN');
-    });
+        expect(result.isValidNumber, isTrue);
+        expect(result.cardNumber, '4532015112830366');
+        expect(result.cardType, CardType.visa);
+        expect(result.expiryMonth, 12);
+        expect(result.expiryYear, 28);
+        expect(result.cardHolderName, 'ALEX MORGAN');
+      },
+    );
 
     test('extracts Mastercard with dashed format and ignores bank header', () {
       final ocrLines = [
