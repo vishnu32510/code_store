@@ -491,5 +491,20 @@ void main() {
         );
       },
     );
+
+    test('EmbeddedCardCamera accepts onNoCamera callback and initializes correctly', () {
+      bool noCameraCalled = false;
+      final camera = EmbeddedCardCamera(
+        onCardDetected: (_) {},
+        onCancel: () {},
+        onNoCamera: () {
+          noCameraCalled = true;
+        },
+      );
+
+      expect(camera.onNoCamera, isNotNull);
+      camera.onNoCamera?.call();
+      expect(noCameraCalled, isTrue);
+    });
   });
 }

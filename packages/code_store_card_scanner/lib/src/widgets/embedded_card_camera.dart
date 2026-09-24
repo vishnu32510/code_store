@@ -196,16 +196,29 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
         return;
       }
 
-      final backCamera = cameras.firstWhere(
-        (c) => c.lensDirection == CameraLensDirection.back,
-        orElse: () => cameras.first,
-      );
+      CameraDescription selectedCamera;
+      if (kIsWeb) {
+        // On web (browsers on desktop/laptop), prioritize the front/user-facing webcam
+        selectedCamera = cameras.firstWhere(
+          (c) => c.lensDirection == CameraLensDirection.front,
+          orElse: () => cameras.first,
+        );
+      } else {
+        // On mobile, prioritize the rear/back camera for scanning cards, fallback to front, then first
+        selectedCamera = cameras.firstWhere(
+          (c) => c.lensDirection == CameraLensDirection.back,
+          orElse: () => cameras.firstWhere(
+            (c) => c.lensDirection == CameraLensDirection.front,
+            orElse: () => cameras.first,
+          ),
+        );
+      }
 
       final controller = CameraController(
-        backCamera,
+        selectedCamera,
         ResolutionPreset.high,
         enableAudio: false,
-        imageFormatGroup: Platform.isAndroid
+        imageFormatGroup: (!kIsWeb && Platform.isAndroid)
             ? ImageFormatGroup.nv21
             : ImageFormatGroup.bgra8888,
       );
@@ -217,9 +230,17 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
 
       setState(() => _isInitializing = false);
 
-      await controller.startImageStream((CameraImage image) {
-        _processCameraImage(image, backCamera);
-      });
+      if (!kIsWeb) {
+        try {
+          await controller.startImageStream((CameraImage image) {
+            _processCameraImage(image, selectedCamera);
+          });
+        } catch (streamError) {
+          debugPrint(
+            'EmbeddedCardCamera: startImageStream not supported: $streamError',
+          );
+        }
+      }
     } catch (e) {
       debugPrint('EmbeddedCardCamera: initialization error: $e');
       if (mounted) {
@@ -265,7 +286,7 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
         imageBytes = combined;
       }
 
-      if (Platform.isIOS) {
+      if (!kIsWeb && Platform.isIOS) {
         final ImageOrientation appleOrient;
         switch (rotation) {
           case InputImageRotation.rotation0deg:

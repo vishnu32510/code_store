@@ -1275,7 +1275,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
-              'No back camera found on this device or permission denied',
+              'No camera found on this device or permission denied',
             ),
             behavior: SnackBarBehavior.floating,
           ),

@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../models/card_details.dart';
+import '../models/card_type.dart';
 import '../services/card_scanner_service.dart';
 import '../services/i_card_scanner_service.dart';
 import 'embedded_card_camera.dart';
@@ -495,7 +497,7 @@ class CardCameraOverlayView extends StatelessWidget {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text(
-                                  'No back camera found on this device or permission denied',
+                                  'No camera found on this device or permission denied',
                                 ),
                                 behavior: SnackBarBehavior.floating,
                               ),
@@ -535,21 +537,41 @@ class CardCameraOverlayView extends StatelessWidget {
                       ),
                     ),
 
-                  // Mock simulator button for automated widget testing when mock service is active
-                  if (scannerService != null &&
-                      scannerService is! CardScannerService)
+                  // Mock simulator or Web demo button
+                  if (kIsWeb ||
+                      (scannerService != null &&
+                          scannerService is! CardScannerService))
                     Padding(
                       padding: const EdgeInsets.only(top: 12),
                       child: FilledButton.tonalIcon(
                         key: const ValueKey('mock_detect_overlay_card_button'),
                         onPressed: () async {
-                          final res = await scannerService!.scanCard();
-                          if (res.success && res.cardDetails != null) {
-                            onCardDetected(res.cardDetails!);
+                          if (scannerService != null &&
+                              scannerService is! CardScannerService) {
+                            final res = await scannerService!.scanCard();
+                            if (res.success && res.cardDetails != null) {
+                              onCardDetected(res.cardDetails!);
+                            }
+                          } else {
+                            onCardDetected(
+                              const CardDetails(
+                                cardNumber: '4532015112830366',
+                                cardHolderName: 'WEB CAMERA USER',
+                                expiryMonth: 12,
+                                expiryYear: 28,
+                                cvv: '999',
+                                cardType: CardType.visa,
+                                isValidNumber: true,
+                              ),
+                            );
                           }
                         },
                         icon: const Icon(Icons.check_circle_rounded, size: 16),
-                        label: const Text('Simulate Card Detection (Mock)'),
+                        label: Text(
+                          kIsWeb
+                              ? 'Capture & Apply Card (Web Demo)'
+                              : 'Simulate Card Detection (Mock)',
+                        ),
                       ),
                     ),
                 ],
