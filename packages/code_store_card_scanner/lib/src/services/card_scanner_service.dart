@@ -22,36 +22,15 @@ class CardScannerService implements ICardScannerService {
   }
 
   @override
-  Future<CardScanResult> scanCard({
-    bool mockFallbackIfUnavailable = false,
-  }) async {
+  Future<CardScanResult> scanCard() async {
     if (kIsWeb) {
-      if (mockFallbackIfUnavailable) {
-        await Future.delayed(const Duration(milliseconds: 1400));
-        return CardScanResult.success(_generateMockCard());
-      }
       return const CardScanResult.failure(
         'Card scanning is not supported on web.',
       );
     }
-
-    try {
-      if (mockFallbackIfUnavailable) {
-        // Simulated scan delay to allow the laser viewfinder animation to display
-        await Future.delayed(const Duration(milliseconds: 1400));
-        return CardScanResult.success(_generateMockCard());
-      }
-      return const CardScanResult.failure(
-        'Card camera OCR requires a physical device with camera.',
-      );
-    } catch (e) {
-      debugPrint('CardScannerService: scan failed: $e');
-      if (mockFallbackIfUnavailable) {
-        await Future.delayed(const Duration(milliseconds: 1400));
-        return CardScanResult.success(_generateMockCard());
-      }
-      return CardScanResult.failure(e.toString());
-    }
+    return const CardScanResult.failure(
+      'Live camera scanning is UI-driven via EmbeddedCardCamera or CardCameraScannerView.',
+    );
   }
 
   @override
@@ -82,17 +61,5 @@ class CardScannerService implements ICardScannerService {
   @override
   String formatCardNumber(String cardNumber) {
     return CardValidator.formatNumber(cardNumber);
-  }
-
-  CardDetails _generateMockCard() {
-    return const CardDetails(
-      cardNumber: '4532015112830366',
-      cardHolderName: 'ALEX MORGAN',
-      expiryMonth: 12,
-      expiryYear: 28,
-      cvv: '842',
-      cardType: CardType.visa,
-      isValidNumber: true,
-    );
   }
 }

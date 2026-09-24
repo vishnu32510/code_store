@@ -20,9 +20,7 @@ class MockCardScannerService implements ICardScannerService {
   Future<bool> isAvailable() async => true;
 
   @override
-  Future<CardScanResult> scanCard({
-    bool mockFallbackIfUnavailable = false,
-  }) async {
+  Future<CardScanResult> scanCard() async {
     return scanResult;
   }
 

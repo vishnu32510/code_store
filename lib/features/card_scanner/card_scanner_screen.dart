@@ -161,9 +161,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
 
     // 1. Mock service override for automated unit testing
     if (_scannerService is! CardScannerService) {
-      final result = await _scannerService.scanCard(
-        mockFallbackIfUnavailable: true,
-      );
+      final result = await _scannerService.scanCard();
       if (result.success && result.cardDetails != null) {
         _applyScannedDetails(result.cardDetails!);
       }
