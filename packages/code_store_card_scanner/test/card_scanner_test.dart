@@ -252,5 +252,244 @@ void main() {
       expect(scannerView.guidanceIcon, Icons.center_focus_strong);
       expect(scannerView.showGuidance, isTrue);
     });
+
+    test(
+      'CardScannerHeroButton initializes with custom heroTag and properties',
+      () {
+        final button = CardScannerHeroButton(
+          heroTag: 'my_custom_tag',
+          laserColor: Colors.teal,
+          tooltip: 'Custom Tooltip',
+        );
+
+        expect(button.heroTag, 'my_custom_tag');
+        expect(button.laserColor, Colors.teal);
+        expect(button.tooltip, 'Custom Tooltip');
+      },
+    );
+
+    test('CardCameraOverlayView accepts custom heroTag and guidance', () {
+      final overlayView = CardCameraOverlayView(
+        heroTag: 'test_hero_tag',
+        laserColor: Colors.pink,
+        guidanceText: 'Keep steady',
+        bannerTitle: 'Center Card',
+        onCardDetected: (_) {},
+        onCancel: () {},
+      );
+
+      expect(overlayView.heroTag, 'test_hero_tag');
+      expect(overlayView.laserColor, Colors.pink);
+      expect(overlayView.guidanceText, 'Keep steady');
+      expect(overlayView.bannerTitle, 'Center Card');
+    });
+  });
+
+  group('CardScannerHeroButton & CardCameraOverlayView Customization', () {
+    test('CardScannerHeroButton supports custom buttonColor, iconColor, and icon properties', () {
+      final button = CardScannerHeroButton(
+        buttonColor: Colors.amber,
+        iconColor: Colors.deepPurple,
+        iconData: Icons.center_focus_strong,
+        iconSize: 22.0,
+      );
+
+      expect(button.buttonColor, Colors.amber);
+      expect(button.iconColor, Colors.deepPurple);
+      expect(button.iconData, Icons.center_focus_strong);
+      expect(button.iconSize, 22.0);
+    });
+
+    test('CardScannerHeroButton supports backgroundColor and foregroundColor aliases', () {
+      final button = CardScannerHeroButton(
+        backgroundColor: Colors.blueGrey,
+        foregroundColor: Colors.white,
+      );
+
+      expect(button.backgroundColor, Colors.blueGrey);
+      expect(button.foregroundColor, Colors.white);
+    });
+
+    test(
+      'CardScannerHeroButton supports custom overlay colors and barrierColor',
+      () {
+        final button = CardScannerHeroButton(
+          laserColor: Colors.cyanAccent,
+          overlayColor: Colors.black87,
+          barrierColor: Colors.black54,
+        );
+
+        expect(button.laserColor, Colors.cyanAccent);
+        expect(button.overlayColor, Colors.black87);
+        expect(button.barrierColor, Colors.black54);
+      },
+    );
+
+    test('CardScannerHeroButton supports custom banner colors and styling', () {
+      final button = CardScannerHeroButton(
+        bannerTitle: 'Hold Steady',
+        bannerIcon: Icons.credit_card,
+        bannerBackgroundColor: Colors.indigo,
+        bannerTextColor: Colors.yellow,
+      );
+
+      expect(button.bannerTitle, 'Hold Steady');
+      expect(button.bannerIcon, Icons.credit_card);
+      expect(button.bannerBackgroundColor, Colors.indigo);
+      expect(button.bannerTextColor, Colors.yellow);
+    });
+
+    test('CardScannerHeroButton supports showCloseButton boolean and close button styling', () {
+      final buttonWithoutClose = CardScannerHeroButton(showCloseButton: false);
+      expect(buttonWithoutClose.showCloseButton, isFalse);
+
+      final buttonWithCustomClose = CardScannerHeroButton(
+        showCloseButton: true,
+        closeButtonText: 'Dismiss Scanner',
+        closeButtonIcon: Icons.cancel_outlined,
+        closeButtonColor: Colors.redAccent,
+        closeButtonTextColor: Colors.white,
+      );
+      expect(buttonWithCustomClose.showCloseButton, isTrue);
+      expect(buttonWithCustomClose.closeButtonText, 'Dismiss Scanner');
+      expect(buttonWithCustomClose.closeButtonIcon, Icons.cancel_outlined);
+      expect(buttonWithCustomClose.closeButtonColor, Colors.redAccent);
+      expect(buttonWithCustomClose.closeButtonTextColor, Colors.white);
+    });
+
+    test('CardCameraOverlayView supports custom laserColor, overlay, and banner colors', () {
+      final overlay = CardCameraOverlayView(
+        heroTag: 'custom_tag',
+        laserColor: Colors.greenAccent,
+        bannerTitle: 'Align Card',
+        bannerIcon: Icons.camera,
+        bannerBackgroundColor: Colors.black54,
+        bannerTextColor: Colors.lightGreenAccent,
+        onCardDetected: (_) {},
+        onCancel: () {},
+      );
+
+      expect(overlay.laserColor, Colors.greenAccent);
+      expect(overlay.bannerTitle, 'Align Card');
+      expect(overlay.bannerIcon, Icons.camera);
+      expect(overlay.bannerBackgroundColor, Colors.black54);
+      expect(overlay.bannerTextColor, Colors.lightGreenAccent);
+    });
+
+    test('CardCameraOverlayView supports showCloseButton boolean and close button styling', () {
+      final overlayWithoutClose = CardCameraOverlayView(
+        heroTag: 'tag1',
+        laserColor: Colors.teal,
+        showCloseButton: false,
+        onCardDetected: (_) {},
+        onCancel: () {},
+      );
+      expect(overlayWithoutClose.showCloseButton, isFalse);
+
+      final overlayWithClose = CardCameraOverlayView(
+        heroTag: 'tag2',
+        laserColor: Colors.teal,
+        showCloseButton: true,
+        closeButtonText: 'Dismiss',
+        closeButtonIcon: Icons.cancel,
+        closeButtonColor: Colors.purple,
+        closeButtonTextColor: Colors.amber,
+        onCardDetected: (_) {},
+        onCancel: () {},
+      );
+      expect(overlayWithClose.showCloseButton, isTrue);
+      expect(overlayWithClose.closeButtonText, 'Dismiss');
+      expect(overlayWithClose.closeButtonIcon, Icons.cancel);
+      expect(overlayWithClose.closeButtonColor, Colors.purple);
+      expect(overlayWithClose.closeButtonTextColor, Colors.amber);
+    });
+
+    testWidgets(
+      'CardScannerHeroButton renders with custom buttonColor, iconColor, and iconData',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Center(
+                child: CardScannerHeroButton(
+                  key: const ValueKey('test_hero_btn'),
+                  buttonColor: Colors.orange,
+                  iconColor: Colors.blue,
+                  iconData: Icons.credit_score,
+                  iconSize: 20.0,
+                ),
+              ),
+            ),
+          ),
+        );
+
+        final materialFinder = find.descendant(
+          of: find.byKey(const ValueKey('test_hero_btn')),
+          matching: find.byType(Material),
+        );
+        expect(materialFinder, findsOneWidget);
+        final material = tester.widget<Material>(materialFinder);
+        expect(material.color, Colors.orange);
+
+        final iconFinder = find.byIcon(Icons.credit_score);
+        expect(iconFinder, findsOneWidget);
+        final icon = tester.widget<Icon>(iconFinder);
+        expect(icon.color, Colors.blue);
+        expect(icon.size, 20.0);
+      },
+    );
+
+    testWidgets(
+      'CardCameraOverlayView hides close button when showCloseButton is false',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: CardCameraOverlayView(
+              heroTag: 'no_close_test',
+              laserColor: Colors.purple,
+              showCloseButton: false,
+              onCardDetected: (_) {},
+              onCancel: () {},
+            ),
+          ),
+        );
+
+        expect(
+          find.byKey(const ValueKey('close_camera_overlay_button')),
+          findsNothing,
+        );
+      },
+    );
+
+    testWidgets(
+      'CardCameraOverlayView renders custom banner and close button when showCloseButton is true',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: CardCameraOverlayView(
+              heroTag: 'custom_render_test',
+              laserColor: Colors.purple,
+              bannerTitle: 'Scan Custom Title',
+              bannerIcon: Icons.star,
+              bannerTextColor: Colors.yellow,
+              showCloseButton: true,
+              closeButtonText: 'Exit Scanner',
+              closeButtonIcon: Icons.exit_to_app,
+              onCardDetected: (_) {},
+              onCancel: () {},
+            ),
+          ),
+        );
+
+        expect(find.text('Scan Custom Title'), findsOneWidget);
+        expect(find.byIcon(Icons.star), findsOneWidget);
+        expect(find.text('Exit Scanner'), findsOneWidget);
+        expect(find.byIcon(Icons.exit_to_app), findsOneWidget);
+        expect(
+          find.byKey(const ValueKey('close_camera_overlay_button')),
+          findsOneWidget,
+        );
+      },
+    );
   });
 }

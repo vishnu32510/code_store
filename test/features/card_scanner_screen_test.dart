@@ -295,7 +295,13 @@ void main() {
       );
       expect(cameraBtnFinder, findsOneWidget);
 
-      final heroFinder = find.ancestor(
+      final heroButton = tester.widget<CardScannerHeroButton>(cameraBtnFinder);
+      expect(heroButton.iconColor, isNotNull);
+      expect(heroButton.buttonColor, isNotNull);
+      expect(heroButton.laserColor, isNotNull);
+      expect(heroButton.overlayColor, isNotNull);
+
+      final heroFinder = find.descendant(
         of: cameraBtnFinder,
         matching: find.byType(Hero),
       );
@@ -361,9 +367,7 @@ void main() {
     expect(find.text('Align Card Inside Viewfinder'), findsOneWidget);
 
     // Tap Close Overlay
-    await tester.tap(
-      find.byKey(const ValueKey('close_camera_overlay_button')),
-    );
+    await tester.tap(find.byKey(const ValueKey('close_camera_overlay_button')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pumpAndSettle();

@@ -18,5 +18,6 @@ export 'src/utils/card_validator.dart';
 
 // Widgets
 export 'src/widgets/card_brand_icon.dart';
+export 'src/widgets/card_camera_overlay_view.dart';
 export 'src/widgets/card_camera_scanner_view.dart';
 export 'src/widgets/embedded_card_camera.dart';
