@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 
 import '../models/card_details.dart';
 import '../models/card_scan_result.dart';
-import '../models/card_scanner_engine.dart';
 import '../models/card_type.dart';
 import '../utils/card_ocr_parser.dart';
 import '../utils/card_validator.dart';
@@ -24,13 +23,12 @@ class CardScannerService implements ICardScannerService {
 
   @override
   Future<CardScanResult> scanCard({
-    CardScannerEngine engine = CardScannerEngine.mlKitVision,
     bool mockFallbackIfUnavailable = false,
   }) async {
     if (kIsWeb) {
       if (mockFallbackIfUnavailable) {
         await Future.delayed(const Duration(milliseconds: 1400));
-        return CardScanResult.success(_generateMockCard(engine));
+        return CardScanResult.success(_generateMockCard());
       }
       return const CardScanResult.failure(
         'Card scanning is not supported on web.',
@@ -41,7 +39,7 @@ class CardScannerService implements ICardScannerService {
       if (mockFallbackIfUnavailable) {
         // Simulated scan delay to allow the laser viewfinder animation to display
         await Future.delayed(const Duration(milliseconds: 1400));
-        return CardScanResult.success(_generateMockCard(engine));
+        return CardScanResult.success(_generateMockCard());
       }
       return const CardScanResult.failure(
         'Card camera OCR requires a physical device with camera.',
@@ -50,7 +48,7 @@ class CardScannerService implements ICardScannerService {
       debugPrint('CardScannerService: scan failed: $e');
       if (mockFallbackIfUnavailable) {
         await Future.delayed(const Duration(milliseconds: 1400));
-        return CardScanResult.success(_generateMockCard(engine));
+        return CardScanResult.success(_generateMockCard());
       }
       return CardScanResult.failure(e.toString());
     }
@@ -86,31 +84,15 @@ class CardScannerService implements ICardScannerService {
     return CardValidator.formatNumber(cardNumber);
   }
 
-  CardDetails _generateMockCard([
-    CardScannerEngine engine = CardScannerEngine.mlKitVision,
-  ]) {
-    switch (engine) {
-      case CardScannerEngine.flutterCreditCardScanner:
-        return const CardDetails(
-          cardNumber: '5555555555554444',
-          cardHolderName: 'JORDAN LEE',
-          expiryMonth: 10,
-          expiryYear: 27,
-          cvv: '719',
-          cardType: CardType.mastercard,
-          isValidNumber: true,
-        );
-      case CardScannerEngine.mlKitVision:
-      case CardScannerEngine.simulated:
-        return const CardDetails(
-          cardNumber: '4532015112830366',
-          cardHolderName: 'ALEX MORGAN',
-          expiryMonth: 12,
-          expiryYear: 28,
-          cvv: '842',
-          cardType: CardType.visa,
-          isValidNumber: true,
-        );
-    }
+  CardDetails _generateMockCard() {
+    return const CardDetails(
+      cardNumber: '4532015112830366',
+      cardHolderName: 'ALEX MORGAN',
+      expiryMonth: 12,
+      expiryYear: 28,
+      cvv: '842',
+      cardType: CardType.visa,
+      isValidNumber: true,
+    );
   }
 }

@@ -21,7 +21,6 @@ class MockCardScannerService implements ICardScannerService {
 
   @override
   Future<CardScanResult> scanCard({
-    CardScannerEngine engine = CardScannerEngine.mlKitVision,
     bool mockFallbackIfUnavailable = false,
   }) async {
     return scanResult;

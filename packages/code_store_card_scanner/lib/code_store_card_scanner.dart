@@ -6,7 +6,6 @@ export 'src/di/card_scanner_injection.dart';
 // Models
 export 'src/models/card_details.dart';
 export 'src/models/card_scan_result.dart';
-export 'src/models/card_scanner_engine.dart';
 export 'src/models/card_type.dart';
 
 // Services
