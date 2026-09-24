@@ -14,6 +14,8 @@ class CardScannerScreen extends StatefulWidget {
 
 class _CardScannerScreenState extends State<CardScannerScreen>
     with TickerProviderStateMixin {
+  static const String _kCameraScannerHeroTag =
+      'embedded_card_camera_scanner_hero';
   final ICardScannerService _scannerService = getIt<ICardScannerService>();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -546,6 +548,36 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                               'Card Details',
                               style: theme.textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Hero(
+                              tag: _kCameraScannerHeroTag,
+                              flightShuttleBuilder: _buildHeroFlightShuttle,
+                              child: Material(
+                                color: colors.primaryContainer.withValues(
+                                  alpha: 0.7,
+                                ),
+                                shape: const CircleBorder(),
+                                clipBehavior: Clip.antiAlias,
+                                child: Tooltip(
+                                  message: 'Scan Card via Camera Overlay',
+                                  child: InkWell(
+                                    key: const ValueKey(
+                                      'card_details_camera_scan_button',
+                                    ),
+                                    onTap: () => _openHeroScannerOverlay(context),
+                                    borderRadius: BorderRadius.circular(20),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(6),
+                                      child: Icon(
+                                        Icons.camera_alt_rounded,
+                                        size: 16,
+                                        color: colors.onPrimaryContainer,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                             const Spacer(),
@@ -1261,6 +1293,250 @@ class _CardScannerScreenState extends State<CardScannerScreen>
           ),
         );
       },
+    );
+  }
+
+  Future<void> _openHeroScannerOverlay(BuildContext context) async {
+    FocusScope.of(context).unfocus();
+
+    final scannedDetails = await Navigator.of(context).push<CardDetails>(
+      PageRouteBuilder<CardDetails>(
+        opaque: false,
+        barrierDismissible: true,
+        barrierColor: Colors.black.withValues(alpha: 0.72),
+        barrierLabel: 'Dismiss Scanner',
+        transitionDuration: const Duration(milliseconds: 380),
+        reverseTransitionDuration: const Duration(milliseconds: 320),
+        pageBuilder: (overlayContext, animation, secondaryAnimation) {
+          return _CardScannerHeroOverlay(
+            heroTag: _kCameraScannerHeroTag,
+            laserColor: Theme.of(context).colorScheme.primary,
+            scannerService: _scannerService,
+            flightShuttleBuilder: _buildHeroFlightShuttle,
+            onCardDetected: (details) {
+              Navigator.of(overlayContext).pop(details);
+            },
+            onCancel: () {
+              Navigator.of(overlayContext).pop();
+            },
+          );
+        },
+      ),
+    );
+
+    if (scannedDetails != null && mounted) {
+      _applyScannedDetails(scannedDetails);
+    }
+  }
+
+  Widget _buildHeroFlightShuttle(
+    BuildContext flightContext,
+    Animation<double> animation,
+    HeroFlightDirection flightDirection,
+    BuildContext fromHeroContext,
+    BuildContext toHeroContext,
+  ) {
+    final isPush = flightDirection == HeroFlightDirection.push;
+    final primaryColor = Theme.of(flightContext).colorScheme.primary;
+    final containerColor =
+        Theme.of(flightContext).colorScheme.primaryContainer;
+
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (context, child) {
+        final progress = isPush ? animation.value : (1.0 - animation.value);
+        final curvedProgress = Curves.easeInOutCubic.transform(progress);
+
+        return Material(
+          color: Color.lerp(
+            containerColor,
+            Colors.black,
+            curvedProgress,
+          )!,
+          borderRadius: BorderRadius.circular(20),
+          elevation: 2.0 + (18.0 * curvedProgress),
+          shadowColor: Colors.black.withValues(alpha: 0.6),
+          clipBehavior: Clip.antiAlias,
+          child: Center(
+            child: Icon(
+              Icons.camera_alt_rounded,
+              size: 16.0 + (16.0 * curvedProgress),
+              color: Color.lerp(
+                Theme.of(flightContext).colorScheme.onPrimaryContainer,
+                primaryColor,
+                curvedProgress,
+              )!,
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _CardScannerHeroOverlay extends StatelessWidget {
+  const _CardScannerHeroOverlay({
+    required this.heroTag,
+    required this.laserColor,
+    required this.scannerService,
+    required this.flightShuttleBuilder,
+    required this.onCardDetected,
+    required this.onCancel,
+  });
+
+  final String heroTag;
+  final Color laserColor;
+  final ICardScannerService scannerService;
+  final HeroFlightShuttleBuilder flightShuttleBuilder;
+  final ValueChanged<CardDetails> onCardDetected;
+  final VoidCallback onCancel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Stack(
+        children: [
+          // Dismiss when tapping outside the viewfinder card
+          Positioned.fill(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: onCancel,
+              child: const SizedBox.expand(),
+            ),
+          ),
+          Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Top Guidance Badge
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.7),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.2),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.document_scanner_rounded,
+                          size: 16,
+                          color: laserColor,
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Align Card Inside Viewfinder',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+
+                  // Hero-wrapped Embedded Card Camera Viewfinder
+                  Hero(
+                    tag: heroTag,
+                    flightShuttleBuilder: flightShuttleBuilder,
+                    child: Material(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(20),
+                      clipBehavior: Clip.antiAlias,
+                      elevation: 20,
+                      shadowColor: Colors.black.withValues(alpha: 0.65),
+                      child: Container(
+                        width: 340,
+                        height: 200,
+                        decoration: BoxDecoration(
+                          color: Colors.black,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: laserColor.withValues(alpha: 0.5),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: EmbeddedCardCamera(
+                          key: const ValueKey('overlay_embedded_card_camera'),
+                          laserColor: laserColor,
+                          guidanceText: 'Align card inside frame',
+                          onCardDetected: onCardDetected,
+                          onCancel: onCancel,
+                          onNoCamera: () {
+                            onCancel();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'No back camera found on this device or permission denied',
+                                ),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Close button
+                  TextButton.icon(
+                    key: const ValueKey('close_camera_overlay_button'),
+                    onPressed: onCancel,
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.white.withValues(alpha: 0.14),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 18,
+                        vertical: 10,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        side: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.2),
+                        ),
+                      ),
+                    ),
+                    icon: const Icon(Icons.close_rounded, size: 18),
+                    label: const Text(
+                      'Close Overlay',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+
+                  // Mock simulator button for automated widget testing when mock service is active
+                  if (scannerService is! CardScannerService)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: FilledButton.tonalIcon(
+                        key: const ValueKey('mock_detect_overlay_card_button'),
+                        onPressed: () async {
+                          final res = await scannerService.scanCard();
+                          if (res.success && res.cardDetails != null) {
+                            onCardDetected(res.cardDetails!);
+                          }
+                        },
+                        icon: const Icon(Icons.check_circle_rounded, size: 16),
+                        label: const Text('Simulate Card Detection (Mock)'),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -281,4 +281,93 @@ void main() {
       expect(find.text('Scan Debit / Credit Card'), findsOneWidget);
     },
   );
+
+  testWidgets(
+    'Camera icon next to Card Details opens Hero overlay and simulates card detection',
+    (WidgetTester tester) async {
+      setTestSurfaceSize(tester);
+      await tester.pumpWidget(buildTestableWidget());
+      await tester.pumpAndSettle();
+
+      // 1. Verify camera scan button exists next to Card Details with Hero tag
+      final cameraBtnFinder = find.byKey(
+        const ValueKey('card_details_camera_scan_button'),
+      );
+      expect(cameraBtnFinder, findsOneWidget);
+
+      final heroFinder = find.ancestor(
+        of: cameraBtnFinder,
+        matching: find.byType(Hero),
+      );
+      expect(heroFinder, findsOneWidget);
+      final heroWidget = tester.widget<Hero>(heroFinder);
+      expect(heroWidget.tag, 'embedded_card_camera_scanner_hero');
+
+      // 2. Tap the button to open the Hero overlay
+      await tester.tap(cameraBtnFinder);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+
+      // 3. Verify overlay is displayed on top of everything
+      expect(find.text('Align Card Inside Viewfinder'), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('overlay_embedded_card_camera')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('close_camera_overlay_button')),
+        findsOneWidget,
+      );
+
+      // 4. Simulate card detection in mock mode
+      final mockDetectBtn = find.byKey(
+        const ValueKey('mock_detect_overlay_card_button'),
+      );
+      expect(mockDetectBtn, findsOneWidget);
+
+      await tester.tap(mockDetectBtn);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pumpAndSettle();
+
+      // 5. Verify overlay closed
+      expect(find.text('Align Card Inside Viewfinder'), findsNothing);
+
+      // 6. Verify details populated in the form fields and Luhn badge
+      expect(find.text('SCANNED USER'), findsWidgets);
+      expect(find.text('12/28'), findsWidgets);
+      expect(find.text('Valid Checksum'), findsOneWidget);
+      expect(
+        find.text('Card details extracted successfully (Visa)'),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets('Close overlay button dismisses scanner modal and returns', (
+    WidgetTester tester,
+  ) async {
+    setTestSurfaceSize(tester);
+    await tester.pumpWidget(buildTestableWidget());
+    await tester.pumpAndSettle();
+
+    // Tap camera button
+    await tester.tap(
+      find.byKey(const ValueKey('card_details_camera_scan_button')),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(find.text('Align Card Inside Viewfinder'), findsOneWidget);
+
+    // Tap Close Overlay
+    await tester.tap(
+      find.byKey(const ValueKey('close_camera_overlay_button')),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Align Card Inside Viewfinder'), findsNothing);
+  });
 }
