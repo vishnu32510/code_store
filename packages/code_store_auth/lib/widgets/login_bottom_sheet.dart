@@ -250,7 +250,8 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
         ),
         const SizedBox(height: 8),
         Text(
-          widget.subtitle ?? 'Sign in or create an account to securely access your data and personalized features across all devices.',
+          widget.subtitle ??
+              'Sign in or create an account to securely access your data and personalized features across all devices.',
           style: theme.textTheme.bodyMedium?.copyWith(
             color: colors.onSurfaceVariant.withValues(alpha: 0.85),
             height: 1.4,
@@ -326,6 +327,7 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
               onChanged: (v) {
                 loginBloc?.add(LoginPasswordChanged(v));
               },
+              onFieldSubmitted: (_) => _handleEmailContinue(context, loginBloc),
             ),
             const SizedBox(height: 20),
             SizedBox(

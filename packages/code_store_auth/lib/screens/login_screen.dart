@@ -179,6 +179,17 @@ class _LoginScreenState extends State<LoginScreen> {
                             }
                             return null;
                           },
+                          onFieldSubmitted: (_) {
+                            if (!isLoading &&
+                                (_formKey.currentState?.validate() ?? false)) {
+                              context.read<LoginBloc>().add(
+                                ContinueWithEmailAndPassword(
+                                  email: _emailController.text.trim(),
+                                  password: _passwordController.text,
+                                ),
+                              );
+                            }
+                          },
                         ),
                         const SizedBox(height: 24),
                         // Email Continue (Login / Silent Signup) Button
