@@ -312,7 +312,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
 
       // 3. Verify overlay is displayed on top of everything
-      expect(find.text('Align Card Inside Viewfinder'), findsOneWidget);
+      expect(find.text('Align card inside frame'), findsOneWidget);
       expect(
         find.byKey(const ValueKey('overlay_embedded_card_camera')),
         findsOneWidget,
@@ -334,7 +334,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // 5. Verify overlay closed
-      expect(find.text('Align Card Inside Viewfinder'), findsNothing);
+      expect(find.text('Align card inside frame'), findsNothing);
 
       // 6. Verify details populated in the form fields and Luhn badge
       expect(find.text('SCANNED USER'), findsWidgets);
@@ -361,7 +361,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
 
-    expect(find.text('Align Card Inside Viewfinder'), findsOneWidget);
+    expect(find.text('Align card inside frame'), findsOneWidget);
 
     // Tap Close Overlay
     await tester.tap(find.byKey(const ValueKey('close_camera_overlay_button')));
@@ -369,6 +369,6 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
 
-    expect(find.text('Align Card Inside Viewfinder'), findsNothing);
+    expect(find.text('Align card inside frame'), findsNothing);
   });
 }

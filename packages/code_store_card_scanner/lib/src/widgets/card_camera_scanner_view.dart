@@ -24,6 +24,12 @@ class CardCameraScannerView extends StatelessWidget {
   /// Whether to show the bottom guidance badge. Defaults to true.
   final bool showGuidance;
 
+  /// Whether to display and animate the laser sweep line. Defaults to true.
+  final bool showLaser;
+
+  /// Whether to display decorative credit card graphics upon detection. Defaults to true.
+  final bool showCardDesign;
+
   /// Optional callback invoked when camera error or no camera is detected.
   final ValueChanged<String>? onError;
 
@@ -35,6 +41,8 @@ class CardCameraScannerView extends StatelessWidget {
     this.guidanceText = 'Align card within the frame',
     this.guidanceIcon = Icons.crop_free_rounded,
     this.showGuidance = true,
+    this.showLaser = true,
+    this.showCardDesign = true,
     this.onError,
   });
 
@@ -55,6 +63,8 @@ class CardCameraScannerView extends StatelessWidget {
                 laserColor: laserColor,
                 showGuidance:
                     false, // Full screen view renders its own prominent bottom guidance
+                showLaser: showLaser,
+                showCardDesign: showCardDesign,
                 onCardDetected: (CardDetails details) {
                   onCardScanned?.call(details);
                   Navigator.of(context).pop(details);
@@ -63,7 +73,6 @@ class CardCameraScannerView extends StatelessWidget {
                   Navigator.of(context).pop();
                 },
                 onNoCamera: () {
-                  Navigator.of(context).pop();
                   onError?.call('No camera detected or permission denied');
                 },
               ),

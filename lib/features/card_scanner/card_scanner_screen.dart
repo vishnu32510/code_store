@@ -1267,7 +1267,6 @@ class _CardScannerScreenState extends State<CardScannerScreen>
         setState(() => _isScanningWithCamera = false);
       },
       onNoCamera: () {
-        setState(() => _isScanningWithCamera = false);
         getIt<IToastService>().showError(
           'No camera found on this device or permission denied',
         );

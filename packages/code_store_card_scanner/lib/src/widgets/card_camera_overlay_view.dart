@@ -21,18 +21,13 @@ class CardCameraOverlayScanner {
     Color? laserColor,
     Color? overlayColor,
     Color? barrierColor,
-    String? bannerTitle = 'Align Card Inside Viewfinder',
-    IconData? bannerIcon = Icons.document_scanner_rounded,
-    Color? bannerBackgroundColor,
-    Color? bannerTextColor,
     String? guidanceText = 'Align card inside frame',
     IconData? guidanceIcon = Icons.document_scanner_rounded,
     bool showGuidance = true,
+    bool showLaser = true,
+    bool showCardDesign = true,
     bool showCloseButton = true,
-    String closeButtonText = 'Close Overlay',
-    IconData closeButtonIcon = Icons.close_rounded,
-    Color? closeButtonColor,
-    Color? closeButtonTextColor,
+    Widget? closeButton,
     Duration detectionDelay = const Duration(milliseconds: 1100),
     bool barrierDismissible = true,
     Duration transitionDuration = const Duration(milliseconds: 380),
@@ -58,18 +53,13 @@ class CardCameraOverlayScanner {
           return CardCameraOverlayView(
             heroTag: heroTag,
             laserColor: laserColor ?? Theme.of(context).colorScheme.primary,
-            bannerTitle: bannerTitle,
-            bannerIcon: bannerIcon,
-            bannerBackgroundColor: bannerBackgroundColor,
-            bannerTextColor: bannerTextColor,
             guidanceText: guidanceText,
             guidanceIcon: guidanceIcon,
             showGuidance: showGuidance,
+            showLaser: showLaser,
+            showCardDesign: showCardDesign,
             showCloseButton: showCloseButton,
-            closeButtonText: closeButtonText,
-            closeButtonIcon: closeButtonIcon,
-            closeButtonColor: closeButtonColor,
-            closeButtonTextColor: closeButtonTextColor,
+            closeButton: closeButton,
             detectionDelay: detectionDelay,
             scannerService: scannerService,
             onError: onError,
@@ -151,12 +141,6 @@ class CardScannerHeroButton extends StatelessWidget {
   /// Custom backdrop scrim color (alias for [overlayColor]).
   final Color? barrierColor;
 
-  /// Title displayed in the banner above the camera viewfinder.
-  final String? bannerTitle;
-
-  /// Icon displayed in the banner above the camera viewfinder.
-  final IconData? bannerIcon;
-
   /// Guidance text displayed at the bottom of the camera viewfinder.
   final String? guidanceText;
 
@@ -166,26 +150,17 @@ class CardScannerHeroButton extends StatelessWidget {
   /// Whether to show the bottom guidance badge inside the viewfinder.
   final bool showGuidance;
 
+  /// Whether to display and animate the laser sweep line. Defaults to true.
+  final bool showLaser;
+
+  /// Whether to display decorative credit card graphics upon detection. Defaults to true.
+  final bool showCardDesign;
+
   /// Whether to show the close overlay button below the viewfinder. Defaults to true.
   final bool showCloseButton;
 
-  /// Custom background color for the overlay banner badge.
-  final Color? bannerBackgroundColor;
-
-  /// Custom text and icon color for the overlay banner badge.
-  final Color? bannerTextColor;
-
-  /// Label text for the overlay close button.
-  final String closeButtonText;
-
-  /// Icon for the overlay close button.
-  final IconData closeButtonIcon;
-
-  /// Background color for the overlay close button.
-  final Color? closeButtonColor;
-
-  /// Text and icon color for the overlay close button.
-  final Color? closeButtonTextColor;
+  /// Optional custom widget for the close button. If provided, wrapped with dismiss handler.
+  final Widget? closeButton;
 
   /// Delay duration between Luhn verification and dismiss handoff.
   final Duration detectionDelay;
@@ -210,18 +185,13 @@ class CardScannerHeroButton extends StatelessWidget {
     this.laserColor,
     this.overlayColor,
     this.barrierColor,
-    this.bannerTitle = 'Align Card Inside Viewfinder',
-    this.bannerIcon = Icons.document_scanner_rounded,
-    this.bannerBackgroundColor,
-    this.bannerTextColor,
     this.guidanceText = 'Align card inside frame',
     this.guidanceIcon = Icons.document_scanner_rounded,
     this.showGuidance = true,
+    this.showLaser = true,
+    this.showCardDesign = true,
     this.showCloseButton = true,
-    this.closeButtonText = 'Close Overlay',
-    this.closeButtonIcon = Icons.close_rounded,
-    this.closeButtonColor,
-    this.closeButtonTextColor,
+    this.closeButton,
     this.detectionDelay = const Duration(milliseconds: 1100),
     this.scannerService,
     this.flightShuttleBuilder,
@@ -237,18 +207,13 @@ class CardScannerHeroButton extends StatelessWidget {
       laserColor: laserColor ?? colors.primary,
       overlayColor: overlayColor,
       barrierColor: barrierColor,
-      bannerTitle: bannerTitle,
-      bannerIcon: bannerIcon,
-      bannerBackgroundColor: bannerBackgroundColor,
-      bannerTextColor: bannerTextColor,
       guidanceText: guidanceText,
       guidanceIcon: guidanceIcon,
       showGuidance: showGuidance,
+      showLaser: showLaser,
+      showCardDesign: showCardDesign,
       showCloseButton: showCloseButton,
-      closeButtonText: closeButtonText,
-      closeButtonIcon: closeButtonIcon,
-      closeButtonColor: closeButtonColor,
-      closeButtonTextColor: closeButtonTextColor,
+      closeButton: closeButton,
       detectionDelay: detectionDelay,
       scannerService: scannerService,
       flightShuttleBuilder: flightShuttleBuilder,
@@ -303,32 +268,17 @@ class CardCameraOverlayView extends StatelessWidget {
   /// Whether to show the bottom guidance badge inside the viewfinder.
   final bool showGuidance;
 
+  /// Whether to display and animate the laser sweep line. Defaults to true.
+  final bool showLaser;
+
+  /// Whether to display decorative credit card graphics upon detection. Defaults to true.
+  final bool showCardDesign;
+
   /// Whether to show the close overlay button below the viewfinder. Defaults to true.
   final bool showCloseButton;
 
-  /// Optional banner text shown above the viewfinder.
-  final String? bannerTitle;
-
-  /// Icon displayed inside the top banner badge.
-  final IconData? bannerIcon;
-
-  /// Custom background color for the banner badge.
-  final Color? bannerBackgroundColor;
-
-  /// Custom text and icon color for the banner badge.
-  final Color? bannerTextColor;
-
-  /// Label text for the overlay close button.
-  final String closeButtonText;
-
-  /// Icon for the overlay close button.
-  final IconData closeButtonIcon;
-
-  /// Custom background color for the close button.
-  final Color? closeButtonColor;
-
-  /// Custom text and icon color for the close button.
-  final Color? closeButtonTextColor;
+  /// Optional custom widget for the close button. If provided, wrapped with dismiss handler.
+  final Widget? closeButton;
 
   /// Delay duration between Luhn verification and dismiss handoff.
   final Duration detectionDelay;
@@ -355,15 +305,10 @@ class CardCameraOverlayView extends StatelessWidget {
     this.guidanceText = 'Align card inside frame',
     this.guidanceIcon = Icons.document_scanner_rounded,
     this.showGuidance = true,
+    this.showLaser = true,
+    this.showCardDesign = true,
     this.showCloseButton = true,
-    this.bannerTitle = 'Align Card Inside Viewfinder',
-    this.bannerIcon = Icons.document_scanner_rounded,
-    this.bannerBackgroundColor,
-    this.bannerTextColor,
-    this.closeButtonText = 'Close Overlay',
-    this.closeButtonIcon = Icons.close_rounded,
-    this.closeButtonColor,
-    this.closeButtonTextColor,
+    this.closeButton,
     this.detectionDelay = const Duration(milliseconds: 1100),
     this.scannerService,
     this.flightShuttleBuilder,
@@ -392,46 +337,6 @@ class CardCameraOverlayView extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Top Guidance Badge
-                  if (bannerTitle != null && bannerTitle!.isNotEmpty)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: bannerBackgroundColor ??
-                            Colors.black.withValues(alpha: 0.7),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: (bannerTextColor ?? Colors.white).withValues(
-                            alpha: 0.2,
-                          ),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            bannerIcon ?? Icons.document_scanner_rounded,
-                            size: 16,
-                            color: laserColor,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            bannerTitle!,
-                            style: TextStyle(
-                              color: bannerTextColor ?? Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  if (bannerTitle != null && bannerTitle!.isNotEmpty)
-                    const SizedBox(height: 18),
-
                   // Hero-wrapped Embedded Card Camera Viewfinder
                   Hero(
                     tag: heroTag,
@@ -460,11 +365,12 @@ class CardCameraOverlayView extends StatelessWidget {
                           guidanceText: guidanceText,
                           guidanceIcon: guidanceIcon,
                           showGuidance: showGuidance,
+                          showLaser: showLaser,
+                          showCardDesign: showCardDesign,
                           detectionDelay: detectionDelay,
                           onCardDetected: onCardDetected,
                           onCancel: onCancel,
                           onNoCamera: () {
-                            onCancel();
                             onError?.call(
                               'No camera found on this device or permission denied',
                             );
@@ -477,30 +383,22 @@ class CardCameraOverlayView extends StatelessWidget {
 
                   // Close button
                   if (showCloseButton)
-                    TextButton.icon(
-                      key: const ValueKey('close_camera_overlay_button'),
-                      onPressed: onCancel,
-                      style: TextButton.styleFrom(
-                        foregroundColor: closeButtonTextColor ?? Colors.white,
-                        backgroundColor: closeButtonColor ??
-                            Colors.white.withValues(alpha: 0.14),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 18,
-                          vertical: 10,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          side: BorderSide(
-                            color: Colors.white.withValues(alpha: 0.2),
+                    closeButton != null
+                        ? InkResponse(
+                            key: const ValueKey('close_camera_overlay_button'),
+                            onTap: onCancel,
+                            child: closeButton,
+                          )
+                        : IconButton(
+                            key: const ValueKey('close_camera_overlay_button'),
+                            onPressed: onCancel,
+                            icon: const Icon(Icons.close_rounded),
+                            color: Colors.white,
+                            style: IconButton.styleFrom(
+                              backgroundColor:
+                                  Colors.white.withValues(alpha: 0.14),
+                            ),
                           ),
-                        ),
-                      ),
-                      icon: Icon(closeButtonIcon, size: 18),
-                      label: Text(
-                        closeButtonText,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                    ),
 
                   // Mock simulator or Web demo button
                   if (kIsWeb ||

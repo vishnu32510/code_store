@@ -274,7 +274,8 @@ void main() {
         heroTag: 'test_hero_tag',
         laserColor: Colors.pink,
         guidanceText: 'Keep steady',
-        bannerTitle: 'Center Card',
+        showLaser: false,
+        showCardDesign: false,
         onCardDetected: (_) {},
         onCancel: () {},
       );
@@ -282,7 +283,8 @@ void main() {
       expect(overlayView.heroTag, 'test_hero_tag');
       expect(overlayView.laserColor, Colors.pink);
       expect(overlayView.guidanceText, 'Keep steady');
-      expect(overlayView.bannerTitle, 'Center Card');
+      expect(overlayView.showLaser, isFalse);
+      expect(overlayView.showCardDesign, isFalse);
     });
   });
 
@@ -311,63 +313,51 @@ void main() {
       },
     );
 
-    test('CardScannerHeroButton supports custom banner colors and styling', () {
+    test('CardScannerHeroButton supports showLaser and showCardDesign toggles',
+        () {
       final button = CardScannerHeroButton(
-        bannerTitle: 'Hold Steady',
-        bannerIcon: Icons.credit_card,
-        bannerBackgroundColor: Colors.indigo,
-        bannerTextColor: Colors.yellow,
+        showLaser: false,
+        showCardDesign: false,
       );
 
-      expect(button.bannerTitle, 'Hold Steady');
-      expect(button.bannerIcon, Icons.credit_card);
-      expect(button.bannerBackgroundColor, Colors.indigo);
-      expect(button.bannerTextColor, Colors.yellow);
+      expect(button.showLaser, isFalse);
+      expect(button.showCardDesign, isFalse);
     });
 
     test(
-        'CardScannerHeroButton supports showCloseButton boolean and close button styling',
+        'CardScannerHeroButton supports showCloseButton boolean and closeButton widget',
         () {
       final buttonWithoutClose = CardScannerHeroButton(showCloseButton: false);
       expect(buttonWithoutClose.showCloseButton, isFalse);
 
+      const customClose = Icon(Icons.cancel_outlined);
       final buttonWithCustomClose = CardScannerHeroButton(
         showCloseButton: true,
-        closeButtonText: 'Dismiss Scanner',
-        closeButtonIcon: Icons.cancel_outlined,
-        closeButtonColor: Colors.redAccent,
-        closeButtonTextColor: Colors.white,
+        closeButton: customClose,
       );
       expect(buttonWithCustomClose.showCloseButton, isTrue);
-      expect(buttonWithCustomClose.closeButtonText, 'Dismiss Scanner');
-      expect(buttonWithCustomClose.closeButtonIcon, Icons.cancel_outlined);
-      expect(buttonWithCustomClose.closeButtonColor, Colors.redAccent);
-      expect(buttonWithCustomClose.closeButtonTextColor, Colors.white);
+      expect(buttonWithCustomClose.closeButton, customClose);
     });
 
     test(
-        'CardCameraOverlayView supports custom laserColor, overlay, and banner colors',
+        'CardCameraOverlayView supports custom laserColor, showLaser, and showCardDesign',
         () {
       final overlay = CardCameraOverlayView(
         heroTag: 'custom_tag',
         laserColor: Colors.greenAccent,
-        bannerTitle: 'Align Card',
-        bannerIcon: Icons.camera,
-        bannerBackgroundColor: Colors.black54,
-        bannerTextColor: Colors.lightGreenAccent,
+        showLaser: false,
+        showCardDesign: false,
         onCardDetected: (_) {},
         onCancel: () {},
       );
 
       expect(overlay.laserColor, Colors.greenAccent);
-      expect(overlay.bannerTitle, 'Align Card');
-      expect(overlay.bannerIcon, Icons.camera);
-      expect(overlay.bannerBackgroundColor, Colors.black54);
-      expect(overlay.bannerTextColor, Colors.lightGreenAccent);
+      expect(overlay.showLaser, isFalse);
+      expect(overlay.showCardDesign, isFalse);
     });
 
     test(
-        'CardCameraOverlayView supports showCloseButton boolean and close button styling',
+        'CardCameraOverlayView supports showCloseButton boolean and custom closeButton widget',
         () {
       final overlayWithoutClose = CardCameraOverlayView(
         heroTag: 'tag1',
@@ -378,22 +368,17 @@ void main() {
       );
       expect(overlayWithoutClose.showCloseButton, isFalse);
 
+      const customClose = Text('Dismiss');
       final overlayWithClose = CardCameraOverlayView(
         heroTag: 'tag2',
         laserColor: Colors.teal,
         showCloseButton: true,
-        closeButtonText: 'Dismiss',
-        closeButtonIcon: Icons.cancel,
-        closeButtonColor: Colors.purple,
-        closeButtonTextColor: Colors.amber,
+        closeButton: customClose,
         onCardDetected: (_) {},
         onCancel: () {},
       );
       expect(overlayWithClose.showCloseButton, isTrue);
-      expect(overlayWithClose.closeButtonText, 'Dismiss');
-      expect(overlayWithClose.closeButtonIcon, Icons.cancel);
-      expect(overlayWithClose.closeButtonColor, Colors.purple);
-      expect(overlayWithClose.closeButtonTextColor, Colors.amber);
+      expect(overlayWithClose.closeButton, customClose);
     });
 
     testWidgets(
@@ -460,35 +445,50 @@ void main() {
     );
 
     testWidgets(
-      'CardCameraOverlayView renders custom banner and close button when showCloseButton is true',
+      'CardCameraOverlayView renders custom close button when showCloseButton is true',
       (WidgetTester tester) async {
         await tester.pumpWidget(
           MaterialApp(
             home: CardCameraOverlayView(
               heroTag: 'custom_render_test',
               laserColor: Colors.purple,
-              bannerTitle: 'Scan Custom Title',
-              bannerIcon: Icons.star,
-              bannerTextColor: Colors.yellow,
               showCloseButton: true,
-              closeButtonText: 'Exit Scanner',
-              closeButtonIcon: Icons.exit_to_app,
+              closeButton: const Text('Exit Scanner'),
               onCardDetected: (_) {},
               onCancel: () {},
             ),
           ),
         );
 
-        expect(find.text('Scan Custom Title'), findsOneWidget);
-        expect(find.byIcon(Icons.star), findsOneWidget);
         expect(find.text('Exit Scanner'), findsOneWidget);
-        expect(find.byIcon(Icons.exit_to_app), findsOneWidget);
         expect(
           find.byKey(const ValueKey('close_camera_overlay_button')),
           findsOneWidget,
         );
       },
     );
+
+    test('EmbeddedCardCamera defaults showLaser and showCardDesign to true',
+        () {
+      final camera = EmbeddedCardCamera(
+        onCardDetected: (_) {},
+        onCancel: () {},
+      );
+      expect(camera.showLaser, isTrue);
+      expect(camera.showCardDesign, isTrue);
+    });
+
+    test('EmbeddedCardCamera supports disabling showLaser and showCardDesign',
+        () {
+      final camera = EmbeddedCardCamera(
+        onCardDetected: (_) {},
+        onCancel: () {},
+        showLaser: false,
+        showCardDesign: false,
+      );
+      expect(camera.showLaser, isFalse);
+      expect(camera.showCardDesign, isFalse);
+    });
 
     test(
         'EmbeddedCardCamera accepts onNoCamera callback and initializes correctly',
