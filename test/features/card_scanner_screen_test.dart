@@ -296,10 +296,7 @@ void main() {
       expect(cameraBtnFinder, findsOneWidget);
 
       final heroButton = tester.widget<CardScannerHeroButton>(cameraBtnFinder);
-      expect(heroButton.iconColor, isNotNull);
-      expect(heroButton.buttonColor, isNotNull);
       expect(heroButton.laserColor, isNotNull);
-      expect(heroButton.overlayColor, isNotNull);
 
       final heroFinder = find.descendant(
         of: cameraBtnFinder,

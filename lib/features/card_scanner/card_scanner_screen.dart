@@ -556,17 +556,13 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                                 'card_details_camera_scan_button',
                               ),
                               heroTag: _kCameraScannerHeroTag,
-                              buttonColor: colors.primaryContainer.withValues(
-                                alpha: 0.7,
-                              ),
-                              iconColor: colors.primary,
                               laserColor: colors.primary,
-                              overlayColor: Colors.black.withValues(
-                                alpha: 0.75,
-                              ),
                               scannerService: _scannerService,
                               onCardDetected: (details) =>
                                   _applyScannedDetails(details),
+                              onError: (error) {
+                                getIt<IToastService>().showError(error);
+                              },
                             ),
                             const Spacer(),
                             AnimatedSwitcher(
@@ -1272,13 +1268,8 @@ class _CardScannerScreenState extends State<CardScannerScreen>
       },
       onNoCamera: () {
         setState(() => _isScanningWithCamera = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'No camera found on this device or permission denied',
-            ),
-            behavior: SnackBarBehavior.floating,
-          ),
+        getIt<IToastService>().showError(
+          'No camera found on this device or permission denied',
         );
       },
     );

@@ -39,6 +39,7 @@ class CardCameraOverlayScanner {
     Duration reverseTransitionDuration = const Duration(milliseconds: 320),
     ICardScannerService? scannerService,
     HeroFlightShuttleBuilder? flightShuttleBuilder,
+    ValueChanged<String>? onError,
   }) {
     FocusScope.of(context).unfocus();
 
@@ -71,6 +72,7 @@ class CardCameraOverlayScanner {
             closeButtonTextColor: closeButtonTextColor,
             detectionDelay: detectionDelay,
             scannerService: scannerService,
+            onError: onError,
             flightShuttleBuilder:
                 flightShuttleBuilder ?? buildHeroFlightShuttle,
             onCardDetected: (details) {
@@ -138,8 +140,8 @@ class CardScannerHeroButton extends StatelessWidget {
   /// Laser and viewfinder accent color.
   final Color? laserColor;
 
-  /// Tooltip displayed on long-press or hover.
-  final String tooltip;
+  /// Optional tooltip displayed on long-press or hover.
+  final String? tooltip;
 
   /// Custom widget icon to show inside the button. Takes precedence over [iconData].
   final Widget? icon;
@@ -216,12 +218,15 @@ class CardScannerHeroButton extends StatelessWidget {
   /// Optional callback invoked when the user cancels or closes the overlay.
   final VoidCallback? onCancel;
 
+  /// Optional callback invoked when camera error or no camera is detected.
+  final ValueChanged<String>? onError;
+
   const CardScannerHeroButton({
     super.key,
     this.heroTag = CardCameraOverlayScanner.defaultHeroTag,
     this.onCardDetected,
     this.laserColor,
-    this.tooltip = 'Scan Card via Camera Overlay',
+    this.tooltip,
     this.icon,
     this.iconData,
     this.iconSize = 16.0,
@@ -247,71 +252,66 @@ class CardScannerHeroButton extends StatelessWidget {
     this.scannerService,
     this.flightShuttleBuilder,
     this.onCancel,
+    this.onError,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final bg =
-        buttonColor ??
-        backgroundColor ??
-        colors.primaryContainer.withValues(alpha: 0.7);
-    final fg = iconColor ?? foregroundColor ?? colors.onPrimaryContainer;
+    final bg = buttonColor ?? backgroundColor;
+    final fg = iconColor ?? foregroundColor;
 
     return Hero(
       tag: heroTag,
       flightShuttleBuilder:
           flightShuttleBuilder ??
           CardCameraOverlayScanner.buildHeroFlightShuttle,
-      child: Material(
-        color: bg,
-        shape: const CircleBorder(),
-        clipBehavior: Clip.antiAlias,
-        child: Tooltip(
-          message: tooltip,
-          child: InkWell(
-            onTap: () async {
-              final result = await CardCameraOverlayScanner.show(
-                context,
-                heroTag: heroTag,
-                laserColor: laserColor ?? colors.primary,
-                overlayColor: overlayColor,
-                barrierColor: barrierColor,
-                bannerTitle: bannerTitle,
-                bannerIcon: bannerIcon,
-                bannerBackgroundColor: bannerBackgroundColor,
-                bannerTextColor: bannerTextColor,
-                guidanceText: guidanceText,
-                guidanceIcon: guidanceIcon,
-                showGuidance: showGuidance,
-                showCloseButton: showCloseButton,
-                closeButtonText: closeButtonText,
-                closeButtonIcon: closeButtonIcon,
-                closeButtonColor: closeButtonColor,
-                closeButtonTextColor: closeButtonTextColor,
-                detectionDelay: detectionDelay,
-                scannerService: scannerService,
-                flightShuttleBuilder: flightShuttleBuilder,
-              );
-              if (result != null) {
-                onCardDetected?.call(result);
-              } else {
-                onCancel?.call();
-              }
-            },
-            borderRadius: BorderRadius.circular(20),
-            child: Padding(
-              padding: const EdgeInsets.all(6),
-              child:
-                  icon ??
-                  Icon(
-                    iconData ?? Icons.camera_alt_rounded,
-                    size: iconSize,
-                    color: fg,
-                  ),
+      child: IconButton(
+        tooltip: tooltip,
+        iconSize: iconSize,
+        color: fg,
+        style: bg != null
+            ? IconButton.styleFrom(
+                backgroundColor: bg,
+                foregroundColor: fg,
+              )
+            : null,
+        onPressed: () async {
+          final result = await CardCameraOverlayScanner.show(
+            context,
+            heroTag: heroTag,
+            laserColor: laserColor ?? colors.primary,
+            overlayColor: overlayColor,
+            barrierColor: barrierColor,
+            bannerTitle: bannerTitle,
+            bannerIcon: bannerIcon,
+            bannerBackgroundColor: bannerBackgroundColor,
+            bannerTextColor: bannerTextColor,
+            guidanceText: guidanceText,
+            guidanceIcon: guidanceIcon,
+            showGuidance: showGuidance,
+            showCloseButton: showCloseButton,
+            closeButtonText: closeButtonText,
+            closeButtonIcon: closeButtonIcon,
+            closeButtonColor: closeButtonColor,
+            closeButtonTextColor: closeButtonTextColor,
+            detectionDelay: detectionDelay,
+            scannerService: scannerService,
+            flightShuttleBuilder: flightShuttleBuilder,
+            onError: onError,
+          );
+          if (result != null) {
+            onCardDetected?.call(result);
+          } else {
+            onCancel?.call();
+          }
+        },
+        icon: icon ??
+            Icon(
+              iconData ?? Icons.camera_alt_rounded,
+              size: iconSize,
+              color: fg,
             ),
-          ),
-        ),
       ),
     );
   }
@@ -370,6 +370,9 @@ class CardCameraOverlayView extends StatelessWidget {
   /// Custom flight shuttle builder.
   final HeroFlightShuttleBuilder? flightShuttleBuilder;
 
+  /// Optional callback invoked when camera error or no camera is detected.
+  final ValueChanged<String>? onError;
+
   /// Callback when a card is detected.
   final ValueChanged<CardDetails> onCardDetected;
 
@@ -395,6 +398,7 @@ class CardCameraOverlayView extends StatelessWidget {
     this.detectionDelay = const Duration(milliseconds: 1100),
     this.scannerService,
     this.flightShuttleBuilder,
+    this.onError,
     required this.onCardDetected,
     required this.onCancel,
   });
@@ -494,13 +498,8 @@ class CardCameraOverlayView extends StatelessWidget {
                           onCancel: onCancel,
                           onNoCamera: () {
                             onCancel();
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'No camera found on this device or permission denied',
-                                ),
-                                behavior: SnackBarBehavior.floating,
-                              ),
+                            onError?.call(
+                              'No camera found on this device or permission denied',
                             );
                           },
                         ),

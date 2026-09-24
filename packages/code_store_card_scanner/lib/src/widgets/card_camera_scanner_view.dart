@@ -24,6 +24,9 @@ class CardCameraScannerView extends StatelessWidget {
   /// Whether to show the bottom guidance badge. Defaults to true.
   final bool showGuidance;
 
+  /// Optional callback invoked when camera error or no camera is detected.
+  final ValueChanged<String>? onError;
+
   const CardCameraScannerView({
     super.key,
     this.onCardScanned,
@@ -32,6 +35,7 @@ class CardCameraScannerView extends StatelessWidget {
     this.guidanceText = 'Align card within the frame',
     this.guidanceIcon = Icons.crop_free_rounded,
     this.showGuidance = true,
+    this.onError,
   });
 
   @override
@@ -58,11 +62,8 @@ class CardCameraScannerView extends StatelessWidget {
                   Navigator.of(context).pop();
                 },
                 onNoCamera: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('No camera detected or permission denied'),
-                    ),
-                  );
+                  Navigator.of(context).pop();
+                  onError?.call('No camera detected or permission denied');
                 },
               ),
             ),
