@@ -256,15 +256,16 @@ void main() {
     test(
       'CardScannerHeroButton initializes with custom heroTag and properties',
       () {
+        const customChild = Icon(Icons.photo_camera);
         final button = CardScannerHeroButton(
           heroTag: 'my_custom_tag',
           laserColor: Colors.teal,
-          tooltip: 'Custom Tooltip',
+          child: customChild,
         );
 
         expect(button.heroTag, 'my_custom_tag');
         expect(button.laserColor, Colors.teal);
-        expect(button.tooltip, 'Custom Tooltip');
+        expect(button.child, customChild);
       },
     );
 
@@ -286,28 +287,13 @@ void main() {
   });
 
   group('CardScannerHeroButton & CardCameraOverlayView Customization', () {
-    test('CardScannerHeroButton supports custom buttonColor, iconColor, and icon properties', () {
+    test('CardScannerHeroButton accepts custom child widget', () {
+      const customWidget = Text('Tap to Scan');
       final button = CardScannerHeroButton(
-        buttonColor: Colors.amber,
-        iconColor: Colors.deepPurple,
-        iconData: Icons.center_focus_strong,
-        iconSize: 22.0,
+        child: customWidget,
       );
 
-      expect(button.buttonColor, Colors.amber);
-      expect(button.iconColor, Colors.deepPurple);
-      expect(button.iconData, Icons.center_focus_strong);
-      expect(button.iconSize, 22.0);
-    });
-
-    test('CardScannerHeroButton supports backgroundColor and foregroundColor aliases', () {
-      final button = CardScannerHeroButton(
-        backgroundColor: Colors.blueGrey,
-        foregroundColor: Colors.white,
-      );
-
-      expect(button.backgroundColor, Colors.blueGrey);
-      expect(button.foregroundColor, Colors.white);
+      expect(button.child, customWidget);
     });
 
     test(
@@ -405,37 +391,43 @@ void main() {
     });
 
     testWidgets(
-      'CardScannerHeroButton renders with custom buttonColor, iconColor, and iconData',
+      'CardScannerHeroButton defaults to camera icon when child is null',
       (WidgetTester tester) async {
         await tester.pumpWidget(
-          MaterialApp(
+          const MaterialApp(
             home: Scaffold(
               body: Center(
                 child: CardScannerHeroButton(
-                  key: const ValueKey('test_hero_btn'),
-                  buttonColor: Colors.orange,
-                  iconColor: Colors.blue,
-                  iconData: Icons.credit_score,
-                  iconSize: 20.0,
+                  key: ValueKey('test_hero_btn'),
                 ),
               ),
             ),
           ),
         );
 
-        final materialFinder = find.descendant(
-          of: find.byKey(const ValueKey('test_hero_btn')),
-          matching: find.byType(Material),
-        );
-        expect(materialFinder, findsOneWidget);
-        final material = tester.widget<Material>(materialFinder);
-        expect(material.color, Colors.orange);
-
-        final iconFinder = find.byIcon(Icons.credit_score);
+        final iconFinder = find.byIcon(Icons.camera_alt_rounded);
         expect(iconFinder, findsOneWidget);
-        final icon = tester.widget<Icon>(iconFinder);
-        expect(icon.color, Colors.blue);
-        expect(icon.size, 20.0);
+      },
+    );
+
+    testWidgets(
+      'CardScannerHeroButton renders and wraps custom child widget',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: Scaffold(
+              body: Center(
+                child: CardScannerHeroButton(
+                  key: ValueKey('custom_child_btn'),
+                  child: Text('Custom Scan Action'),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        expect(find.text('Custom Scan Action'), findsOneWidget);
+        expect(find.byType(InkResponse), findsOneWidget);
       },
     );
 

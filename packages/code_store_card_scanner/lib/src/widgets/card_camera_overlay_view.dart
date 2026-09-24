@@ -140,29 +140,10 @@ class CardScannerHeroButton extends StatelessWidget {
   /// Laser and viewfinder accent color.
   final Color? laserColor;
 
-  /// Optional tooltip displayed on long-press or hover.
-  final String? tooltip;
-
-  /// Custom widget icon to show inside the button. Takes precedence over [iconData].
-  final Widget? icon;
-
-  /// Custom icon data to show inside the button. Defaults to [Icons.camera_alt_rounded].
-  final IconData? iconData;
-
-  /// Custom size for the button icon. Defaults to 16.0.
-  final double iconSize;
-
-  /// Custom color for the button icon.
-  final Color? iconColor;
-
-  /// Custom background color of the button.
-  final Color? buttonColor;
-
-  /// Custom background color of the button (alias for [buttonColor]).
-  final Color? backgroundColor;
-
-  /// Custom foreground/icon color (alias for [iconColor]).
-  final Color? foregroundColor;
+  /// Optional custom child widget (e.g. [Icon], [Text], or custom button widget).
+  /// When provided, this widget is wrapped with the scanner tap handler, allowing full
+  /// styling freedom from the consuming application. If null, defaults to a standard camera [IconButton].
+  final Widget? child;
 
   /// Custom backdrop scrim color for the overlay. Defaults to black with 72% opacity.
   final Color? overlayColor;
@@ -223,17 +204,10 @@ class CardScannerHeroButton extends StatelessWidget {
 
   const CardScannerHeroButton({
     super.key,
+    this.child,
     this.heroTag = CardCameraOverlayScanner.defaultHeroTag,
     this.onCardDetected,
     this.laserColor,
-    this.tooltip,
-    this.icon,
-    this.iconData,
-    this.iconSize = 16.0,
-    this.iconColor,
-    this.buttonColor,
-    this.backgroundColor,
-    this.foregroundColor,
     this.overlayColor,
     this.barrierColor,
     this.bannerTitle = 'Align Card Inside Viewfinder',
@@ -255,64 +229,60 @@ class CardScannerHeroButton extends StatelessWidget {
     this.onError,
   });
 
+  Future<void> _handleTap(BuildContext context) async {
+    final colors = Theme.of(context).colorScheme;
+    final result = await CardCameraOverlayScanner.show(
+      context,
+      heroTag: heroTag,
+      laserColor: laserColor ?? colors.primary,
+      overlayColor: overlayColor,
+      barrierColor: barrierColor,
+      bannerTitle: bannerTitle,
+      bannerIcon: bannerIcon,
+      bannerBackgroundColor: bannerBackgroundColor,
+      bannerTextColor: bannerTextColor,
+      guidanceText: guidanceText,
+      guidanceIcon: guidanceIcon,
+      showGuidance: showGuidance,
+      showCloseButton: showCloseButton,
+      closeButtonText: closeButtonText,
+      closeButtonIcon: closeButtonIcon,
+      closeButtonColor: closeButtonColor,
+      closeButtonTextColor: closeButtonTextColor,
+      detectionDelay: detectionDelay,
+      scannerService: scannerService,
+      flightShuttleBuilder: flightShuttleBuilder,
+      onError: onError,
+    );
+    if (result != null) {
+      onCardDetected?.call(result);
+    } else {
+      onCancel?.call();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final bg = buttonColor ?? backgroundColor;
-    final fg = iconColor ?? foregroundColor;
+
+    final Widget buttonWidget = child != null
+        ? InkResponse(
+            onTap: () => _handleTap(context),
+            highlightShape: BoxShape.circle,
+            child: child,
+          )
+        : IconButton(
+            icon: const Icon(Icons.camera_alt_rounded),
+            color: colors.primary,
+            onPressed: () => _handleTap(context),
+          );
 
     return Hero(
       tag: heroTag,
       flightShuttleBuilder:
           flightShuttleBuilder ??
           CardCameraOverlayScanner.buildHeroFlightShuttle,
-      child: IconButton(
-        tooltip: tooltip,
-        iconSize: iconSize,
-        color: fg,
-        style: bg != null
-            ? IconButton.styleFrom(
-                backgroundColor: bg,
-                foregroundColor: fg,
-              )
-            : null,
-        onPressed: () async {
-          final result = await CardCameraOverlayScanner.show(
-            context,
-            heroTag: heroTag,
-            laserColor: laserColor ?? colors.primary,
-            overlayColor: overlayColor,
-            barrierColor: barrierColor,
-            bannerTitle: bannerTitle,
-            bannerIcon: bannerIcon,
-            bannerBackgroundColor: bannerBackgroundColor,
-            bannerTextColor: bannerTextColor,
-            guidanceText: guidanceText,
-            guidanceIcon: guidanceIcon,
-            showGuidance: showGuidance,
-            showCloseButton: showCloseButton,
-            closeButtonText: closeButtonText,
-            closeButtonIcon: closeButtonIcon,
-            closeButtonColor: closeButtonColor,
-            closeButtonTextColor: closeButtonTextColor,
-            detectionDelay: detectionDelay,
-            scannerService: scannerService,
-            flightShuttleBuilder: flightShuttleBuilder,
-            onError: onError,
-          );
-          if (result != null) {
-            onCardDetected?.call(result);
-          } else {
-            onCancel?.call();
-          }
-        },
-        icon: icon ??
-            Icon(
-              iconData ?? Icons.camera_alt_rounded,
-              size: iconSize,
-              color: fg,
-            ),
-      ),
+      child: buttonWidget,
     );
   }
 }
