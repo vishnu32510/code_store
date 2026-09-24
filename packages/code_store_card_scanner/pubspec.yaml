@@ -15,7 +15,7 @@ dependencies:
   camera: ^0.12.1
   google_mlkit_text_recognition: ^0.15.1
   get_it: ^9.2.1
-  meta: ^1.19.0
+  meta: ^1.18.0
 
 dev_dependencies:
   flutter_test:
