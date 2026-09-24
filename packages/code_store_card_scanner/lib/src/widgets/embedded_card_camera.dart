@@ -27,6 +27,10 @@ class EmbeddedCardCamera extends StatefulWidget {
     required this.onCancel,
     this.onNoCamera,
     this.detectionDelay = const Duration(milliseconds: 1100),
+    this.laserColor,
+    this.guidanceText = 'Align card inside frame',
+    this.guidanceIcon = Icons.document_scanner_rounded,
+    this.showGuidance = true,
   });
 
   /// Called when a Luhn-verified card is detected and parsed.
@@ -41,6 +45,21 @@ class EmbeddedCardCamera extends StatefulWidget {
   /// Smooth delay between card detection and closing, allowing hero transition
   /// to animate the detected card number, expiry, and name into position.
   final Duration detectionDelay;
+
+  /// The primary laser and viewfinder accent color.
+  /// Defaults to [Colors.cyanAccent] if not specified.
+  final Color? laserColor;
+
+  /// Optional guidance text shown at the bottom of the viewfinder.
+  /// Defaults to 'Align card inside frame'.
+  final String? guidanceText;
+
+  /// Optional icon displayed alongside the guidance text.
+  /// Defaults to [Icons.document_scanner_rounded].
+  final IconData? guidanceIcon;
+
+  /// Whether to display the bottom guidance badge. Defaults to true.
+  final bool showGuidance;
 
   @override
   State<EmbeddedCardCamera> createState() => _EmbeddedCardCameraState();
@@ -331,17 +350,19 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
 
   @override
   Widget build(BuildContext context) {
+    final effectiveLaserColor = widget.laserColor ?? Colors.cyanAccent;
+
     return AnimatedBuilder(
       animation: _successController,
       builder: (context, _) {
         final borderColor = Color.lerp(
-          Colors.cyanAccent.withValues(alpha: 0.6),
+          effectiveLaserColor.withValues(alpha: 0.6),
           const Color(0xFF00E676),
           _borderGlowAnimation.value,
         )!;
 
         final glowColor = Color.lerp(
-          Colors.cyanAccent.withValues(alpha: 0.25),
+          effectiveLaserColor.withValues(alpha: 0.25),
           const Color(0xFF00E676).withValues(alpha: 0.55),
           _borderGlowAnimation.value,
         )!;
@@ -386,7 +407,7 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
                     ),
                   )
                 else if (_isInitializing)
-                  const Center(
+                  Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -395,11 +416,11 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
                           height: 24,
                           child: CircularProgressIndicator(
                             strokeWidth: 2.5,
-                            color: Colors.cyanAccent,
+                            color: effectiveLaserColor,
                           ),
                         ),
-                        SizedBox(height: 10),
-                        Text(
+                        const SizedBox(height: 10),
+                        const Text(
                           'Starting Camera...',
                           style: TextStyle(
                             color: Colors.white70,
@@ -456,7 +477,7 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
                       child: IgnorePointer(
                         child: CustomPaint(
                           painter: _CardViewfinderCornerPainter(
-                            color: Colors.cyanAccent,
+                            color: effectiveLaserColor,
                           ),
                         ),
                       ),
@@ -481,16 +502,20 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
                                     colors: [
-                                      Colors.cyanAccent.withValues(alpha: 0.1),
-                                      Colors.cyanAccent,
+                                      effectiveLaserColor.withValues(
+                                        alpha: 0.1,
+                                      ),
+                                      effectiveLaserColor,
                                       Colors.white,
-                                      Colors.cyanAccent,
-                                      Colors.cyanAccent.withValues(alpha: 0.1),
+                                      effectiveLaserColor,
+                                      effectiveLaserColor.withValues(
+                                        alpha: 0.1,
+                                      ),
                                     ],
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.cyanAccent.withValues(
+                                      color: effectiveLaserColor.withValues(
                                         alpha: 0.9,
                                       ),
                                       blurRadius: 8,
@@ -535,47 +560,52 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
                   ),
 
                   // Guidance Label at Bottom
-                  Positioned(
-                    bottom: 8,
-                    left: 0,
-                    right: 0,
-                    child: Center(
-                      child: IgnorePointer(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.7),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.2),
+                  if (widget.showGuidance &&
+                      widget.guidanceText != null &&
+                      widget.guidanceText!.isNotEmpty)
+                    Positioned(
+                      bottom: 8,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: IgnorePointer(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
                             ),
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.document_scanner_rounded,
-                                color: Colors.cyanAccent,
-                                size: 12,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.7),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.2),
                               ),
-                              SizedBox(width: 5),
-                              Text(
-                                'Align card inside frame',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10.5,
-                                  fontWeight: FontWeight.w600,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (widget.guidanceIcon != null) ...[
+                                  Icon(
+                                    widget.guidanceIcon,
+                                    color: effectiveLaserColor,
+                                    size: 12,
+                                  ),
+                                  const SizedBox(width: 5),
+                                ],
+                                Text(
+                                  widget.guidanceText!,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
                 ],
 
                 // 4. Success State Overlays & Hero Transitions

@@ -1,127 +1,70 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_credit_card_scanner/credit_card.dart';
-import 'package:flutter_credit_card_scanner/credit_card_scanner.dart';
 
 import '../models/card_details.dart';
-import '../models/card_type.dart';
-import '../utils/card_validator.dart';
+import 'embedded_card_camera.dart';
 
 /// Full-screen live camera view for scanning credit and debit cards using
-/// Google ML Kit (Android) and Apple Vision (iOS) via flutter_credit_card_scanner.
-class CardCameraScannerView extends StatefulWidget {
-  const CardCameraScannerView({super.key});
+/// Google ML Kit (Android) and Apple Vision (iOS) via EmbeddedCardCamera.
+class CardCameraScannerView extends StatelessWidget {
+  /// Optional callback invoked when a card is successfully scanned.
+  final void Function(CardDetails details)? onCardScanned;
 
-  @override
-  State<CardCameraScannerView> createState() => _CardCameraScannerViewState();
-}
+  /// Custom laser scanline and accent color (defaults to cyan accent or app primary).
+  final Color? laserColor;
 
-class _CardCameraScannerViewState extends State<CardCameraScannerView> {
-  bool _hasScanned = false;
+  /// App bar title text. Defaults to 'Scan Card'.
+  final String title;
 
-  void _handleScan(BuildContext context, CreditCardModel? cardModel) {
-    if (_hasScanned || cardModel == null) return;
-    if (cardModel.number.trim().isEmpty) return;
+  /// Bottom guidance prompt text. Defaults to 'Align card within the frame'.
+  final String? guidanceText;
 
-    _hasScanned = true;
-    HapticFeedback.mediumImpact();
+  /// Icon displayed next to the bottom guidance text.
+  final IconData? guidanceIcon;
 
-    final cleanNumber = cardModel.number.replaceAll(RegExp(r'\D'), '');
-    final expMonth = int.tryParse(cardModel.expirationMonth.trim());
-    final expYear = int.tryParse(cardModel.expirationYear.trim());
-    final detectedType = CardValidator.detectType(cleanNumber);
-    final isValid = CardValidator.validateLuhn(cleanNumber);
+  /// Whether to show the bottom guidance badge. Defaults to true.
+  final bool showGuidance;
 
-    final details = CardDetails(
-      cardNumber: cleanNumber,
-      cardHolderName: cardModel.holderName.trim(),
-      expiryMonth: expMonth,
-      expiryYear: expYear,
-      cardType: detectedType,
-      isValidNumber: isValid,
-    );
-
-    Navigator.of(context).pop(details);
-  }
-
-  void _handleNoCamera() {
-    if (!mounted) return;
-    showDialog<void>(
-      context: context,
-      builder: (dialogCtx) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.videocam_off_rounded, color: Colors.orange),
-            SizedBox(width: 10),
-            Text('Camera Unavailable'),
-          ],
-        ),
-        content: const Text(
-          'No camera was detected, or camera permission was not granted. '
-          'On an iOS Simulator, a physical camera device is unavailable.\n\n'
-          'Would you like to populate a simulated test card instead?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(dialogCtx).pop();
-              Navigator.of(context).pop();
-            },
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(dialogCtx).pop();
-              const testCard = CardDetails(
-                cardNumber: '4532015112830366',
-                cardHolderName: 'ALEX MORGAN',
-                expiryMonth: 12,
-                expiryYear: 28,
-                cvv: '842',
-                cardType: CardType.visa,
-                isValidNumber: true,
-              );
-              Navigator.of(context).pop(testCard);
-            },
-            child: const Text('Use Test Card'),
-          ),
-        ],
-      ),
-    );
-  }
+  const CardCameraScannerView({
+    super.key,
+    this.onCardScanned,
+    this.laserColor,
+    this.title = 'Scan Card',
+    this.guidanceText = 'Align card within the frame',
+    this.guidanceIcon = Icons.crop_free_rounded,
+    this.showGuidance = true,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final effectiveColor = laserColor ?? Colors.cyanAccent;
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // 1. Live Camera Scanner Preview
-          Positioned.fill(
-            child: CameraScannerWidget(
-              onScan: (ctx, model) => _handleScan(ctx, model),
-              loadingHolder: const Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircularProgressIndicator(color: Colors.white),
-                    SizedBox(height: 16),
-                    Text(
-                      'Starting Camera...',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontWeight: FontWeight.w600,
-                      ),
+          // 1. Live Camera Scanner Viewfinder with Laser & Hologram
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 340, maxHeight: 200),
+              child: EmbeddedCardCamera(
+                key: const ValueKey('full_screen_embedded_camera_viewfinder'),
+                laserColor: laserColor,
+                showGuidance: false, // Full screen view renders its own prominent bottom guidance
+                onCardDetected: (CardDetails details) {
+                  onCardScanned?.call(details);
+                  Navigator.of(context).pop(details);
+                },
+                onCancel: () {
+                  Navigator.of(context).pop();
+                },
+                onNoCamera: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('No camera detected or permission denied'),
                     ),
-                  ],
-                ),
+                  );
+                },
               ),
-              onNoCamera: _handleNoCamera,
-              useLuhnValidation: true,
-              cardNumber: true,
-              cardHolder: true,
-              cardExpiryDate: true,
-              colorOverlay: Colors.black.withValues(alpha: 0.65),
             ),
           ),
 
@@ -142,10 +85,10 @@ class _CardCameraScannerViewState extends State<CardCameraScannerView> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Scan Card',
-                      style: TextStyle(
+                      title,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -158,38 +101,42 @@ class _CardCameraScannerViewState extends State<CardCameraScannerView> {
           ),
 
           // 3. Bottom Guide Label
-          Positioned(
-            left: 24,
-            right: 24,
-            bottom: 48,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.7),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.crop_free_rounded,
-                    color: Colors.cyanAccent,
-                    size: 20,
+          if (showGuidance && guidanceText != null && guidanceText!.isNotEmpty)
+            Positioned(
+              left: 24,
+              right: 24,
+              bottom: 48,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.7),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.2),
                   ),
-                  SizedBox(width: 10),
-                  Text(
-                    'Align card within the frame',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (guidanceIcon != null) ...[
+                      Icon(guidanceIcon, color: effectiveColor, size: 20),
+                      const SizedBox(width: 10),
+                    ],
+                    Text(
+                      guidanceText!,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
         ],
       ),
     );

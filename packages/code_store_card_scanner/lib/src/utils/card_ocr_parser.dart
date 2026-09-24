@@ -8,9 +8,18 @@ class CardOcrParser {
   CardOcrParser._();
 
   static final RegExp _expiryRegex = RegExp(
-    r'(?:EXP(?:IRES)?|VALID\s+THRU|GOOD\s+THRU)?\s*([0-1]?[0-9])\s*[\/\.\-]\s*([2-3][0-9])\b',
+    r'(?:EXP(?:IRES)?|VALID\s+THRU|GOOD\s+THRU)?[:\s\.]*\s*([0-1]?[0-9])\s*[\/\.\-\s]+\s*([2-3][0-9]|20[2-3][0-9])\b',
     caseSensitive: false,
   );
+
+  /// Normalizes common OCR misread characters in candidate card number sequences:
+  /// - 'L', 'l', 'I', '|' are commonly misread for '1'
+  /// - 'O' and 'D' are commonly misread for '0'
+  static String normalizeOcrNumericCharacters(String text) {
+    return text
+        .replaceAll(RegExp(r'[LlI|]'), '1')
+        .replaceAll(RegExp(r'[OD]'), '0');
+  }
 
   static final Set<String> _blacklistWords = {
     'VISA',
@@ -92,8 +101,20 @@ class CardOcrParser {
         }
       }
 
-      // If text has spaces between chunks e.g. "4532 0151 1283 0366"
-      final chunkMatches = RegExp(r'\b(?:\d[ -]*?){13,19}\b').allMatches(line);
+      // Check with OCR normalization (substituting L, l, I, | -> 1, and O, D -> 0)
+      final normalizedLine = normalizeOcrNumericCharacters(line);
+      final normalizedDigits = normalizedLine.replaceAll(RegExp(r'\D'), '');
+      if (normalizedDigits.length >= 13 && normalizedDigits.length <= 19) {
+        if (CardValidator.validateLuhn(normalizedDigits)) {
+          foundCardNumber = normalizedDigits;
+          cardNumberLineIndex = i;
+          break;
+        }
+      }
+
+      // If text has spaces between chunks e.g. "4532 0151 1283 0366" or "4532 0L5I 1283 0366"
+      final chunkMatches = RegExp(r'\b(?:\S[ -]*?){13,19}\b')
+          .allMatches(normalizedLine);
       for (final match in chunkMatches) {
         final candidate = match.group(0)!.replaceAll(RegExp(r'\D'), '');
         if (candidate.length >= 13 && candidate.length <= 19) {
@@ -107,15 +128,20 @@ class CardOcrParser {
       if (foundCardNumber != null) break;
     }
 
-    // 2. Extract Expiry Date
+    // 2. Extract Expiry Date (supports MM/YY, MM/YYYY, MM-YY, MM-YYYY, MM.YY)
     for (final line in cleanedLines) {
-      final match = _expiryRegex.firstMatch(line);
+      final match =
+          _expiryRegex.firstMatch(line) ??
+          _expiryRegex.firstMatch(normalizeOcrNumericCharacters(line));
       if (match != null) {
         final monthStr = match.group(1);
         final yearStr = match.group(2);
         if (monthStr != null && yearStr != null) {
           final m = int.tryParse(monthStr);
-          final y = int.tryParse(yearStr);
+          int? y = int.tryParse(yearStr);
+          if (y != null && y >= 2000) {
+            y = y % 100;
+          }
           if (m != null && y != null && CardValidator.validateExpiry(m, y)) {
             foundExpiryMonth = m;
             foundExpiryYear = y;

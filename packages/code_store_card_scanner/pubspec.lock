@@ -2,7 +2,7 @@
 # See https://dart.dev/tools/pub/glossary#lockfile
 packages:
   apple_vision_commons:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: apple_vision_commons
       sha256: "494e26c50f43a14fcd242ff9708e17afd72b83df7fac1795dbcbde828be8ed8b"
@@ -10,7 +10,7 @@ packages:
     source: hosted
     version: "0.0.3"
   apple_vision_recognize_text:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: apple_vision_recognize_text
       sha256: b14e7cf8d9c41b0215100097587b4626fb855ababaabbafb6db7c34408eca5c3
@@ -34,7 +34,7 @@ packages:
     source: hosted
     version: "2.1.2"
   camera:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: camera
       sha256: "3f30ca0ff376f91534f23afa2a7aea06ebb6c889fd9e260642437b37e3d9f753"
@@ -97,22 +97,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.19.1"
-  credit_card_type_detector:
-    dependency: transitive
-    description:
-      name: credit_card_type_detector
-      sha256: f2fb9c7b23fae331d4c5a0dc26437f4c0d4a2306a6c3a5cdb29401f69823070d
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.0"
-  credit_card_validator:
-    dependency: transitive
-    description:
-      name: credit_card_validator
-      sha256: e8e6d7250319fd1898340d63c72b1a66817d8abfc6aedcaca76f3633bac515a3
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.0"
   cross_file:
     dependency: transitive
     description:
@@ -134,14 +118,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_credit_card_scanner:
-    dependency: "direct main"
-    description:
-      name: flutter_credit_card_scanner
-      sha256: eb0b9aa629e97338280225df343837b287d5c87a7c0ffd373e1e653ceab32679
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.12.0"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -185,7 +161,7 @@ packages:
     source: hosted
     version: "0.11.1"
   google_mlkit_text_recognition:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: google_mlkit_text_recognition
       sha256: "10a8d1a64fa21efda89514f6df88bbb7885be3ae1bfb7a6d229132d802a20d22"

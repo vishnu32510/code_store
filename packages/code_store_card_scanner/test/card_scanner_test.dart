@@ -1,4 +1,5 @@
 import 'package:code_store_card_scanner/code_store_card_scanner.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 
@@ -201,6 +202,55 @@ void main() {
       );
 
       expect(cameraWidget.detectionDelay, const Duration(milliseconds: 1500));
+    });
+
+    test('EmbeddedCardCamera supports custom laserColor', () {
+      final cameraWidget = EmbeddedCardCamera(
+        onCardDetected: (_) {},
+        onCancel: () {},
+        laserColor: Colors.deepPurpleAccent,
+      );
+
+      expect(cameraWidget.laserColor, Colors.deepPurpleAccent);
+    });
+
+    test('CardCameraScannerView supports custom laserColor and title', () {
+      final scannerView = CardCameraScannerView(
+        laserColor: Colors.orangeAccent,
+        title: 'Custom Scan Title',
+      );
+
+      expect(scannerView.laserColor, Colors.orangeAccent);
+      expect(scannerView.title, 'Custom Scan Title');
+    });
+
+    test(
+      'EmbeddedCardCamera supports custom guidanceText and guidanceIcon',
+      () {
+        final cameraWidget = EmbeddedCardCamera(
+          onCardDetected: (_) {},
+          onCancel: () {},
+          guidanceText: 'Scan Card Front',
+          guidanceIcon: Icons.camera_alt_rounded,
+          showGuidance: false,
+        );
+
+        expect(cameraWidget.guidanceText, 'Scan Card Front');
+        expect(cameraWidget.guidanceIcon, Icons.camera_alt_rounded);
+        expect(cameraWidget.showGuidance, isFalse);
+      },
+    );
+
+    test('CardCameraScannerView supports custom guidance options', () {
+      final scannerView = CardCameraScannerView(
+        guidanceText: 'Position card clearly',
+        guidanceIcon: Icons.center_focus_strong,
+        showGuidance: true,
+      );
+
+      expect(scannerView.guidanceText, 'Position card clearly');
+      expect(scannerView.guidanceIcon, Icons.center_focus_strong);
+      expect(scannerView.showGuidance, isTrue);
     });
   });
 }

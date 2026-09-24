@@ -313,22 +313,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.0"
-  credit_card_type_detector:
-    dependency: transitive
-    description:
-      name: credit_card_type_detector
-      sha256: f2fb9c7b23fae331d4c5a0dc26437f4c0d4a2306a6c3a5cdb29401f69823070d
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.0"
-  credit_card_validator:
-    dependency: transitive
-    description:
-      name: credit_card_validator
-      sha256: e8e6d7250319fd1898340d63c72b1a66817d8abfc6aedcaca76f3633bac515a3
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.0"
   cross_file:
     dependency: transitive
     description:
@@ -566,14 +550,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.4.2"
-  flutter_credit_card_scanner:
-    dependency: transitive
-    description:
-      name: flutter_credit_card_scanner
-      sha256: eb0b9aa629e97338280225df343837b287d5c87a7c0ffd373e1e653ceab32679
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.12.0"
   flutter_dotenv:
     dependency: "direct main"
     description:

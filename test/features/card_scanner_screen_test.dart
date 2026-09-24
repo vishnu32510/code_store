@@ -262,8 +262,11 @@ void main() {
       await tester.tap(find.text('Scan Debit / Credit Card'));
       await tester.pump();
 
-      // Verify EmbeddedCardCamera is mounted directly in place of the 3D card
-      expect(find.byType(EmbeddedCardCamera), findsOneWidget);
+      // Verify active camera viewfinder is mounted directly in place of the 3D card
+      expect(
+        find.byKey(const ValueKey('embedded_camera_viewfinder')),
+        findsOneWidget,
+      );
       expect(find.text('Stop Camera Scanner'), findsOneWidget);
 
       // Tap Stop Camera Scanner to close camera and return to 3D card
@@ -271,7 +274,10 @@ void main() {
       await tester.pump();
 
       // Verify back to 3D card
-      expect(find.byType(EmbeddedCardCamera), findsNothing);
+      expect(
+        find.byKey(const ValueKey('embedded_camera_viewfinder')),
+        findsNothing,
+      );
       expect(find.text('Scan Debit / Credit Card'), findsOneWidget);
     },
   );

@@ -58,5 +58,55 @@ void main() {
       expect(result.cardNumber, isEmpty);
       expect(result.cardHolderName, 'SARAH CONNOR');
     });
+
+    test('recovers card number with L and I misread characters via OCR normalization', () {
+      final ocrLines = [
+        'CHASE SAPPHIRE',
+        '4532 0L5I 1283 0366', // 'L' and 'I' misread for '1'
+        'EXP 10-28', // hyphen in date
+        'JORDAN LEE',
+      ];
+
+      final result = CardOcrParser.parseRecognizedLines(ocrLines);
+
+      expect(result.isValidNumber, isTrue);
+      expect(result.cardNumber, '4532015112830366');
+      expect(result.cardType, CardType.visa);
+      expect(result.expiryMonth, 10);
+      expect(result.expiryYear, 28);
+      expect(result.cardHolderName, 'JORDAN LEE');
+    });
+
+    test('extracts 4-digit year expiry format with hyphen delimiter', () {
+      final ocrLines = [
+        '5555 5555 5555 4444',
+        'GOOD THRU 07-2029',
+        'ALEX SMITH',
+      ];
+
+      final result = CardOcrParser.parseRecognizedLines(ocrLines);
+
+      expect(result.isValidNumber, isTrue);
+      expect(result.cardNumber, '5555555555554444');
+      expect(result.expiryMonth, 7);
+      expect(result.expiryYear, 29);
+      expect(result.cardHolderName, 'ALEX SMITH');
+    });
+
+    test('extracts expiry with colon prefix and OCR substituted digits', () {
+      final ocrLines = [
+        '4532 0151 1283 0366',
+        'EXP: 0l-28', // 'l' misread for '1' and colon prefix
+        'SAM TAYLOR',
+      ];
+
+      final result = CardOcrParser.parseRecognizedLines(ocrLines);
+
+      expect(result.isValidNumber, isTrue);
+      expect(result.cardNumber, '4532015112830366');
+      expect(result.expiryMonth, 1);
+      expect(result.expiryYear, 28);
+      expect(result.cardHolderName, 'SAM TAYLOR');
+    });
   });
 }

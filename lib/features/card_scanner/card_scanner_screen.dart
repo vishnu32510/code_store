@@ -398,26 +398,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                       switchInCurve: Curves.easeOutCubic,
                       switchOutCurve: Curves.easeInCubic,
                       child: _isScanningWithCamera
-                          ? EmbeddedCardCamera(
-                              key: const ValueKey('embedded_camera_viewfinder'),
-                              onCardDetected: (scannedDetails) {
-                                _applyScannedDetails(scannedDetails);
-                              },
-                              onCancel: () {
-                                setState(() => _isScanningWithCamera = false);
-                              },
-                              onNoCamera: () {
-                                setState(() => _isScanningWithCamera = false);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'No back camera found on this device or permission denied',
-                                    ),
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
-                              },
-                            )
+                          ? _buildEmbeddedVisionCamera()
                           : GestureDetector(
                               key: const ValueKey('interactive_card_3d'),
                               onTap: () => _flipCard(),
@@ -1256,6 +1237,30 @@ class _CardScannerScreenState extends State<CardScannerScreen>
         expiry: expiry,
         cvv: cvv,
       ),
+    );
+  }
+
+  Widget _buildEmbeddedVisionCamera() {
+    return EmbeddedCardCamera(
+      key: const ValueKey('embedded_camera_viewfinder'),
+      laserColor: Theme.of(context).colorScheme.primary,
+      onCardDetected: (scannedDetails) {
+        _applyScannedDetails(scannedDetails);
+      },
+      onCancel: () {
+        setState(() => _isScanningWithCamera = false);
+      },
+      onNoCamera: () {
+        setState(() => _isScanningWithCamera = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'No back camera found on this device or permission denied',
+            ),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      },
     );
   }
 }
