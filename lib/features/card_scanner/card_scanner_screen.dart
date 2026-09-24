@@ -717,146 +717,168 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                     maxWidth: 330,
                     maxHeight: 184,
                   ),
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 350),
-                    switchInCurve: Curves.easeOutCubic,
-                    switchOutCurve: Curves.easeInCubic,
-                    child: _isScanningWithCamera
-                        ? EmbeddedCardCamera(
-                            key: const ValueKey('embedded_camera_viewfinder'),
-                            onCardDetected: (scannedDetails) {
-                              _applyScannedDetails(scannedDetails);
-                            },
-                            onCancel: () {
-                              setState(() => _isScanningWithCamera = false);
-                            },
-                            onNoCamera: () {
-                              setState(() => _isScanningWithCamera = false);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'No back camera found on this device or permission denied',
+                  child: RepaintBoundary(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 350),
+                      switchInCurve: Curves.easeOutCubic,
+                      switchOutCurve: Curves.easeInCubic,
+                      child: _isScanningWithCamera
+                          ? EmbeddedCardCamera(
+                              key: const ValueKey('embedded_camera_viewfinder'),
+                              onCardDetected: (scannedDetails) {
+                                _applyScannedDetails(scannedDetails);
+                              },
+                              onCancel: () {
+                                setState(() => _isScanningWithCamera = false);
+                              },
+                              onNoCamera: () {
+                                setState(() => _isScanningWithCamera = false);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'No back camera found on this device or permission denied',
+                                    ),
+                                    behavior: SnackBarBehavior.floating,
                                   ),
-                                  behavior: SnackBarBehavior.floating,
-                                ),
-                              );
-                            },
-                          )
-                        : GestureDetector(
-                            key: const ValueKey('interactive_card_3d'),
-                            onTap: () => _flipCard(),
-                            child: Stack(
-                              clipBehavior: Clip.none,
-                              children: [
-                                // The 3D Flippable Card with Dynamic Scale & Perspective
-                                AnimatedBuilder(
-                                  animation: _flipAnimation,
-                                  builder: (context, child) {
-                                    final angle =
-                                        _flipAnimation.value * math.pi;
-                                    final isUnder = _flipAnimation.value > 0.5;
-                                    // Realistic 3D scale compression during rotation
-                                    final scale =
-                                        1.0 -
-                                        math.sin(
-                                              _flipAnimation.value * math.pi,
-                                            ) *
-                                            0.08;
+                                );
+                              },
+                            )
+                          : GestureDetector(
+                              key: const ValueKey('interactive_card_3d'),
+                              onTap: () => _flipCard(),
+                              child: Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  // The 3D Flippable Card with Dynamic Scale & Perspective
+                                  RepaintBoundary(
+                                    child: AnimatedBuilder(
+                                      animation: _flipAnimation,
+                                      builder: (context, child) {
+                                        final angle =
+                                            _flipAnimation.value * math.pi;
+                                        final isUnder =
+                                            _flipAnimation.value > 0.5;
+                                        // Realistic 3D scale compression during rotation
+                                        final scale =
+                                            1.0 -
+                                            math.sin(
+                                                  _flipAnimation.value *
+                                                      math.pi,
+                                                ) *
+                                                0.08;
 
-                                    return Transform(
-                                      transform: Matrix4.identity()
-                                        ..setEntry(3, 2, 0.0014)
-                                        ..scaleByDouble(scale, scale, 1.0, 1.0)
-                                        ..rotateY(angle),
-                                      alignment: Alignment.center,
-                                      child: isUnder
-                                          ? Transform(
-                                              transform: Matrix4.identity()
-                                                ..rotateY(math.pi),
-                                              alignment: Alignment.center,
-                                              child: _buildCardBack(context),
+                                        return Transform(
+                                          transform: Matrix4.identity()
+                                            ..setEntry(3, 2, 0.0014)
+                                            ..scaleByDouble(
+                                              scale,
+                                              scale,
+                                              1.0,
+                                              1.0,
                                             )
-                                          : _buildCardFront(context),
-                                    );
-                                  },
-                                ),
-
-                                // Viewfinder Corner Brackets when scanning is active
-                                if (_isScanning)
-                                  Positioned.fill(
-                                    child: IgnorePointer(
-                                      child: AnimatedBuilder(
-                                        animation: _pulseAnimation,
-                                        builder: (context, _) {
-                                          return Opacity(
-                                            opacity: _pulseAnimation.value,
-                                            child: CustomPaint(
-                                              painter: _ViewfinderCornerPainter(
-                                                color: Colors.cyanAccent,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ),
+                                            ..rotateY(angle),
+                                          alignment: Alignment.center,
+                                          child: isUnder
+                                              ? Transform(
+                                                  transform: Matrix4.identity()
+                                                    ..rotateY(math.pi),
+                                                  alignment: Alignment.center,
+                                                  child: _buildCardBack(
+                                                    context,
+                                                  ),
+                                                )
+                                              : _buildCardFront(context),
+                                        );
+                                      },
                                     ),
                                   ),
 
-                                // Animated Scanning Laser Beam Overlay
-                                if (_isScanning)
-                                  Positioned.fill(
-                                    child: IgnorePointer(
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(16),
-                                        child: AnimatedBuilder(
-                                          animation: _scanLaserAnimation,
-                                          builder: (context, _) {
-                                            return Align(
-                                              alignment: Alignment(
-                                                0,
-                                                (_scanLaserAnimation.value *
-                                                        2) -
-                                                    1,
-                                              ),
-                                              child: Container(
-                                                height: 3.5,
-                                                width: double.infinity,
-                                                decoration: BoxDecoration(
-                                                  gradient: LinearGradient(
-                                                    colors: [
-                                                      Colors.cyanAccent
-                                                          .withValues(
-                                                            alpha: 0.1,
-                                                          ),
-                                                      Colors.cyanAccent,
-                                                      Colors.white,
-                                                      Colors.cyanAccent,
-                                                      Colors.cyanAccent
-                                                          .withValues(
-                                                            alpha: 0.1,
-                                                          ),
-                                                    ],
-                                                  ),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors.cyanAccent
-                                                          .withValues(
-                                                            alpha: 0.9,
-                                                          ),
-                                                      blurRadius: 10,
-                                                      spreadRadius: 2,
-                                                    ),
-                                                  ],
+                                  // Viewfinder Corner Brackets when scanning is active
+                                  if (_isScanning)
+                                    Positioned.fill(
+                                      child: RepaintBoundary(
+                                        child: IgnorePointer(
+                                          child: AnimatedBuilder(
+                                            animation: _pulseAnimation,
+                                            builder: (context, _) {
+                                              return Opacity(
+                                                opacity: _pulseAnimation.value,
+                                                child: CustomPaint(
+                                                  painter:
+                                                      _ViewfinderCornerPainter(
+                                                        color:
+                                                            Colors.cyanAccent,
+                                                      ),
                                                 ),
-                                              ),
-                                            );
-                                          },
+                                              );
+                                            },
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                              ],
+
+                                  // Animated Scanning Laser Beam Overlay
+                                  if (_isScanning)
+                                    Positioned.fill(
+                                      child: RepaintBoundary(
+                                        child: IgnorePointer(
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
+                                            child: AnimatedBuilder(
+                                              animation: _scanLaserAnimation,
+                                              builder: (context, _) {
+                                                return Align(
+                                                  alignment: Alignment(
+                                                    0,
+                                                    (_scanLaserAnimation.value *
+                                                            2) -
+                                                        1,
+                                                  ),
+                                                  child: Container(
+                                                    height: 3.5,
+                                                    width: double.infinity,
+                                                    decoration: BoxDecoration(
+                                                      gradient: LinearGradient(
+                                                        colors: [
+                                                          Colors.cyanAccent
+                                                              .withValues(
+                                                                alpha: 0.1,
+                                                              ),
+                                                          Colors.cyanAccent,
+                                                          Colors.white,
+                                                          Colors.cyanAccent,
+                                                          Colors.cyanAccent
+                                                              .withValues(
+                                                                alpha: 0.1,
+                                                              ),
+                                                        ],
+                                                      ),
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color: Colors
+                                                              .cyanAccent
+                                                              .withValues(
+                                                                alpha: 0.9,
+                                                              ),
+                                                          blurRadius: 10,
+                                                          spreadRadius: 2,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
                             ),
-                          ),
+                    ),
                   ),
                 ),
               ),

@@ -227,11 +227,26 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
 
       final List<String> rawLines = [];
 
-      if (Platform.isIOS) {
-        final List<int> bytes = image.planes
-            .expand((plane) => plane.bytes)
-            .toList();
+      // Extract image bytes efficiently: zero-copy if single plane (iOS BGRA8888),
+      // or fast contiguous buffer fill if multiple planes (Android NV21/YUV420).
+      final Uint8List imageBytes;
+      if (image.planes.length == 1) {
+        imageBytes = image.planes[0].bytes;
+      } else {
+        final int totalLength = image.planes.fold(
+          0,
+          (sum, plane) => sum + plane.bytes.length,
+        );
+        final Uint8List combined = Uint8List(totalLength);
+        int offset = 0;
+        for (final plane in image.planes) {
+          combined.setRange(offset, offset + plane.bytes.length, plane.bytes);
+          offset += plane.bytes.length;
+        }
+        imageBytes = combined;
+      }
 
+      if (Platform.isIOS) {
         final ImageOrientation appleOrient;
         switch (rotation) {
           case InputImageRotation.rotation0deg:
@@ -253,7 +268,7 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
             automaticallyDetectsLanguage: false,
             languages: [const Locale('en', 'US')],
             recognitionLevel: apple.RecognitionLevel.accurate,
-            image: Uint8List.fromList(bytes),
+            image: imageBytes,
             orientation: appleOrient,
             imageSize: Size(image.width.toDouble(), image.height.toDouble()),
           ),
@@ -267,12 +282,8 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
           }
         }
       } else {
-        final List<int> bytes = image.planes
-            .expand((plane) => plane.bytes)
-            .toList();
-
         final inputImage = InputImage.fromBytes(
-          bytes: Uint8List.fromList(bytes),
+          bytes: imageBytes,
           metadata: InputImageMetadata(
             size: Size(image.width.toDouble(), image.height.toDouble()),
             rotation: rotation,
@@ -362,14 +373,16 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
                 if (!_isInitializing &&
                     _cameraController != null &&
                     _cameraController!.value.isInitialized)
-                  FittedBox(
-                    fit: BoxFit.cover,
-                    child: SizedBox(
-                      width:
-                          _cameraController!.value.previewSize?.height ?? 330,
-                      height:
-                          _cameraController!.value.previewSize?.width ?? 184,
-                      child: CameraPreview(_cameraController!),
+                  RepaintBoundary(
+                    child: FittedBox(
+                      fit: BoxFit.cover,
+                      child: SizedBox(
+                        width:
+                            _cameraController!.value.previewSize?.height ?? 330,
+                        height:
+                            _cameraController!.value.previewSize?.width ?? 184,
+                        child: CameraPreview(_cameraController!),
+                      ),
                     ),
                   )
                 else if (_isInitializing)
@@ -439,10 +452,12 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
                 if (!_isSuccessTransition) ...[
                   // Corner Viewfinder Brackets
                   Positioned.fill(
-                    child: IgnorePointer(
-                      child: CustomPaint(
-                        painter: _CardViewfinderCornerPainter(
-                          color: Colors.cyanAccent,
+                    child: RepaintBoundary(
+                      child: IgnorePointer(
+                        child: CustomPaint(
+                          painter: _CardViewfinderCornerPainter(
+                            color: Colors.cyanAccent,
+                          ),
                         ),
                       ),
                     ),
@@ -450,41 +465,43 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
 
                   // Futuristic Laser Scanner Sweep Line
                   Positioned.fill(
-                    child: IgnorePointer(
-                      child: AnimatedBuilder(
-                        animation: _laserAnimation,
-                        builder: (context, _) {
-                          return Align(
-                            alignment: Alignment(
-                              0,
-                              (_laserAnimation.value * 2) - 1,
-                            ),
-                            child: Container(
-                              height: 3,
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Colors.cyanAccent.withValues(alpha: 0.1),
-                                    Colors.cyanAccent,
-                                    Colors.white,
-                                    Colors.cyanAccent,
-                                    Colors.cyanAccent.withValues(alpha: 0.1),
+                    child: RepaintBoundary(
+                      child: IgnorePointer(
+                        child: AnimatedBuilder(
+                          animation: _laserAnimation,
+                          builder: (context, _) {
+                            return Align(
+                              alignment: Alignment(
+                                0,
+                                (_laserAnimation.value * 2) - 1,
+                              ),
+                              child: Container(
+                                height: 3,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.cyanAccent.withValues(alpha: 0.1),
+                                      Colors.cyanAccent,
+                                      Colors.white,
+                                      Colors.cyanAccent,
+                                      Colors.cyanAccent.withValues(alpha: 0.1),
+                                    ],
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.cyanAccent.withValues(
+                                        alpha: 0.9,
+                                      ),
+                                      blurRadius: 8,
+                                      spreadRadius: 2,
+                                    ),
                                   ],
                                 ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.cyanAccent.withValues(
-                                      alpha: 0.9,
-                                    ),
-                                    blurRadius: 8,
-                                    spreadRadius: 2,
-                                  ),
-                                ],
                               ),
-                            ),
-                          );
-                        },
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ),
