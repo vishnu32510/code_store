@@ -14,24 +14,24 @@ class CardScanResult {
 
   /// Constructor for a successful scan result.
   const CardScanResult.success(CardDetails details)
-    : success = true,
-      cardDetails = details,
-      errorMessage = null,
-      isCancelled = false;
+      : success = true,
+        cardDetails = details,
+        errorMessage = null,
+        isCancelled = false;
 
   /// Constructor for a cancelled scan result.
   const CardScanResult.cancelled()
-    : success = false,
-      cardDetails = null,
-      errorMessage = null,
-      isCancelled = true;
+      : success = false,
+        cardDetails = null,
+        errorMessage = null,
+        isCancelled = true;
 
   /// Constructor for an error scan result.
   const CardScanResult.failure(String message)
-    : success = false,
-      cardDetails = null,
-      errorMessage = message,
-      isCancelled = false;
+      : success = false,
+        cardDetails = null,
+        errorMessage = message,
+        isCancelled = false;
 
   /// Whether the card details were scanned successfully.
   final bool success;

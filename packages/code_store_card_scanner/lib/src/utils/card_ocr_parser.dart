@@ -82,10 +82,8 @@ class CardOcrParser {
     String? foundHolderName;
     int cardNumberLineIndex = -1;
 
-    final cleanedLines = rawLines
-        .map((l) => l.trim())
-        .where((l) => l.isNotEmpty)
-        .toList();
+    final cleanedLines =
+        rawLines.map((l) => l.trim()).where((l) => l.isNotEmpty).toList();
 
     // 1. Extract Card Number using Luhn Check
     for (var i = 0; i < cleanedLines.length; i++) {
@@ -113,8 +111,8 @@ class CardOcrParser {
       }
 
       // If text has spaces between chunks e.g. "4532 0151 1283 0366" or "4532 0L5I 1283 0366"
-      final chunkMatches = RegExp(r'\b(?:\S[ -]*?){13,19}\b')
-          .allMatches(normalizedLine);
+      final chunkMatches =
+          RegExp(r'\b(?:\S[ -]*?){13,19}\b').allMatches(normalizedLine);
       for (final match in chunkMatches) {
         final candidate = match.group(0)!.replaceAll(RegExp(r'\D'), '');
         if (candidate.length >= 13 && candidate.length <= 19) {
@@ -130,8 +128,7 @@ class CardOcrParser {
 
     // 2. Extract Expiry Date (supports MM/YY, MM/YYYY, MM-YY, MM-YYYY, MM.YY)
     for (final line in cleanedLines) {
-      final match =
-          _expiryRegex.firstMatch(line) ??
+      final match = _expiryRegex.firstMatch(line) ??
           _expiryRegex.firstMatch(normalizeOcrNumericCharacters(line));
       if (match != null) {
         final monthStr = match.group(1);

@@ -279,8 +279,7 @@ class CardScannerHeroButton extends StatelessWidget {
 
     return Hero(
       tag: heroTag,
-      flightShuttleBuilder:
-          flightShuttleBuilder ??
+      flightShuttleBuilder: flightShuttleBuilder ??
           CardCameraOverlayScanner.buildHeroFlightShuttle,
       child: buttonWidget,
     );
@@ -401,8 +400,7 @@ class CardCameraOverlayView extends StatelessWidget {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color:
-                            bannerBackgroundColor ??
+                        color: bannerBackgroundColor ??
                             Colors.black.withValues(alpha: 0.7),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
@@ -437,8 +435,7 @@ class CardCameraOverlayView extends StatelessWidget {
                   // Hero-wrapped Embedded Card Camera Viewfinder
                   Hero(
                     tag: heroTag,
-                    flightShuttleBuilder:
-                        flightShuttleBuilder ??
+                    flightShuttleBuilder: flightShuttleBuilder ??
                         CardCameraOverlayScanner.buildHeroFlightShuttle,
                     child: Material(
                       color: Colors.black,
@@ -485,8 +482,7 @@ class CardCameraOverlayView extends StatelessWidget {
                       onPressed: onCancel,
                       style: TextButton.styleFrom(
                         foregroundColor: closeButtonTextColor ?? Colors.white,
-                        backgroundColor:
-                            closeButtonColor ??
+                        backgroundColor: closeButtonColor ??
                             Colors.white.withValues(alpha: 0.14),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 18,

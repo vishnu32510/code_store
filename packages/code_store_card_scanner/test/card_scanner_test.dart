@@ -325,7 +325,9 @@ void main() {
       expect(button.bannerTextColor, Colors.yellow);
     });
 
-    test('CardScannerHeroButton supports showCloseButton boolean and close button styling', () {
+    test(
+        'CardScannerHeroButton supports showCloseButton boolean and close button styling',
+        () {
       final buttonWithoutClose = CardScannerHeroButton(showCloseButton: false);
       expect(buttonWithoutClose.showCloseButton, isFalse);
 
@@ -343,7 +345,9 @@ void main() {
       expect(buttonWithCustomClose.closeButtonTextColor, Colors.white);
     });
 
-    test('CardCameraOverlayView supports custom laserColor, overlay, and banner colors', () {
+    test(
+        'CardCameraOverlayView supports custom laserColor, overlay, and banner colors',
+        () {
       final overlay = CardCameraOverlayView(
         heroTag: 'custom_tag',
         laserColor: Colors.greenAccent,
@@ -362,7 +366,9 @@ void main() {
       expect(overlay.bannerTextColor, Colors.lightGreenAccent);
     });
 
-    test('CardCameraOverlayView supports showCloseButton boolean and close button styling', () {
+    test(
+        'CardCameraOverlayView supports showCloseButton boolean and close button styling',
+        () {
       final overlayWithoutClose = CardCameraOverlayView(
         heroTag: 'tag1',
         laserColor: Colors.teal,
@@ -484,7 +490,9 @@ void main() {
       },
     );
 
-    test('EmbeddedCardCamera accepts onNoCamera callback and initializes correctly', () {
+    test(
+        'EmbeddedCardCamera accepts onNoCamera callback and initializes correctly',
+        () {
       bool noCameraCalled = false;
       final camera = EmbeddedCardCamera(
         onCardDetected: (_) {},

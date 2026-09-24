@@ -165,14 +165,14 @@ class CardDetails {
 
   @override
   int get hashCode => Object.hash(
-    cardNumber,
-    cardHolderName,
-    expiryMonth,
-    expiryYear,
-    cvv,
-    cardType,
-    isValidNumber,
-  );
+        cardNumber,
+        cardHolderName,
+        expiryMonth,
+        expiryYear,
+        cvv,
+        cardType,
+        isValidNumber,
+      );
 
   @override
   String toString() {

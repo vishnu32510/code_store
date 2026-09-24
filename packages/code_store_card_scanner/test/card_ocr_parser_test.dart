@@ -59,7 +59,9 @@ void main() {
       expect(result.cardHolderName, 'SARAH CONNOR');
     });
 
-    test('recovers card number with L and I misread characters via OCR normalization', () {
+    test(
+        'recovers card number with L and I misread characters via OCR normalization',
+        () {
       final ocrLines = [
         'CHASE SAPPHIRE',
         '4532 0L5I 1283 0366', // 'L' and 'I' misread for '1'

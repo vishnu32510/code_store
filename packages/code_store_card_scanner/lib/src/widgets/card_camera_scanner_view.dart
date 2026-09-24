@@ -53,7 +53,8 @@ class CardCameraScannerView extends StatelessWidget {
               child: EmbeddedCardCamera(
                 key: const ValueKey('full_screen_embedded_camera_viewfinder'),
                 laserColor: laserColor,
-                showGuidance: false, // Full screen view renders its own prominent bottom guidance
+                showGuidance:
+                    false, // Full screen view renders its own prominent bottom guidance
                 onCardDetected: (CardDetails details) {
                   onCardScanned?.call(details);
                   Navigator.of(context).pop(details);
