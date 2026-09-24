@@ -6,6 +6,7 @@ export 'src/di/card_scanner_injection.dart';
 // Models
 export 'src/models/card_details.dart';
 export 'src/models/card_scan_result.dart';
+export 'src/models/card_scanner_engine.dart';
 export 'src/models/card_type.dart';
 
 // Services
@@ -18,3 +19,5 @@ export 'src/utils/card_validator.dart';
 
 // Widgets
 export 'src/widgets/card_brand_icon.dart';
+export 'src/widgets/card_camera_scanner_view.dart';
+export 'src/widgets/embedded_card_camera.dart';

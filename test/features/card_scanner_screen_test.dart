@@ -21,10 +21,15 @@ class MockCardScannerService implements ICardScannerService {
 
   @override
   Future<CardScanResult> scanCard({
+    CardScannerEngine engine = CardScannerEngine.mlKitVision,
     bool mockFallbackIfUnavailable = false,
   }) async {
     return scanResult;
   }
+
+  @override
+  CardDetails parseOcrLines(List<String> lines) =>
+      CardOcrParser.parseRecognizedLines(lines);
 
   @override
   CardType detectCardType(String cardNumber) =>
@@ -240,5 +245,36 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Card Added Successfully'), findsNothing);
+  });
+
+  testWidgets('Triggering real scanner activates in-place embedded camera flow', (
+    WidgetTester tester,
+  ) async {
+    setTestSurfaceSize(tester);
+    await getIt.reset();
+    getIt.registerSingleton<ICardScannerService>(CardScannerService());
+
+    await tester.pumpWidget(buildTestableWidget());
+    await tester.pumpAndSettle();
+
+    // Verify initial state
+    expect(find.text('Scan Debit / Credit Card'), findsOneWidget);
+    expect(find.text('Tap card to view back & CVV'), findsOneWidget);
+
+    // Tap Scan button to open in-place camera
+    await tester.tap(find.text('Scan Debit / Credit Card'));
+    await tester.pump();
+
+    // Verify EmbeddedCardCamera is mounted directly in place of the 3D card
+    expect(find.byType(EmbeddedCardCamera), findsOneWidget);
+    expect(find.text('Stop Camera Scanner'), findsOneWidget);
+
+    // Tap Stop Camera Scanner to close camera and return to 3D card
+    await tester.tap(find.text('Stop Camera Scanner'));
+    await tester.pump();
+
+    // Verify back to 3D card
+    expect(find.byType(EmbeddedCardCamera), findsNothing);
+    expect(find.text('Scan Debit / Credit Card'), findsOneWidget);
   });
 }

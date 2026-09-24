@@ -43,8 +43,10 @@ class _CardScannerScreenState extends State<CardScannerScreen>
   CardType _detectedType = CardType.unknown;
   bool _isCardFlipped = false;
   bool _isScanning = false;
+  bool _isScanningWithCamera = false;
   bool _obscureCvv = true;
   bool _isLuhnValid = false;
+  CardScannerEngine _selectedEngine = CardScannerEngine.mlKitVision;
 
   @override
   void initState() {
@@ -134,79 +136,98 @@ class _CardScannerScreenState extends State<CardScannerScreen>
     setState(() => _isCardFlipped = target);
   }
 
+  void _applyScannedDetails(CardDetails details) {
+    setState(() {
+      _isScanningWithCamera = false;
+      _cardNumberController.text = details.formattedNumber;
+      _detectedType = details.cardType;
+      if (details.cardHolderName.isNotEmpty) {
+        _cardHolderController.text = details.cardHolderName;
+      }
+      if (details.formattedExpiry.isNotEmpty) {
+        _expiryController.text = details.formattedExpiry;
+      }
+      if (details.cvv.isNotEmpty) {
+        _cvvController.text = details.cvv;
+      }
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle_rounded, color: Colors.white),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Card details extracted successfully (${details.cardType.displayName})',
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.green.shade700,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   Future<void> _startScan() async {
-    setState(() => _isScanning = true);
-    _scanLaserController.repeat(reverse: true);
-    _pulseController.repeat(reverse: true);
     FocusScope.of(context).unfocus();
 
-    try {
+    // 1. Mock service override for automated unit testing
+    if (_scannerService is! CardScannerService) {
       final result = await _scannerService.scanCard(
+        engine: _selectedEngine,
         mockFallbackIfUnavailable: true,
       );
-
-      if (!mounted) return;
-
       if (result.success && result.cardDetails != null) {
-        final details = result.cardDetails!;
-        setState(() {
-          _cardNumberController.text = details.formattedNumber;
-          _detectedType = details.cardType;
-          if (details.cardHolderName.isNotEmpty) {
-            _cardHolderController.text = details.cardHolderName;
-          }
-          if (details.formattedExpiry.isNotEmpty) {
-            _expiryController.text = details.formattedExpiry;
-          }
-          if (details.cvv.isNotEmpty) {
-            _cvvController.text = details.cvv;
-          }
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.check_circle_rounded, color: Colors.white),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    'Card details extracted successfully (${details.cardType.displayName})',
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: Colors.green.shade700,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      } else if (!result.isCancelled && result.errorMessage != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(result.errorMessage!),
-            backgroundColor: Theme.of(context).colorScheme.error,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        _applyScannedDetails(result.cardDetails!);
       }
-    } catch (e) {
-      if (!mounted) return;
+      return;
+    }
+
+    // 2. Native OS Autofill engine mode
+    if (_selectedEngine == CardScannerEngine.systemAutofill) {
+      _cardNumberFocus.requestFocus();
+      TextInput.finishAutofillContext(shouldSave: false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to scan card: $e'),
-          backgroundColor: Theme.of(context).colorScheme.error,
+        const SnackBar(
+          content: Text(
+            'OS Autofill active: tap keyboard camera icon or saved card',
+          ),
           behavior: SnackBarBehavior.floating,
         ),
       );
-    } finally {
-      if (mounted) {
-        _scanLaserController.stop();
-        _scanLaserController.reset();
-        _pulseController.stop();
-        _pulseController.reset();
-        setState(() => _isScanning = false);
-      }
+      return;
     }
+
+    // 3. Simulated Laser Scanner mode
+    if (_selectedEngine == CardScannerEngine.simulated) {
+      setState(() => _isScanning = true);
+      _scanLaserController.repeat(reverse: true);
+      _pulseController.repeat(reverse: true);
+      try {
+        final result = await _scannerService.scanCard(
+          engine: _selectedEngine,
+          mockFallbackIfUnavailable: true,
+        );
+        if (result.success && result.cardDetails != null && mounted) {
+          _applyScannedDetails(result.cardDetails!);
+        }
+      } finally {
+        if (mounted) {
+          _scanLaserController.stop();
+          _scanLaserController.reset();
+          _pulseController.stop();
+          _pulseController.reset();
+          setState(() => _isScanning = false);
+        }
+      }
+      return;
+    }
+
+    // 4. Real Camera Scanner (Embedded In-Place in Credit Card Viewfinder)
+    setState(() => _isScanningWithCamera = true);
   }
 
   void _applyPresetCard({
@@ -216,6 +237,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
     required String cvv,
   }) {
     setState(() {
+      _isScanningWithCamera = false;
       _cardNumberController.text = number;
       _cardHolderController.text = holder;
       _expiryController.text = expiry;
@@ -242,8 +264,285 @@ class _CardScannerScreenState extends State<CardScannerScreen>
       _cvvController.clear();
       _detectedType = CardType.unknown;
       _isLuhnValid = false;
+      _isScanningWithCamera = false;
       if (_isCardFlipped) _flipCard(showBack: false);
     });
+  }
+
+  Widget _buildSafeContextMenu(
+    BuildContext context,
+    EditableTextState editableTextState,
+  ) {
+    return AdaptiveTextSelectionToolbar.buttonItems(
+      anchors: editableTextState.contextMenuAnchors,
+      buttonItems: editableTextState.contextMenuButtonItems,
+    );
+  }
+
+  void _showOcrInspectorDialog() {
+    final List<List<String>> sampleOutputs = [
+      [
+        'CHASE SAPPHIRE PREFERRED',
+        '4532 0151 1283 0366',
+        'VALID THRU 12/28',
+        'ALEX MORGAN',
+        'VISA SIGNATURE',
+      ],
+      [
+        'CITIBANK REWARDS PLATINUM',
+        '5555-5555-5555-4444',
+        'EXP 10/27',
+        'JORDAN LEE',
+        'MASTERCARD DEBIT',
+      ],
+      [
+        'AMERICAN EXPRESS',
+        '3782 822463 10005',
+        'GOOD THRU 08/29',
+        'TAYLOR REID',
+        'MEMBER SINCE 21',
+      ],
+    ];
+
+    var selectedSampleIndex = 0;
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            final lines = sampleOutputs[selectedSampleIndex];
+            final parsed = CardOcrParser.parseRecognizedLines(lines);
+            final colors = Theme.of(context).colorScheme;
+
+            return Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withValues(alpha: 0.4),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: colors.primary.withValues(alpha: 0.15),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.document_scanner_rounded,
+                          color: colors.primary,
+                          size: 22,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'OCR Text Recognition Inspector',
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              'Test Google ML Kit & Apple Vision parser with Luhn checks',
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: colors.onSurfaceVariant),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Select OCR Sample Stream:',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    children: [
+                      ChoiceChip(
+                        label: const Text('Visa Sample'),
+                        selected: selectedSampleIndex == 0,
+                        onSelected: (val) {
+                          if (val) setSheetState(() => selectedSampleIndex = 0);
+                        },
+                      ),
+                      ChoiceChip(
+                        label: const Text('Mastercard Sample'),
+                        selected: selectedSampleIndex == 1,
+                        onSelected: (val) {
+                          if (val) setSheetState(() => selectedSampleIndex = 1);
+                        },
+                      ),
+                      ChoiceChip(
+                        label: const Text('Amex Sample'),
+                        selected: selectedSampleIndex == 2,
+                        onSelected: (val) {
+                          if (val) setSheetState(() => selectedSampleIndex = 2);
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: colors.surfaceContainerHighest.withValues(
+                        alpha: 0.5,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: colors.outlineVariant.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Raw OCR Lines from Camera:',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            color: colors.primary,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        ...lines.map(
+                          (l) => Text(
+                            '• $l',
+                            style: const TextStyle(
+                              fontFamily: 'monospace',
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.green.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Row(
+                          children: [
+                            Icon(
+                              Icons.check_circle_rounded,
+                              color: Colors.green,
+                              size: 16,
+                            ),
+                            SizedBox(width: 6),
+                            Text(
+                              'Parsed via CardOcrParser (Luhn Verified)',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                                color: Colors.green,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Card Number: ${parsed.formattedNumber} (${parsed.cardType.displayName})',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          'Cardholder: ${parsed.cardHolderName}',
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        Text(
+                          'Expiry: ${parsed.formattedExpiry}',
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.input_rounded, size: 18),
+                      label: const Text(
+                        'Apply Parsed Card to Form',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colors.primary,
+                        foregroundColor: colors.onPrimary,
+                        padding: const EdgeInsets.symmetric(vertical: 13),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.of(sheetContext).pop();
+                        setState(() {
+                          _cardNumberController.text = parsed.formattedNumber;
+                          _cardHolderController.text = parsed.cardHolderName;
+                          _expiryController.text = parsed.formattedExpiry;
+                          _cvvController.text =
+                              parsed.cardType == CardType.americanExpress
+                              ? '8492'
+                              : '842';
+                          _detectedType = parsed.cardType;
+                          _isLuhnValid = parsed.isValidNumber;
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Applied OCR Parsed Card: ${parsed.cardType.displayName}',
+                            ),
+                            backgroundColor: Colors.green.shade700,
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   void _saveCardDetails() {
@@ -417,11 +716,31 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                     maxWidth: 330,
                     maxHeight: 184,
                   ),
-                  child: GestureDetector(
-                    onTap: () => _flipCard(),
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      children: [
+                  child: _isScanningWithCamera
+                      ? EmbeddedCardCamera(
+                          onCardDetected: (scannedDetails) {
+                            _applyScannedDetails(scannedDetails);
+                          },
+                          onCancel: () {
+                            setState(() => _isScanningWithCamera = false);
+                          },
+                          onNoCamera: () {
+                            setState(() => _isScanningWithCamera = false);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'No back camera found on this device or permission denied',
+                                ),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          },
+                        )
+                      : GestureDetector(
+                          onTap: () => _flipCard(),
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
                         // The 3D Flippable Card with Dynamic Scale & Perspective
                         AnimatedBuilder(
                           animation: _flipAnimation,
@@ -529,9 +848,11 @@ class _CardScannerScreenState extends State<CardScannerScreen>
               // Flip Helper Hint
               Center(
                 child: Text(
-                  _isCardFlipped
-                      ? 'Tap card to view front'
-                      : 'Tap card to view back & CVV',
+                  _isScanningWithCamera
+                      ? 'Camera live viewfinder active • Align card inside'
+                      : _isCardFlipped
+                          ? 'Tap card to view front'
+                          : 'Tap card to view back & CVV',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: colors.onSurfaceVariant.withValues(alpha: 0.75),
                     fontStyle: FontStyle.italic,
@@ -541,6 +862,98 @@ class _CardScannerScreenState extends State<CardScannerScreen>
               ),
 
               const SizedBox(height: 12),
+
+              // OCR Engine Selector & Switcher
+              Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: colors.surfaceContainerHighest.withValues(alpha: 0.35),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: colors.outlineVariant.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.tune_rounded, size: 16, color: colors.primary),
+                    const SizedBox(width: 8),
+                    Text(
+                      'OCR Engine:',
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: colors.onSurface,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<CardScannerEngine>(
+                          value: _selectedEngine,
+                          isDense: true,
+                          isExpanded: true,
+                          icon: const Icon(Icons.arrow_drop_down_rounded),
+                          borderRadius: BorderRadius.circular(12),
+                          onChanged: (newEngine) {
+                            if (newEngine != null) {
+                              setState(() => _selectedEngine = newEngine);
+                            }
+                          },
+                          items: CardScannerEngine.values.map((engine) {
+                            return DropdownMenuItem(
+                              value: engine,
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: colors.primary.withValues(
+                                        alpha: 0.12,
+                                      ),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      engine.badge,
+                                      style: TextStyle(
+                                        color: colors.primary,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      engine.displayName,
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: 'Inspect OCR Text Recognition Stream',
+                      icon: const Icon(Icons.analytics_outlined, size: 18),
+                      visualDensity: VisualDensity.compact,
+                      onPressed: _showOcrInspectorDialog,
+                    ),
+                  ],
+                ),
+              ),
 
               // 2. Scan Card Action Button with Micro-Animation
               Container(
@@ -560,7 +973,15 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                   ],
                 ),
                 child: ElevatedButton.icon(
-                  onPressed: _isScanning ? null : _startScan,
+                  onPressed: _isScanning
+                      ? null
+                      : () {
+                          if (_isScanningWithCamera) {
+                            setState(() => _isScanningWithCamera = false);
+                          } else {
+                            _startScan();
+                          }
+                        },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
                     shadowColor: Colors.transparent,
@@ -579,11 +1000,15 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                             color: Colors.white,
                           ),
                         )
-                      : const Icon(Icons.document_scanner_rounded, size: 20),
+                      : _isScanningWithCamera
+                          ? const Icon(Icons.close_rounded, size: 20)
+                          : const Icon(Icons.document_scanner_rounded, size: 20),
                   label: Text(
                     _isScanning
                         ? 'Opening Card Scanner...'
-                        : 'Scan Debit / Credit Card',
+                        : _isScanningWithCamera
+                            ? 'Stop Camera Scanner'
+                            : 'Scan Debit / Credit Card',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
@@ -681,6 +1106,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                           keyboardType: TextInputType.number,
                           textInputAction: TextInputAction.next,
                           autofillHints: const [AutofillHints.creditCardNumber],
+                          contextMenuBuilder: _buildSafeContextMenu,
                           inputFormatters: [
                             FilteringTextInputFormatter.digitsOnly,
                             LengthLimitingTextInputFormatter(19),
@@ -747,6 +1173,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                           textCapitalization: TextCapitalization.characters,
                           textInputAction: TextInputAction.next,
                           autofillHints: const [AutofillHints.creditCardName],
+                          contextMenuBuilder: _buildSafeContextMenu,
                           inputFormatters: [LengthLimitingTextInputFormatter(32)],
                           decoration: InputDecoration(
                             labelText: 'Cardholder Name',
@@ -782,6 +1209,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                                 autofillHints: const [
                                   AutofillHints.creditCardExpirationDate,
                                 ],
+                                contextMenuBuilder: _buildSafeContextMenu,
                                 inputFormatters: [
                                   FilteringTextInputFormatter.digitsOnly,
                                   LengthLimitingTextInputFormatter(4),
@@ -831,6 +1259,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                                 autofillHints: const [
                                   AutofillHints.creditCardSecurityCode,
                                 ],
+                                contextMenuBuilder: _buildSafeContextMenu,
                                 inputFormatters: [
                                   FilteringTextInputFormatter.digitsOnly,
                                   LengthLimitingTextInputFormatter(

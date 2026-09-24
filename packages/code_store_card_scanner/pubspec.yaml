@@ -10,6 +10,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  apple_vision_commons: ^0.0.3
+  apple_vision_recognize_text: ^0.0.4
+  camera: ^0.12.1
+  flutter_credit_card_scanner: ^0.12.0
+  google_mlkit_text_recognition: ^0.15.1
   get_it: ^9.2.1
   meta: ^1.19.0
 

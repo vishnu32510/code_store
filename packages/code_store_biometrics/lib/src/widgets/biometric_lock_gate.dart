@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 
 import '../services/i_biometric_service.dart';
@@ -46,11 +47,20 @@ class _BiometricLockGateState extends State<BiometricLockGate>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _service = widget.biometricService ?? GetIt.instance<IBiometricService>();
+    _service.isLockedNotifier.addListener(_onLockStatusChanged);
     _checkInitialLock();
+  }
+
+  void _onLockStatusChanged() {
+    if (_service.isLocked) {
+      FocusManager.instance.primaryFocus?.unfocus();
+      SystemChannels.textInput.invokeMethod<void>('TextInput.hide');
+    }
   }
 
   @override
   void dispose() {
+    _service.isLockedNotifier.removeListener(_onLockStatusChanged);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -81,6 +91,8 @@ class _BiometricLockGateState extends State<BiometricLockGate>
     final allowed = widget.shouldLock?.call() ?? true;
 
     if (enabled && allowed) {
+      FocusManager.instance.primaryFocus?.unfocus();
+      SystemChannels.textInput.invokeMethod<void>('TextInput.hide');
       _service.lock();
     }
   }
@@ -111,15 +123,35 @@ class _BiometricLockGateState extends State<BiometricLockGate>
     return ValueListenableBuilder<bool>(
       valueListenable: _service.isLockedNotifier,
       builder: (context, isLocked, _) {
-        if (!isLocked) {
-          return widget.child;
-        }
+        final lockScreen = widget.lockScreenBuilder != null
+            ? widget.lockScreenBuilder!(context, _triggerUnlock)
+            : _buildDefaultLockScreen(context);
 
-        if (widget.lockScreenBuilder != null) {
-          return widget.lockScreenBuilder!(context, _triggerUnlock);
-        }
-
-        return _buildDefaultLockScreen(context);
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            FocusScope(
+              canRequestFocus: !isLocked,
+              child: IgnorePointer(
+                ignoring: isLocked,
+                child: Visibility(
+                  visible: !isLocked,
+                  maintainState: true,
+                  maintainAnimation: false,
+                  maintainSize: false,
+                  child: widget.child,
+                ),
+              ),
+            ),
+            if (isLocked)
+              Positioned.fill(
+                child: FocusScope(
+                  autofocus: true,
+                  child: lockScreen,
+                ),
+              ),
+          ],
+        );
       },
     );
   }
