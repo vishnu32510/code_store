@@ -29,7 +29,14 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   Bloc.observer = SimpleBlocObserver();
   await setupDI();
-  runApp(const AuthenticationWrapper(child: ThemeWrapper(child: MyApp())));
+  runApp(
+    const AuthenticationWrapper(
+      child: ThemeWrapper(
+        initialThemeId: 'system',
+        child: MyApp(),
+      ),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
