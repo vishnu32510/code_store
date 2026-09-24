@@ -11,16 +11,22 @@ import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart
 
 import '../models/card_details.dart';
 import '../utils/card_ocr_parser.dart';
+import 'card_brand_icon.dart';
 
 /// An in-place camera viewfinder sized precisely to a credit card rectangle (330x184).
 /// Captures camera frames and performs on-device OCR using Apple Vision (iOS)
 /// and Google ML Kit (Android) without opening a separate full-screen page.
+///
+/// When a card is recognized, features a smooth delay and choreographed hero
+/// flight animation where the detected card number, expiry, and cardholder name
+/// animate smoothly into their exact physical card positions before closing.
 class EmbeddedCardCamera extends StatefulWidget {
   const EmbeddedCardCamera({
     super.key,
     required this.onCardDetected,
     required this.onCancel,
     this.onNoCamera,
+    this.detectionDelay = const Duration(milliseconds: 1100),
   });
 
   /// Called when a Luhn-verified card is detected and parsed.
@@ -32,12 +38,16 @@ class EmbeddedCardCamera extends StatefulWidget {
   /// Called if no physical camera is detected on the device (e.g. simulator).
   final VoidCallback? onNoCamera;
 
+  /// Smooth delay between card detection and closing, allowing hero transition
+  /// to animate the detected card number, expiry, and name into position.
+  final Duration detectionDelay;
+
   @override
   State<EmbeddedCardCamera> createState() => _EmbeddedCardCameraState();
 }
 
 class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
-    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   CameraController? _cameraController;
   final _appleVision = apple.AppleVisionRecognizeTextController();
   final _mlTextRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
@@ -45,6 +55,16 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
   late final AnimationController _laserController;
   late final Animation<double> _laserAnimation;
 
+  late final AnimationController _successController;
+  late final Animation<double> _borderGlowAnimation;
+  late final Animation<double> _overlayFadeAnimation;
+  late final Animation<double> _numberScaleAnimation;
+  late final Animation<Offset> _numberSlideAnimation;
+  late final Animation<double> _cardDetailsFadeAnimation;
+  late final Animation<Offset> _bottomElementsSlideAnimation;
+
+  CardDetails? _detectedDetails;
+  bool _isSuccessTransition = false;
   bool _isInitializing = true;
   bool _isProcessingFrame = false;
   bool _hasDetectedCard = false;
@@ -55,6 +75,7 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
+    // 1. Futuristic laser sweep animation
     _laserController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1400),
@@ -64,6 +85,60 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
       CurvedAnimation(parent: _laserController, curve: Curves.easeInOutSine),
     );
 
+    // 2. Choreographed Hero Detection & Transition Animation
+    _successController = AnimationController(
+      vsync: this,
+      duration: widget.detectionDelay,
+    );
+
+    _borderGlowAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _successController,
+        curve: const Interval(0.0, 0.35, curve: Curves.easeOut),
+      ),
+    );
+
+    _overlayFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _successController,
+        curve: const Interval(0.0, 0.55, curve: Curves.easeOut),
+      ),
+    );
+
+    _numberScaleAnimation = Tween<double>(begin: 1.25, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _successController,
+        curve: const Interval(0.12, 0.65, curve: Curves.easeOutBack),
+      ),
+    );
+
+    _numberSlideAnimation = Tween<Offset>(
+      begin: const Offset(0, -0.32),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _successController,
+        curve: const Interval(0.12, 0.65, curve: Curves.easeOutCubic),
+      ),
+    );
+
+    _cardDetailsFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _successController,
+        curve: const Interval(0.35, 0.85, curve: Curves.easeOut),
+      ),
+    );
+
+    _bottomElementsSlideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.38),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _successController,
+        curve: const Interval(0.35, 0.85, curve: Curves.easeOutCubic),
+      ),
+    );
+
     _initCamera();
   }
 
@@ -71,6 +146,7 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _laserController.dispose();
+    _successController.dispose();
     _cameraController?.dispose();
     _mlTextRecognizer.close();
     super.dispose();
@@ -221,9 +297,21 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
         final parsed = CardOcrParser.parseRecognizedLines(rawLines);
         if (parsed.isValidNumber && !_hasDetectedCard) {
           _hasDetectedCard = true;
-          HapticFeedback.mediumImpact();
+          _detectedDetails = parsed;
+          _isSuccessTransition = true;
+          _laserController.stop();
+          HapticFeedback.heavyImpact();
+
           if (mounted) {
-            widget.onCardDetected(parsed);
+            setState(() {});
+            // 1. Play the choreographed flight animation (1100ms)
+            await _successController.forward();
+            // 2. Intentional satisfying settling pause (200ms)
+            await Future.delayed(const Duration(milliseconds: 200));
+            // 3. Complete and hand off to main card screen
+            if (mounted) {
+              widget.onCardDetected(parsed);
+            }
           }
         }
       }
@@ -236,198 +324,503 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.cyanAccent.withValues(alpha: 0.6),
-          width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.cyanAccent.withValues(alpha: 0.25),
-            blurRadius: 16,
-            spreadRadius: 1,
+    return AnimatedBuilder(
+      animation: _successController,
+      builder: (context, _) {
+        final borderColor = Color.lerp(
+          Colors.cyanAccent.withValues(alpha: 0.6),
+          const Color(0xFF00E676),
+          _borderGlowAnimation.value,
+        )!;
+
+        final glowColor = Color.lerp(
+          Colors.cyanAccent.withValues(alpha: 0.25),
+          const Color(0xFF00E676).withValues(alpha: 0.55),
+          _borderGlowAnimation.value,
+        )!;
+
+        return Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: borderColor,
+              width: 1.5 + (0.5 * _borderGlowAnimation.value),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: glowColor,
+                blurRadius: 16 + (8 * _borderGlowAnimation.value),
+                spreadRadius: 1 + (1.5 * _borderGlowAnimation.value),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(15),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // 1. Live Camera Feed scaled nicely to fill the credit card rectangle
-            if (!_isInitializing &&
-                _cameraController != null &&
-                _cameraController!.value.isInitialized)
-              FittedBox(
-                fit: BoxFit.cover,
-                child: SizedBox(
-                  width: _cameraController!.value.previewSize?.height ?? 330,
-                  height: _cameraController!.value.previewSize?.width ?? 184,
-                  child: CameraPreview(_cameraController!),
-                ),
-              )
-            else if (_isInitializing)
-              const Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.5,
-                        color: Colors.cyanAccent,
-                      ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(15),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                // 1. Live Camera Feed scaled nicely to fill the credit card rectangle
+                if (!_isInitializing &&
+                    _cameraController != null &&
+                    _cameraController!.value.isInitialized)
+                  FittedBox(
+                    fit: BoxFit.cover,
+                    child: SizedBox(
+                      width:
+                          _cameraController!.value.previewSize?.height ?? 330,
+                      height:
+                          _cameraController!.value.previewSize?.width ?? 184,
+                      child: CameraPreview(_cameraController!),
                     ),
-                    SizedBox(height: 10),
-                    Text(
-                      'Starting Camera...',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            else
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Text(
-                    _errorMessage ?? 'Camera Unavailable',
-                    style: const TextStyle(color: Colors.white70, fontSize: 12),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-
-            // 2. Corner Viewfinder Brackets
-            Positioned.fill(
-              child: IgnorePointer(
-                child: CustomPaint(
-                  painter: _CardViewfinderCornerPainter(
-                    color: Colors.cyanAccent,
-                  ),
-                ),
-              ),
-            ),
-
-            // 3. Futuristic Laser Scanner Sweep Line
-            Positioned.fill(
-              child: IgnorePointer(
-                child: AnimatedBuilder(
-                  animation: _laserAnimation,
-                  builder: (context, _) {
-                    return Align(
-                      alignment: Alignment(0, (_laserAnimation.value * 2) - 1),
-                      child: Container(
-                        height: 3,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.cyanAccent.withValues(alpha: 0.1),
-                              Colors.cyanAccent,
-                              Colors.white,
-                              Colors.cyanAccent,
-                              Colors.cyanAccent.withValues(alpha: 0.1),
-                            ],
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.cyanAccent.withValues(alpha: 0.9),
-                              blurRadius: 8,
-                              spreadRadius: 2,
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-
-            // 4. Cancel / Close Camera Button (Top Right)
-            Positioned(
-              top: 6,
-              right: 6,
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: widget.onCancel,
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                    padding: const EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.6),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.close_rounded,
-                      color: Colors.white,
-                      size: 16,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            // 5. Guidance Label at Bottom
-            Positioned(
-              bottom: 8,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: IgnorePointer(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.7),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.2),
-                      ),
-                    ),
-                    child: const Row(
+                  )
+                else if (_isInitializing)
+                  const Center(
+                    child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          Icons.document_scanner_rounded,
-                          color: Colors.cyanAccent,
-                          size: 12,
+                        SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            color: Colors.cyanAccent,
+                          ),
                         ),
-                        SizedBox(width: 5),
+                        SizedBox(height: 10),
                         Text(
-                          'Align card inside frame',
+                          'Starting Camera...',
                           style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 10.5,
+                            color: Colors.white70,
+                            fontSize: 12,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
                     ),
+                  )
+                else
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Text(
+                        _errorMessage ?? 'Camera Unavailable',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
                   ),
-                ),
-              ),
+
+                // 2. Card Brand Morph Scrim (Fades in over camera upon detection)
+                if (_isSuccessTransition && _detectedDetails != null)
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            (_detectedDetails!.cardType.gradientColors.first)
+                                .withValues(
+                                  alpha: 0.82 * _overlayFadeAnimation.value,
+                                ),
+                            (_detectedDetails!.cardType.gradientColors.last)
+                                .withValues(
+                                  alpha: 0.90 * _overlayFadeAnimation.value,
+                                ),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                // 3. Normal Scanning Overlays (viewfinder corners, laser, cancel button, helper)
+                if (!_isSuccessTransition) ...[
+                  // Corner Viewfinder Brackets
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      child: CustomPaint(
+                        painter: _CardViewfinderCornerPainter(
+                          color: Colors.cyanAccent,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Futuristic Laser Scanner Sweep Line
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      child: AnimatedBuilder(
+                        animation: _laserAnimation,
+                        builder: (context, _) {
+                          return Align(
+                            alignment: Alignment(
+                              0,
+                              (_laserAnimation.value * 2) - 1,
+                            ),
+                            child: Container(
+                              height: 3,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.cyanAccent.withValues(alpha: 0.1),
+                                    Colors.cyanAccent,
+                                    Colors.white,
+                                    Colors.cyanAccent,
+                                    Colors.cyanAccent.withValues(alpha: 0.1),
+                                  ],
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.cyanAccent.withValues(
+                                      alpha: 0.9,
+                                    ),
+                                    blurRadius: 8,
+                                    spreadRadius: 2,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+
+                  // Cancel / Close Camera Button (Top Right)
+                  Positioned(
+                    top: 6,
+                    right: 6,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: widget.onCancel,
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.6),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.close_rounded,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Guidance Label at Bottom
+                  Positioned(
+                    bottom: 8,
+                    left: 0,
+                    right: 0,
+                    child: Center(
+                      child: IgnorePointer(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.7),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.2),
+                            ),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.document_scanner_rounded,
+                                color: Colors.cyanAccent,
+                                size: 12,
+                              ),
+                              SizedBox(width: 5),
+                              Text(
+                                'Align card inside frame',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+
+                // 4. Success State Overlays & Hero Transitions
+                if (_isSuccessTransition && _detectedDetails != null) ...[
+                  // Top Pill: Card Verified Badge
+                  Positioned(
+                    top: 6,
+                    left: 0,
+                    right: 0,
+                    child: Center(
+                      child: FadeTransition(
+                        opacity: _borderGlowAnimation,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF00E676).withValues(
+                              alpha: 0.25,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: const Color(0xFF00E676),
+                              width: 1.1,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF00E676).withValues(
+                                  alpha: 0.3,
+                                ),
+                                blurRadius: 6,
+                              ),
+                            ],
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.check_circle_rounded,
+                                color: Color(0xFF00E676),
+                                size: 12,
+                              ),
+                              SizedBox(width: 5),
+                              Text(
+                                'CARD VERIFIED (LUHN PASSED)',
+                                style: TextStyle(
+                                  color: Color(0xFF00E676),
+                                  fontSize: 9.5,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.6,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Top Left: EMV Chip & Contactless (fading in at physical card position)
+                  Positioned(
+                    top: 15,
+                    left: 18,
+                    child: FadeTransition(
+                      opacity: _cardDetailsFadeAnimation,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 36,
+                            height: 26,
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFFFFDF7A), Color(0xFFD4AF37)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(5),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.3),
+                                  blurRadius: 3,
+                                ),
+                              ],
+                            ),
+                            child: Center(
+                              child: Container(
+                                width: 26,
+                                height: 17,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Colors.brown.withValues(alpha: 0.5),
+                                    width: 0.9,
+                                  ),
+                                  borderRadius: BorderRadius.circular(2.5),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          const Icon(
+                            Icons.contactless_rounded,
+                            color: Colors.white70,
+                            size: 21,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Top Right: Detected Card Brand Badge
+                  Positioned(
+                    top: 15,
+                    right: 18,
+                    child: FadeTransition(
+                      opacity: _cardDetailsFadeAnimation,
+                      child: CardBrandIcon(
+                        cardType: _detectedDetails!.cardType,
+                        width: 46,
+                        height: 28,
+                      ),
+                    ),
+                  ),
+
+                  // Center: HERO Animation for Detected Card Number
+                  Align(
+                    alignment: Alignment.center,
+                    child: SlideTransition(
+                      position: _numberSlideAnimation,
+                      child: ScaleTransition(
+                        scale: _numberScaleAnimation,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 3.5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(
+                              alpha: 0.45 * (1.0 - _borderGlowAnimation.value),
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: const Color(0xFF00E676).withValues(
+                                alpha: 0.7 * (1.0 - _borderGlowAnimation.value),
+                              ),
+                              width: 1,
+                            ),
+                          ),
+                          child: Text(
+                            _detectedDetails!.formattedNumber,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16.5,
+                              letterSpacing: 2.0,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: 'monospace',
+                              shadows: [
+                                Shadow(
+                                  color: Color(0xFF00E676),
+                                  blurRadius: 10,
+                                ),
+                                Shadow(
+                                  color: Colors.black54,
+                                  blurRadius: 4,
+                                  offset: Offset(0, 1.5),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Bottom Row: HERO Animation for Cardholder Name and Expiry
+                  Positioned(
+                    bottom: 15,
+                    left: 18,
+                    right: 18,
+                    child: SlideTransition(
+                      position: _bottomElementsSlideAnimation,
+                      child: FadeTransition(
+                        opacity: _cardDetailsFadeAnimation,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text(
+                                    'CARDHOLDER',
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 8,
+                                      letterSpacing: 1.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 1.5),
+                                  Text(
+                                    _detectedDetails!.cardHolderName.isEmpty
+                                        ? 'CARDHOLDER NAME'
+                                        : _detectedDetails!.cardHolderName
+                                            .toUpperCase(),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text(
+                                  'EXPIRES',
+                                  style: TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 8,
+                                    letterSpacing: 1.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 1.5),
+                                Text(
+                                  _detectedDetails!.formattedExpiry.isEmpty
+                                      ? 'MM/YY'
+                                      : _detectedDetails!.formattedExpiry,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.0,
+                                    fontFamily: 'monospace',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -498,6 +891,7 @@ class _CardViewfinderCornerPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _CardViewfinderCornerPainter oldDelegate) =>
-      color != oldDelegate.color;
+  bool shouldRepaint(covariant _CardViewfinderCornerPainter oldDelegate) {
+    return oldDelegate.color != color;
+  }
 }

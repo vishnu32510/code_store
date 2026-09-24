@@ -182,4 +182,25 @@ void main() {
       expect(GetIt.instance<ICardScannerService>(), same(custom));
     });
   });
+
+  group('EmbeddedCardCamera Configuration & Transitions', () {
+    test('EmbeddedCardCamera defaults detectionDelay to 1100ms', () {
+      final cameraWidget = EmbeddedCardCamera(
+        onCardDetected: (_) {},
+        onCancel: () {},
+      );
+
+      expect(cameraWidget.detectionDelay, const Duration(milliseconds: 1100));
+    });
+
+    test('EmbeddedCardCamera supports custom detectionDelay', () {
+      final cameraWidget = EmbeddedCardCamera(
+        onCardDetected: (_) {},
+        onCancel: () {},
+        detectionDelay: const Duration(milliseconds: 1500),
+      );
+
+      expect(cameraWidget.detectionDelay, const Duration(milliseconds: 1500));
+    });
+  });
 }

@@ -39,6 +39,9 @@ class _CardScannerScreenState extends State<CardScannerScreen>
   late final AnimationController _pulseController;
   late final Animation<double> _pulseAnimation;
 
+  late final AnimationController _justScannedController;
+  late final Animation<double> _justScannedAnimation;
+
   // Card State
   CardType _detectedType = CardType.unknown;
   bool _isCardFlipped = false;
@@ -82,6 +85,16 @@ class _CardScannerScreenState extends State<CardScannerScreen>
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
+    // 4. Celebratory glow when card details arrive into the physical card
+    _justScannedController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 750),
+    );
+    _justScannedAnimation = CurvedAnimation(
+      parent: _justScannedController,
+      curve: Curves.easeOutQuad,
+    );
+
     // Auto flip card to back when CVV field is focused
     _cvvFocus.addListener(() {
       if (_cvvFocus.hasFocus && !_isCardFlipped) {
@@ -99,6 +112,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
     _flipController.dispose();
     _scanLaserController.dispose();
     _pulseController.dispose();
+    _justScannedController.dispose();
     _cardNumberController.removeListener(_onCardNumberChanged);
     _cardNumberController.dispose();
     _cardHolderController.dispose();
@@ -151,6 +165,8 @@ class _CardScannerScreenState extends State<CardScannerScreen>
         _cvvController.text = details.cvv;
       }
     });
+
+    _justScannedController.forward(from: 0);
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -716,31 +732,37 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                     maxWidth: 330,
                     maxHeight: 184,
                   ),
-                  child: _isScanningWithCamera
-                      ? EmbeddedCardCamera(
-                          onCardDetected: (scannedDetails) {
-                            _applyScannedDetails(scannedDetails);
-                          },
-                          onCancel: () {
-                            setState(() => _isScanningWithCamera = false);
-                          },
-                          onNoCamera: () {
-                            setState(() => _isScanningWithCamera = false);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'No back camera found on this device or permission denied',
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 350),
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeInCubic,
+                    child: _isScanningWithCamera
+                        ? EmbeddedCardCamera(
+                            key: const ValueKey('embedded_camera_viewfinder'),
+                            onCardDetected: (scannedDetails) {
+                              _applyScannedDetails(scannedDetails);
+                            },
+                            onCancel: () {
+                              setState(() => _isScanningWithCamera = false);
+                            },
+                            onNoCamera: () {
+                              setState(() => _isScanningWithCamera = false);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'No back camera found on this device or permission denied',
+                                  ),
+                                  behavior: SnackBarBehavior.floating,
                                 ),
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
-                          },
-                        )
-                      : GestureDetector(
-                          onTap: () => _flipCard(),
-                          child: Stack(
-                            clipBehavior: Clip.none,
-                            children: [
+                              );
+                            },
+                          )
+                        : GestureDetector(
+                            key: const ValueKey('interactive_card_3d'),
+                            onTap: () => _flipCard(),
+                            child: Stack(
+                              clipBehavior: Clip.none,
+                              children: [
                         // The 3D Flippable Card with Dynamic Scale & Perspective
                         AnimatedBuilder(
                           animation: _flipAnimation,
@@ -842,8 +864,9 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                   ),
                 ),
               ),
+            ),
 
-              const SizedBox(height: 6),
+            const SizedBox(height: 6),
 
               // Flip Helper Hint
               Center(
@@ -1345,7 +1368,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
     );
   }
 
-  // MARK: - Card Front View (Compact, Smoothly Animated Gradient)
+  // MARK: - Card Front View (Compact & Clean)
   Widget _buildCardFront(BuildContext context) {
     final gradientColors = _detectedType.gradientColors;
     final formattedNumber = _cardNumberController.text.isEmpty
@@ -1358,165 +1381,193 @@ class _CardScannerScreenState extends State<CardScannerScreen>
         ? 'MM/YY'
         : _expiryController.text;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 400),
-      curve: Curves.easeInOutCubic,
-      height: 180,
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: gradientColors,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: gradientColors.first.withValues(alpha: 0.38),
-            blurRadius: 14,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Top Row: Chip + Contactless + Brand
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // EMV Chip (Compact 36x26)
-              Container(
-                width: 36,
-                height: 26,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFFFDF7A), Color(0xFFD4AF37)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(5),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.25),
-                      blurRadius: 2.5,
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: Container(
-                    width: 26,
-                    height: 17,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.brown.withValues(alpha: 0.5),
-                        width: 0.9,
-                      ),
-                      borderRadius: BorderRadius.circular(2.5),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              const Icon(
-                Icons.contactless_rounded,
-                color: Colors.white70,
-                size: 21,
-              ),
-              const Spacer(),
-              // Detected Brand Badge
-              CardBrandIcon(cardType: _detectedType, width: 46, height: 28),
-            ],
-          ),
-
-          const Spacer(),
-
-          // Card Number with Monospace Styling
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 200),
-            child: Text(
-              formattedNumber,
-              key: ValueKey(formattedNumber),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16.5,
-                letterSpacing: 2.0,
-                fontWeight: FontWeight.w600,
-                fontFamily: 'monospace',
-                shadows: [
-                  Shadow(
-                    color: Colors.black45,
-                    blurRadius: 3,
-                    offset: Offset(0, 1.2),
-                  ),
-                ],
-              ),
+    return AnimatedBuilder(
+      animation: _justScannedController,
+      builder: (context, _) {
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOutCubic,
+          height: 180,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: gradientColors,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-          ),
-
-          const Spacer(),
-
-          // Bottom Row: Holder Name & Expiry
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'CARDHOLDER',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.7),
-                        fontSize: 8,
-                        letterSpacing: 1.0,
-                        fontWeight: FontWeight.bold,
-                      ),
+            borderRadius: BorderRadius.circular(16),
+            border: _justScannedController.isAnimating
+                ? Border.all(
+                    color: const Color(0xFF00E676).withValues(
+                      alpha: 0.85 * (1.0 - _justScannedAnimation.value),
                     ),
-                    const SizedBox(height: 1.5),
-                    Text(
-                      cardHolder,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.7,
-                      ),
-                    ),
-                  ],
-                ),
+                    width: 1.5,
+                  )
+                : null,
+            boxShadow: [
+              BoxShadow(
+                color: gradientColors.first.withValues(alpha: 0.38),
+                blurRadius: 14,
+                offset: const Offset(0, 6),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+              if (_justScannedController.isAnimating)
+                BoxShadow(
+                  color: const Color(0xFF00E676).withValues(
+                    alpha: 0.65 * (1.0 - _justScannedAnimation.value),
+                  ),
+                  blurRadius: 22,
+                  spreadRadius: 2,
+                ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Top Row: Chip + Contactless + Brand
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'EXPIRES',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.7),
-                      fontSize: 8,
-                      letterSpacing: 1.0,
-                      fontWeight: FontWeight.bold,
+                  // EMV Chip (Compact 36x26)
+                  Container(
+                    width: 36,
+                    height: 26,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFFFDF7A), Color(0xFFD4AF37)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(5),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.25),
+                          blurRadius: 2.5,
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Container(
+                        width: 26,
+                        height: 17,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.brown.withValues(alpha: 0.5),
+                            width: 0.9,
+                          ),
+                          borderRadius: BorderRadius.circular(2.5),
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 1.5),
-                  Text(
-                    expiry,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1,
-                      fontFamily: 'monospace',
+                  const SizedBox(width: 8),
+                  const Icon(
+                    Icons.contactless_rounded,
+                    color: Colors.white70,
+                    size: 21,
+                  ),
+                  const Spacer(),
+                  // Detected Brand Badge
+                  CardBrandIcon(cardType: _detectedType, width: 46, height: 28),
+                ],
+              ),
+
+              const Spacer(),
+
+              // Card Number with Monospace Styling & Glowing Pulse
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: Text(
+                  formattedNumber,
+                  key: ValueKey(formattedNumber),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16.5,
+                    letterSpacing: 2.0,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'monospace',
+                    shadows: [
+                      if (_justScannedController.isAnimating)
+                        Shadow(
+                          color: const Color(0xFF00E676).withValues(
+                            alpha: 0.85 * (1.0 - _justScannedAnimation.value),
+                          ),
+                          blurRadius: 10,
+                        ),
+                      const Shadow(
+                        color: Colors.black45,
+                        blurRadius: 3,
+                        offset: Offset(0, 1.2),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const Spacer(),
+
+              // Bottom Row: Holder Name & Expiry
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'CARDHOLDER',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.7),
+                            fontSize: 8,
+                            letterSpacing: 1.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 1.5),
+                        Text(
+                          cardHolder,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
                     ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        'EXPIRES',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.7),
+                          fontSize: 8,
+                          letterSpacing: 1.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 1.5),
+                      Text(
+                        expiry,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.0,
+                          fontFamily: 'monospace',
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
