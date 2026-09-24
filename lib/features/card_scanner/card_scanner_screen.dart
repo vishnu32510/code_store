@@ -202,22 +202,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
       return;
     }
 
-    // 2. Native OS Autofill engine mode
-    if (_selectedEngine == CardScannerEngine.systemAutofill) {
-      _cardNumberFocus.requestFocus();
-      TextInput.finishAutofillContext(shouldSave: false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'OS Autofill active: tap keyboard camera icon or saved card',
-          ),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return;
-    }
-
-    // 3. Simulated Laser Scanner mode
+    // 2. Simulated Laser Scanner mode
     if (_selectedEngine == CardScannerEngine.simulated) {
       setState(() => _isScanning = true);
       _scanLaserController.repeat(reverse: true);

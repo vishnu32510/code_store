@@ -98,16 +98,6 @@ class CardScannerService implements ICardScannerService {
           cardType: CardType.mastercard,
           isValidNumber: true,
         );
-      case CardScannerEngine.systemAutofill:
-        return const CardDetails(
-          cardNumber: '378282246310005',
-          cardHolderName: 'TAYLOR REID',
-          expiryMonth: 8,
-          expiryYear: 29,
-          cvv: '8492',
-          cardType: CardType.americanExpress,
-          isValidNumber: true,
-        );
       case CardScannerEngine.mlKitVision:
       case CardScannerEngine.simulated:
         return const CardDetails(

@@ -12,12 +12,6 @@ enum CardScannerEngine {
     subtitle: 'Framed viewfinder & bounding detector',
     badge: 'Card Scanner',
   ),
-  systemAutofill(
-    id: 'system_autofill',
-    displayName: 'OS Autofill & Camera',
-    subtitle: 'iOS Keychain & QuickType keyboard OCR',
-    badge: 'Native OS',
-  ),
   simulated(
     id: 'simulated',
     displayName: 'Simulated Laser',
