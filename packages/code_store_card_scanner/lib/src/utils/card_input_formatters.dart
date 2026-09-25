@@ -53,55 +53,6 @@ class CardFormatter {
     if (clean.length <= 2) return clean;
     return '${clean.substring(0, 2)}/${clean.substring(2, clean.length.clamp(2, 4))}';
   }
-
-  /// Formats a card number into a masked presentation (e.g. `•••• •••• •••• 1234`),
-  /// respecting brand grouping spaces and preserving the last [visibleEndDigits].
-  static String maskNumber(
-    String cardNumber, {
-    int visibleEndDigits = 4,
-    String maskChar = '•',
-  }) {
-    final clean = cardNumber.replaceAll(RegExp(r'\D'), '');
-    if (clean.isEmpty) return '';
-
-    final visibleCount = visibleEndDigits.clamp(0, clean.length);
-    final maskedCount = clean.length - visibleCount;
-    final maskedDigits = StringBuffer();
-
-    for (var i = 0; i < maskedCount; i++) {
-      maskedDigits.write(maskChar);
-    }
-    maskedDigits.write(clean.substring(maskedCount));
-
-    final type = CardValidator.detectType(clean);
-    final groupings = type.digitGroupings;
-    final buffer = StringBuffer();
-    var currentIndex = 0;
-    final maskedStr = maskedDigits.toString();
-
-    for (final group in groupings) {
-      if (currentIndex >= maskedStr.length) break;
-      final nextIndex = currentIndex + group;
-      if (nextIndex <= maskedStr.length) {
-        buffer.write(maskedStr.substring(currentIndex, nextIndex));
-        if (nextIndex < maskedStr.length) {
-          buffer.write(' ');
-        }
-        currentIndex = nextIndex;
-      } else {
-        buffer.write(maskedStr.substring(currentIndex));
-        currentIndex = maskedStr.length;
-        break;
-      }
-    }
-
-    if (currentIndex < maskedStr.length) {
-      if (buffer.isNotEmpty) buffer.write(' ');
-      buffer.write(maskedStr.substring(currentIndex));
-    }
-
-    return buffer.toString();
-  }
 }
 
 /// [TextInputFormatter] that formats card numbers with dynamic grouping spaces
@@ -199,16 +150,6 @@ class CardExpiryInputFormatter extends TextInputFormatter {
       }
     }
 
-    var autoPrefixed = false;
-    // Auto-prefix single digit months 2-9 if typed as the first digit:
-    if (clean.length == 1) {
-      final firstDigit = int.tryParse(clean);
-      if (firstDigit != null && firstDigit >= 2 && firstDigit <= 9) {
-        clean = '0$clean';
-        autoPrefixed = true;
-      }
-    }
-
     // Limit to 4 digits: 2 for month, 2 for year
     final digits = clean.length > 4 ? clean.substring(0, 4) : clean;
     var formatted = CardFormatter.formatExpiry(digits);
@@ -216,13 +157,6 @@ class CardExpiryInputFormatter extends TextInputFormatter {
     // Auto-append slash when 2 valid month digits are typed:
     if (digits.length == 2 && newValue.text.length > oldValue.text.length) {
       formatted = '$digits/';
-    }
-
-    if (autoPrefixed) {
-      return TextEditingValue(
-        text: formatted,
-        selection: TextSelection.collapsed(offset: formatted.length),
-      );
     }
 
     final cursorIndex = newValue.selection.baseOffset;
