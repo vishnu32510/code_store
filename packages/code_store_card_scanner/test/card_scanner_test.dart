@@ -128,6 +128,26 @@ void main() {
       expect(CardValidator.formatExpiry('05'), '05');
       expect(CardValidator.formatExpiry(''), '');
     });
+
+    test('CardNumberInputFormatter formats input value dynamically', () {
+      const formatter = CardNumberInputFormatter();
+      final updated = formatter.formatEditUpdate(
+        TextEditingValue.empty,
+        const TextEditingValue(text: '4111222233334444'),
+      );
+      expect(updated.text, '4111 2222 3333 4444');
+      expect(updated.selection.baseOffset, 19);
+    });
+
+    test('CardExpiryInputFormatter inserts slash and limits to 4 digits', () {
+      const formatter = CardExpiryInputFormatter();
+      final updated = formatter.formatEditUpdate(
+        TextEditingValue.empty,
+        const TextEditingValue(text: '1228555'),
+      );
+      expect(updated.text, '12/28');
+      expect(updated.selection.baseOffset, 5);
+    });
   });
 
   group('CardDetails Model Serialization & Immutability', () {

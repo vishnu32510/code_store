@@ -666,8 +666,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                               contextMenuBuilder: _buildSafeContextMenu,
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly,
-                                LengthLimitingTextInputFormatter(19),
-                                _CardNumberFormatter(),
+                                const CardNumberInputFormatter(),
                               ],
                               decoration: InputDecoration(
                                 labelText: 'Card Number',
@@ -774,8 +773,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                                 contextMenuBuilder: _buildSafeContextMenu,
                                 inputFormatters: [
                                   FilteringTextInputFormatter.digitsOnly,
-                                  LengthLimitingTextInputFormatter(4),
-                                  _CardExpiryFormatter(),
+                                  const CardExpiryInputFormatter(),
                                 ],
                                 decoration: InputDecoration(
                                   labelText: 'Expires',
@@ -1349,46 +1347,6 @@ class _CardScannerScreenState extends State<CardScannerScreen>
           'No camera found on this device or permission denied',
         );
       },
-    );
-  }
-}
-
-// MARK: - Formatters
-
-class _CardNumberFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    final clean = newValue.text.replaceAll(RegExp(r'\D'), '');
-    if (clean.isEmpty) {
-      return newValue.copyWith(text: '');
-    }
-
-    final formatted = CardValidator.formatNumber(clean);
-    return TextEditingValue(
-      text: formatted,
-      selection: TextSelection.collapsed(offset: formatted.length),
-    );
-  }
-}
-
-class _CardExpiryFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    final clean = newValue.text.replaceAll(RegExp(r'\D'), '');
-    if (clean.isEmpty) {
-      return newValue.copyWith(text: '');
-    }
-
-    final formatted = CardValidator.formatExpiry(clean);
-    return TextEditingValue(
-      text: formatted,
-      selection: TextSelection.collapsed(offset: formatted.length),
     );
   }
 }

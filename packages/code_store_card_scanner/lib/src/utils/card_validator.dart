@@ -1,4 +1,5 @@
 import '../models/card_type.dart';
+import 'card_input_formatters.dart';
 
 /// Robust validation and regex parsing utility for debit and credit cards.
 class CardValidator {
@@ -99,38 +100,9 @@ class CardValidator {
   // MARK: - Card Formatting
 
   /// Formats raw digits with the appropriate grouping spaces according to the detected brand.
-  static String formatNumber(String cardNumber) {
-    final clean = cardNumber.replaceAll(RegExp(r'\D'), '');
-    if (clean.isEmpty) return '';
-
-    final type = detectType(clean);
-    final groupings = type.digitGroupings;
-    final buffer = StringBuffer();
-    var currentIndex = 0;
-
-    for (final group in groupings) {
-      if (currentIndex >= clean.length) break;
-      final nextIndex = currentIndex + group;
-      if (nextIndex <= clean.length) {
-        buffer.write(clean.substring(currentIndex, nextIndex));
-        if (nextIndex < clean.length) {
-          buffer.write(' ');
-        }
-        currentIndex = nextIndex;
-      } else {
-        buffer.write(clean.substring(currentIndex));
-        break;
-      }
-    }
-
-    return buffer.toString();
-  }
+  static String formatNumber(String cardNumber) =>
+      CardFormatter.formatNumber(cardNumber);
 
   /// Formats raw digits into "MM/YY".
-  static String formatExpiry(String raw) {
-    final clean = raw.replaceAll(RegExp(r'\D'), '');
-    if (clean.isEmpty) return '';
-    if (clean.length <= 2) return clean;
-    return '${clean.substring(0, 2)}/${clean.substring(2, clean.length.clamp(2, 4))}';
-  }
+  static String formatExpiry(String raw) => CardFormatter.formatExpiry(raw);
 }

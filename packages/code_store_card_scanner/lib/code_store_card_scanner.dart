@@ -13,6 +13,7 @@ export 'src/services/card_scanner_service.dart';
 export 'src/services/i_card_scanner_service.dart';
 
 // Utilities
+export 'src/utils/card_input_formatters.dart';
 export 'src/utils/card_ocr_parser.dart';
 export 'src/utils/card_validator.dart';
 
