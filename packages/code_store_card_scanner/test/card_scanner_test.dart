@@ -683,5 +683,59 @@ void main() {
         expect(find.text('VISA'), findsOneWidget);
       },
     );
+
+    testWidgets(
+      'CardBrandIcon uses defaultIcon for unmapped card brands but keeps specific customIcons',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Column(
+                children: [
+                  CardBrandIcon(
+                    cardType: CardType.visa,
+                    customIcons: const {
+                      CardType.visa: Text('CUSTOM_VISA'),
+                    },
+                    defaultIcon: const Text('CUSTOM_DEFAULT'),
+                  ),
+                  CardBrandIcon(
+                    cardType: CardType.mastercard,
+                    customIcons: const {
+                      CardType.visa: Text('CUSTOM_VISA'),
+                    },
+                    defaultIcon: const Text('CUSTOM_DEFAULT'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+
+        expect(find.text('CUSTOM_VISA'), findsOneWidget);
+        expect(find.text('CUSTOM_DEFAULT'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'CardBrandIcon renders globalDefaultIcon from CardBrandIconConfig when unmapped',
+      (tester) async {
+        CardBrandIconConfig.setGlobalDefaultIcon(
+            const Text('GLOBAL_DEFAULT_ICON'));
+
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: Scaffold(
+              body: CardBrandIcon(cardType: CardType.jcb),
+            ),
+          ),
+        );
+
+        expect(find.text('GLOBAL_DEFAULT_ICON'), findsOneWidget);
+
+        CardBrandIconConfig.reset();
+        expect(CardBrandIconConfig.globalDefaultIcon, isNull);
+      },
+    );
   });
 }

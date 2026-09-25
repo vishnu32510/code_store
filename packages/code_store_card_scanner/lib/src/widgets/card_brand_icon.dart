@@ -15,6 +15,7 @@ class CardBrandIconConfig {
 
   static CardBrandIconBuilder? _globalBuilder;
   static Map<CardType, Widget>? _globalIcons;
+  static Widget? _globalDefaultIcon;
 
   /// Sets a global custom builder used whenever a custom brand icon is needed.
   static void setGlobalBuilder(CardBrandIconBuilder? builder) {
@@ -26,10 +27,17 @@ class CardBrandIconConfig {
     _globalIcons = icons != null ? Map.from(icons) : null;
   }
 
-  /// Clears any globally configured builders and custom icons.
+  /// Sets a global default fallback icon widget used whenever a card type
+  /// does not match any entry in [_globalIcons] or [_globalBuilder].
+  static void setGlobalDefaultIcon(Widget? icon) {
+    _globalDefaultIcon = icon;
+  }
+
+  /// Clears any globally configured builders, custom icons, and default fallback icon.
   static void reset() {
     _globalBuilder = null;
     _globalIcons = null;
+    _globalDefaultIcon = null;
   }
 
   /// Returns the current global builder if set.
@@ -37,6 +45,9 @@ class CardBrandIconConfig {
 
   /// Returns the current global icons map if set.
   static Map<CardType, Widget>? get globalIcons => _globalIcons;
+
+  /// Returns the current global default fallback icon if set.
+  static Widget? get globalDefaultIcon => _globalDefaultIcon;
 }
 
 /// Crisp, vector-rendered card brand badge suitable for input field suffix/postfix icons
@@ -50,6 +61,7 @@ class CardBrandIcon extends StatelessWidget {
     this.animate = true,
     this.iconBuilder,
     this.customIcons,
+    this.defaultIcon,
   });
 
   /// The detected card brand type.
@@ -69,21 +81,32 @@ class CardBrandIcon extends StatelessWidget {
   final CardBrandIconBuilder? iconBuilder;
 
   /// Optional map of custom widgets per [CardType] (e.g. SvgPicture or Image.asset).
-  /// Falls back to [iconBuilder], [CardBrandIconConfig.globalIcons], [CardBrandIconConfig.globalBuilder],
+  /// Falls back to [iconBuilder], [defaultIcon], [CardBrandIconConfig.globalIcons],
+  /// [CardBrandIconConfig.globalBuilder], [CardBrandIconConfig.globalDefaultIcon],
   /// or the built-in vector badge if not present.
   final Map<CardType, Widget>? customIcons;
+
+  /// Optional default fallback widget used when no specific custom icon is found
+  /// for [cardType] in [customIcons], [iconBuilder], or global configurations.
+  /// If null, falls back to [CardBrandIconConfig.globalDefaultIcon] or the built-in vector badge.
+  final Widget? defaultIcon;
 
   @override
   Widget build(BuildContext context) {
     // 1. Resolve custom icon in priority order:
-    //    a) Local widget `customIcons` map
-    //    b) Local widget `iconBuilder`
-    //    c) Global `CardBrandIconConfig.globalIcons` map
-    //    d) Global `CardBrandIconConfig.globalBuilder`
+    //    a) Local widget `customIcons` map for specific brand
+    //    b) Local widget `iconBuilder` for specific brand
+    //    c) Global `CardBrandIconConfig.globalIcons` map for specific brand
+    //    d) Global `CardBrandIconConfig.globalBuilder` for specific brand
+    //    e) Local widget `defaultIcon` fallback
+    //    f) Global `CardBrandIconConfig.globalDefaultIcon` fallback
+    //    g) Built-in vector badge fallback
     Widget? customWidget = customIcons?[cardType] ??
         iconBuilder?.call(context, cardType) ??
         CardBrandIconConfig.globalIcons?[cardType] ??
-        CardBrandIconConfig.globalBuilder?.call(context, cardType);
+        CardBrandIconConfig.globalBuilder?.call(context, cardType) ??
+        defaultIcon ??
+        CardBrandIconConfig.globalDefaultIcon;
 
     final badge = customWidget != null
         ? _buildCustomBadgeWrapper(customWidget)
