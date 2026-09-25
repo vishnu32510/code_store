@@ -496,7 +496,7 @@ class AppDrawer extends StatelessWidget {
                       ),
                       icon: const Icon(Icons.fullscreen_rounded, size: 20),
                       label: const Text(
-                        'Sign In Page',
+                        'Full Screen Sign In',
                         style: TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ),
