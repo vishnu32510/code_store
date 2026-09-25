@@ -375,7 +375,7 @@ class DashboardProfileView extends StatelessWidget {
                 ),
                 icon: const Icon(Icons.fullscreen_rounded),
                 label: const Text(
-                  'Sign In Page',
+                  'Full Screen Sign In',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),

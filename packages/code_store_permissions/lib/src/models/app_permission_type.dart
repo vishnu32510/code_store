@@ -66,7 +66,7 @@ extension AppPermissionTypeExtension on AppPermissionType {
       case AppPermissionType.locationWhenInUse:
         return 'Location access is required to deliver localized features and services.';
       case AppPermissionType.locationAlways:
-        return 'Background location access is required for real-time tracking and geofencing.';
+        return 'Background location access is required for real-time features and geofencing.';
       case AppPermissionType.microphone:
         return 'Microphone access is required to record audio and voice messages.';
       case AppPermissionType.storage:
