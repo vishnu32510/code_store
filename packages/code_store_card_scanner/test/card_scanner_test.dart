@@ -87,6 +87,15 @@ void main() {
       expect(CardValidator.validateExpiry(6, futureYear % 100), isTrue);
     });
 
+    test('validates string expiration dates via validateExpiryDate', () {
+      final futureYear = DateTime.now().year + 2;
+      final yy = (futureYear % 100).toString().padLeft(2, '0');
+      expect(CardValidator.validateExpiryDate('12/$yy'), isTrue);
+      expect(CardValidator.validateExpiryDate('12/$futureYear'), isTrue);
+      expect(CardValidator.validateExpiryDate('01/20'), isFalse);
+      expect(CardValidator.validateExpiryDate('invalid'), isFalse);
+    });
+
     test('rejects past or invalid expiry dates', () {
       expect(CardValidator.validateExpiry(1, 2020), isFalse);
       expect(CardValidator.validateExpiry(13, 2028), isFalse);
@@ -105,6 +114,50 @@ void main() {
         CardValidator.validateCvv('123', CardType.americanExpress),
         isFalse,
       );
+      // Unknown card type accepts standard 3 or 4 digits:
+      expect(CardValidator.validateCvv('123'), isTrue);
+      expect(CardValidator.validateCvv('1234'), isTrue);
+      expect(CardValidator.validateCvv('12'), isFalse);
+    });
+  });
+
+  group('Gold Standard Card Validation & Diagnostic Results', () {
+    test('validateCardNumber verifies both length and Luhn checksum', () {
+      // 16-digit valid Visa
+      expect(CardValidator.validateCardNumber('4532015112830366'), isTrue);
+      // Valid Luhn but invalid length (11 digits) -> rejected
+      expect(CardValidator.validateLuhn('49927398716'), isTrue);
+      expect(CardValidator.validateCardNumber('49927398716'), isFalse);
+      // 15-digit valid Amex
+      expect(CardValidator.validateCardNumber('378282246310005'), isTrue);
+    });
+
+    test('isPotentiallyValid handles typing in progress vs invalid inputs', () {
+      expect(CardValidator.isPotentiallyValid('4111'), isTrue);
+      expect(CardValidator.isPotentiallyValid('4111 2222'), isTrue);
+      expect(CardValidator.isPotentiallyValid('411122223333444455556666'),
+          isFalse);
+      expect(CardValidator.isPotentiallyValid('4111ABC'), isFalse);
+    });
+
+    test('validate returns rich CardValidationResult with diagnostics', () {
+      final validResult = CardValidator.validate('4532015112830366');
+      expect(validResult.isValid, isTrue);
+      expect(validResult.cardType, CardType.visa);
+      expect(validResult.errorMessage, isNull);
+
+      final incompleteResult = CardValidator.validate('4111');
+      expect(incompleteResult.isValid, isFalse);
+      expect(incompleteResult.isPotentiallyValid, isTrue);
+      expect(incompleteResult.errorMessage, 'Card number is incomplete.');
+
+      final emptyResult = CardValidator.validate('');
+      expect(emptyResult.isValid, isFalse);
+      expect(emptyResult.errorMessage, 'Card number is required.');
+
+      final checksumFail = CardValidator.validate('4532015112830367');
+      expect(checksumFail.isValid, isFalse);
+      expect(checksumFail.errorMessage, 'Invalid card number checksum.');
     });
   });
 
@@ -120,6 +173,28 @@ void main() {
       expect(
         CardValidator.formatNumber('378282246310005'),
         '3782 822463 10005',
+      );
+    });
+
+    test('formats 19-digit cards without truncating digits', () {
+      expect(
+        CardValidator.formatNumber('5018123456789012345'),
+        '5018 1234 5678 9012 345',
+      );
+    });
+
+    test('maskNumber masks digits while preserving brand groupings', () {
+      expect(
+        CardValidator.maskNumber('4111222233334444'),
+        '•••• •••• •••• 4444',
+      );
+      expect(
+        CardValidator.maskNumber('378282246310005'),
+        '•••• •••••• •0005',
+      );
+      expect(
+        CardValidator.maskNumber('378282246310005', visibleEndDigits: 5),
+        '•••• •••••• 10005',
       );
     });
 
@@ -139,6 +214,23 @@ void main() {
       expect(updated.selection.baseOffset, 19);
     });
 
+    test('CardNumberInputFormatter preserves cursor offset during middle edit',
+        () {
+      const formatter = CardNumberInputFormatter();
+      final updated = formatter.formatEditUpdate(
+        const TextEditingValue(
+          text: '4111 2222 3333 4444',
+          selection: TextSelection.collapsed(offset: 7),
+        ),
+        const TextEditingValue(
+          text: '4111 2522 3333 4444',
+          selection: TextSelection.collapsed(offset: 8),
+        ),
+      );
+      expect(updated.text, '4111 2522 3333 4444');
+      expect(updated.selection.baseOffset, 8);
+    });
+
     test('CardExpiryInputFormatter inserts slash and limits to 4 digits', () {
       const formatter = CardExpiryInputFormatter();
       final updated = formatter.formatEditUpdate(
@@ -147,6 +239,19 @@ void main() {
       );
       expect(updated.text, '12/28');
       expect(updated.selection.baseOffset, 5);
+    });
+
+    test('CardExpiryInputFormatter auto-prefixes single digit months 2-9', () {
+      const formatter = CardExpiryInputFormatter();
+      final updated = formatter.formatEditUpdate(
+        TextEditingValue.empty,
+        const TextEditingValue(
+          text: '5',
+          selection: TextSelection.collapsed(offset: 1),
+        ),
+      );
+      expect(updated.text, '05/');
+      expect(updated.selection.baseOffset, 3);
     });
   });
 

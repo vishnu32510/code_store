@@ -1,6 +1,32 @@
 import '../models/card_type.dart';
 import 'card_input_formatters.dart';
 
+/// Comprehensive validation result providing card brand, validity flags, and error message.
+class CardValidationResult {
+  const CardValidationResult({
+    required this.isValid,
+    required this.isPotentiallyValid,
+    required this.cardType,
+    this.errorMessage,
+  });
+
+  /// Whether the card number is fully valid (matches standard brand length and passes Luhn checksum).
+  final bool isValid;
+
+  /// Whether the card number could become valid as further digits are entered.
+  final bool isPotentiallyValid;
+
+  /// The detected card brand.
+  final CardType cardType;
+
+  /// Diagnostic error message if invalid, or `null` if valid.
+  final String? errorMessage;
+
+  @override
+  String toString() =>
+      'CardValidationResult(isValid: $isValid, isPotentiallyValid: $isPotentiallyValid, cardType: $cardType, error: $errorMessage)';
+}
+
 /// Robust validation and regex parsing utility for debit and credit cards.
 class CardValidator {
   CardValidator._();
@@ -41,7 +67,7 @@ class CardValidator {
     return CardType.unknown;
   }
 
-  // MARK: - Luhn Algorithm Validation
+  // MARK: - Luhn Algorithm & Card Number Validation
 
   /// Validates a card number using the ISO/IEC 7812 Luhn checksum algorithm (Mod 10).
   static bool validateLuhn(String cardNumber) {
@@ -69,6 +95,93 @@ class CardValidator {
     return (sum % 10 == 0);
   }
 
+  /// Validates a card number against both length criteria for its brand and the Luhn checksum.
+  static bool validateCardNumber(String cardNumber) {
+    final clean = cardNumber.replaceAll(RegExp(r'\D'), '');
+    if (clean.isEmpty) return false;
+    final type = detectType(clean);
+    if (!type.isValidLength(clean.length)) return false;
+    return validateLuhn(clean);
+  }
+
+  /// Checks whether a partially entered card number is viable as the user types.
+  static bool isPotentiallyValid(String cardNumber) {
+    final clean = cardNumber.replaceAll(RegExp(r'\s+|-'), '');
+    if (clean.isEmpty) return true;
+    if (RegExp(r'\D').hasMatch(clean)) return false;
+
+    final type = detectType(clean);
+    if (clean.length > type.maxLength) return false;
+    if (type.isValidLength(clean.length)) return validateLuhn(clean);
+    return true; // Still typing and within length limits
+  }
+
+  /// Full diagnostic validation returning a detailed [CardValidationResult].
+  static CardValidationResult validate(String cardNumber) {
+    final clean = cardNumber.replaceAll(RegExp(r'\s+|-'), '');
+    if (clean.isEmpty) {
+      return const CardValidationResult(
+        isValid: false,
+        isPotentiallyValid: true,
+        cardType: CardType.unknown,
+        errorMessage: 'Card number is required.',
+      );
+    }
+
+    if (RegExp(r'\D').hasMatch(clean)) {
+      return const CardValidationResult(
+        isValid: false,
+        isPotentiallyValid: false,
+        cardType: CardType.unknown,
+        errorMessage: 'Card number must contain digits only.',
+      );
+    }
+
+    final type = detectType(clean);
+    if (clean.length < type.minLength) {
+      return CardValidationResult(
+        isValid: false,
+        isPotentiallyValid: true,
+        cardType: type,
+        errorMessage: 'Card number is incomplete.',
+      );
+    }
+
+    if (clean.length > type.maxLength) {
+      return CardValidationResult(
+        isValid: false,
+        isPotentiallyValid: false,
+        cardType: type,
+        errorMessage: 'Card number exceeds maximum allowed length.',
+      );
+    }
+
+    if (!type.isValidLength(clean.length)) {
+      return CardValidationResult(
+        isValid: false,
+        isPotentiallyValid: false,
+        cardType: type,
+        errorMessage: 'Invalid card length for ${type.displayName}.',
+      );
+    }
+
+    final luhnOk = validateLuhn(clean);
+    if (!luhnOk) {
+      return CardValidationResult(
+        isValid: false,
+        isPotentiallyValid: false,
+        cardType: type,
+        errorMessage: 'Invalid card number checksum.',
+      );
+    }
+
+    return CardValidationResult(
+      isValid: true,
+      isPotentiallyValid: true,
+      cardType: type,
+    );
+  }
+
   // MARK: - Expiry Date Validation
 
   /// Validates month (1-12) and year against current calendar date.
@@ -89,15 +202,30 @@ class CardValidator {
     return true;
   }
 
+  /// Validates an expiration date string formatted as "MM/YY" or "MM/YYYY".
+  static bool validateExpiryDate(String expiryDate) {
+    if (expiryDate.isEmpty) return false;
+    final clean = expiryDate.replaceAll(RegExp(r'\s+'), '');
+    final parts = clean.split(RegExp(r'[/\-]'));
+    if (parts.length != 2) return false;
+    final month = int.tryParse(parts[0]);
+    final year = int.tryParse(parts[1]);
+    return validateExpiry(month, year);
+  }
+
   // MARK: - CVV Validation
 
   /// Validates CVV digits against the expected length for the card brand.
-  static bool validateCvv(String cvv, CardType type) {
+  /// If [type] is [CardType.unknown], accepts standard 3 or 4 digits.
+  static bool validateCvv(String cvv, [CardType type = CardType.unknown]) {
     final clean = cvv.replaceAll(RegExp(r'\D'), '');
+    if (type == CardType.unknown) {
+      return clean.length == 3 || clean.length == 4;
+    }
     return clean.length == type.cvvLength;
   }
 
-  // MARK: - Card Formatting
+  // MARK: - Card Formatting & Masking
 
   /// Formats raw digits with the appropriate grouping spaces according to the detected brand.
   static String formatNumber(String cardNumber) =>
@@ -105,4 +233,16 @@ class CardValidator {
 
   /// Formats raw digits into "MM/YY".
   static String formatExpiry(String raw) => CardFormatter.formatExpiry(raw);
+
+  /// Formats a card number into a masked presentation (e.g. `•••• •••• •••• 1234`).
+  static String maskNumber(
+    String cardNumber, {
+    int visibleEndDigits = 4,
+    String maskChar = '•',
+  }) =>
+      CardFormatter.maskNumber(
+        cardNumber,
+        visibleEndDigits: visibleEndDigits,
+        maskChar: maskChar,
+      );
 }
