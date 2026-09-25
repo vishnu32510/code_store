@@ -214,16 +214,6 @@ void main() {
       expect(cameraWidget.laserColor, Colors.deepPurpleAccent);
     });
 
-    test('CardCameraScannerView supports custom laserColor and title', () {
-      final scannerView = CardCameraScannerView(
-        laserColor: Colors.orangeAccent,
-        title: 'Custom Scan Title',
-      );
-
-      expect(scannerView.laserColor, Colors.orangeAccent);
-      expect(scannerView.title, 'Custom Scan Title');
-    });
-
     test(
       'EmbeddedCardCamera supports custom guidanceText and guidanceIcon',
       () {
@@ -240,18 +230,6 @@ void main() {
         expect(cameraWidget.showGuidance, isFalse);
       },
     );
-
-    test('CardCameraScannerView supports custom guidance options', () {
-      final scannerView = CardCameraScannerView(
-        guidanceText: 'Position card clearly',
-        guidanceIcon: Icons.center_focus_strong,
-        showGuidance: true,
-      );
-
-      expect(scannerView.guidanceText, 'Position card clearly');
-      expect(scannerView.guidanceIcon, Icons.center_focus_strong);
-      expect(scannerView.showGuidance, isTrue);
-    });
 
     test(
       'CardScannerHeroButton initializes with custom heroTag and properties',
@@ -506,5 +484,104 @@ void main() {
       camera.onNoCamera?.call();
       expect(noCameraCalled, isTrue);
     });
+
+    testWidgets(
+      'CardCameraOverlayScanner.buildHeroFlightShuttle renders custom shuttleIcon',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Builder(
+              builder: (context) {
+                return CardCameraOverlayScanner.buildHeroFlightShuttle(
+                  context,
+                  const AlwaysStoppedAnimation<double>(0.5),
+                  HeroFlightDirection.push,
+                  context,
+                  context,
+                  shuttleIcon: Icons.credit_card_rounded,
+                );
+              },
+            ),
+          ),
+        );
+
+        expect(find.byIcon(Icons.credit_card_rounded), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'CardCameraOverlayScanner.buildHeroFlightShuttle renders custom shuttleChild',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Builder(
+              builder: (context) {
+                return CardCameraOverlayScanner.buildHeroFlightShuttle(
+                  context,
+                  const AlwaysStoppedAnimation<double>(0.5),
+                  HeroFlightDirection.push,
+                  context,
+                  context,
+                  shuttleChild: const Text('Flying Child'),
+                );
+              },
+            ),
+          ),
+        );
+
+        expect(find.text('Flying Child'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'CardScannerHeroButton passes child as shuttleChild by default in flight shuttle',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Builder(
+              builder: (context) {
+                const button = CardScannerHeroButton(
+                  child: Text('My Custom Button'),
+                );
+                final hero = button.build(context) as Hero;
+                return hero.flightShuttleBuilder!(
+                  context,
+                  const AlwaysStoppedAnimation<double>(0.5),
+                  HeroFlightDirection.push,
+                  context,
+                  context,
+                );
+              },
+            ),
+          ),
+        );
+
+        expect(find.text('My Custom Button'), findsOneWidget);
+      },
+    );
+
+    test(
+      'CardScannerHeroButton and CardCameraOverlayView accept shuttleChild and shuttleIcon',
+      () {
+        const customChild = Icon(Icons.flash_on);
+        const button = CardScannerHeroButton(
+          shuttleChild: customChild,
+          shuttleIcon: Icons.flash_on,
+        );
+        expect(button.shuttleChild, equals(customChild));
+        expect(button.shuttleIcon, equals(Icons.flash_on));
+
+        final overlay = CardCameraOverlayView(
+          heroTag: 'test_tag',
+          laserColor: Colors.blue,
+          shuttleChild: customChild,
+          shuttleIcon: Icons.flash_on,
+          onCardDetected: (_) {},
+          onCancel: () {},
+        );
+        expect(overlay.shuttleChild, equals(customChild));
+        expect(overlay.shuttleIcon, equals(Icons.flash_on));
+      },
+    );
   });
 }

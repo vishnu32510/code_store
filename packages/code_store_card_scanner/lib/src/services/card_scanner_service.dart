@@ -29,7 +29,7 @@ class CardScannerService implements ICardScannerService {
       );
     }
     return const CardScanResult.failure(
-      'Live camera scanning is UI-driven via EmbeddedCardCamera or CardCameraScannerView.',
+      'Live camera scanning is UI-driven via EmbeddedCardCamera or CardCameraOverlayScanner.',
     );
   }
 

@@ -4,6 +4,10 @@ import 'package:code_store_card_scanner/code_store_card_scanner.dart';
 import 'package:code_store_core/code_store_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'cubit/card_scanner_cubit.dart';
+import 'cubit/card_scanner_state.dart';
 
 class CardScannerScreen extends StatefulWidget {
   const CardScannerScreen({super.key});
@@ -17,6 +21,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
   static const String _kCameraScannerHeroTag =
       'embedded_card_camera_scanner_hero';
   final ICardScannerService _scannerService = getIt<ICardScannerService>();
+  late final CardScannerCubit _cubit;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   // Text Controllers
@@ -38,16 +43,12 @@ class _CardScannerScreenState extends State<CardScannerScreen>
   late final AnimationController _justScannedController;
   late final Animation<double> _justScannedAnimation;
 
-  // Card State
-  CardType _detectedType = CardType.unknown;
-  bool _isCardFlipped = false;
-  bool _isScanningWithCamera = false;
-  bool _obscureCvv = true;
-  bool _isLuhnValid = false;
+  final ValueNotifier<bool> _obscureCvv = ValueNotifier<bool>(true);
 
   @override
   void initState() {
     super.initState();
+    _cubit = CardScannerCubit(scannerService: _scannerService);
 
     // 1. Smooth 3D Card Flip Animation (450ms cubic ease)
     _flipController = AnimationController(
@@ -70,21 +71,32 @@ class _CardScannerScreenState extends State<CardScannerScreen>
 
     // Auto flip card to back when CVV field is focused
     _cvvFocus.addListener(() {
-      if (_cvvFocus.hasFocus && !_isCardFlipped) {
+      if (_cvvFocus.hasFocus && !_cubit.state.isCardFlipped) {
         _flipCard(showBack: true);
-      } else if (!_cvvFocus.hasFocus && _isCardFlipped) {
+      } else if (!_cvvFocus.hasFocus && _cubit.state.isCardFlipped) {
         _flipCard(showBack: false);
       }
     });
 
-    _cardNumberController.addListener(_onCardNumberChanged);
+    _cardNumberController.addListener(() {
+      _cubit.updateCardNumber(_cardNumberController.text);
+    });
+    _cardHolderController.addListener(() {
+      _cubit.updateCardHolder(_cardHolderController.text);
+    });
+    _expiryController.addListener(() {
+      _cubit.updateExpiry(_expiryController.text);
+    });
+    _cvvController.addListener(() {
+      _cubit.updateCvv(_cvvController.text);
+    });
   }
 
   @override
   void dispose() {
+    _cubit.close();
     _flipController.dispose();
     _justScannedController.dispose();
-    _cardNumberController.removeListener(_onCardNumberChanged);
     _cardNumberController.dispose();
     _cardHolderController.dispose();
     _expiryController.dispose();
@@ -93,69 +105,22 @@ class _CardScannerScreenState extends State<CardScannerScreen>
     _cardHolderFocus.dispose();
     _expiryFocus.dispose();
     _cvvFocus.dispose();
+    _obscureCvv.dispose();
     super.dispose();
   }
 
-  void _onCardNumberChanged() {
-    final rawNumber = _cardNumberController.text;
-    final cleanDigits = rawNumber.replaceAll(RegExp(r'\D'), '');
-    final detected = CardValidator.detectType(cleanDigits);
-    final isValid =
-        cleanDigits.length >= 13 && CardValidator.validateLuhn(cleanDigits);
-
-    if (detected != _detectedType || isValid != _isLuhnValid) {
-      setState(() {
-        _detectedType = detected;
-        _isLuhnValid = isValid;
-      });
-    }
-  }
-
   void _flipCard({bool? showBack}) {
-    final target = showBack ?? !_isCardFlipped;
+    final target = showBack ?? !_cubit.state.isCardFlipped;
     if (target) {
       _flipController.forward();
     } else {
       _flipController.reverse();
     }
-    setState(() => _isCardFlipped = target);
+    _cubit.setCardFlipped(target);
   }
 
   void _applyScannedDetails(CardDetails details) {
-    setState(() {
-      _isScanningWithCamera = false;
-      _cardNumberController.text = details.formattedNumber;
-      _detectedType = details.cardType;
-      if (details.cardHolderName.isNotEmpty) {
-        _cardHolderController.text = details.cardHolderName;
-      }
-      if (details.formattedExpiry.isNotEmpty) {
-        _expiryController.text = details.formattedExpiry;
-      }
-      if (details.cvv.isNotEmpty) {
-        _cvvController.text = details.cvv;
-      }
-    });
-
-    _justScannedController.forward(from: 0);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.check_circle_rounded, color: Colors.white),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                'Card details extracted successfully (${details.cardType.displayName})',
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: Colors.green.shade700,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    _cubit.applyScannedDetails(details);
   }
 
   Future<void> _startScan() async {
@@ -171,7 +136,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
     }
 
     // 2. Real Camera Scanner (Embedded In-Place in Credit Card Viewfinder)
-    setState(() => _isScanningWithCamera = true);
+    _cubit.startCameraScan();
   }
 
   void _applyPresetCard({
@@ -180,37 +145,24 @@ class _CardScannerScreenState extends State<CardScannerScreen>
     required String expiry,
     required String cvv,
   }) {
-    setState(() {
-      _isScanningWithCamera = false;
-      _cardNumberController.text = number;
-      _cardHolderController.text = holder;
-      _expiryController.text = expiry;
-      _cvvController.text = cvv;
-      _detectedType = CardValidator.detectType(number);
-      _isLuhnValid = CardValidator.validateLuhn(number);
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Filled preset: ${_detectedType.displayName}'),
-        duration: const Duration(seconds: 1),
-        behavior: SnackBarBehavior.floating,
-      ),
+    _cubit.applyPreset(
+      number: number,
+      holder: holder,
+      expiry: expiry,
+      cvv: cvv,
     );
   }
 
   void _clearForm() {
     _formKey.currentState?.reset();
-    setState(() {
-      _cardNumberController.clear();
-      _cardHolderController.clear();
-      _expiryController.clear();
-      _cvvController.clear();
-      _detectedType = CardType.unknown;
-      _isLuhnValid = false;
-      _isScanningWithCamera = false;
-      if (_isCardFlipped) _flipCard(showBack: false);
-    });
+    _cardNumberController.clear();
+    _cardHolderController.clear();
+    _expiryController.clear();
+    _cvvController.clear();
+    if (_cubit.state.isCardFlipped) {
+      _flipCard(showBack: false);
+    }
+    _cubit.clearForm();
   }
 
   Widget _buildSafeContextMenu(
@@ -241,7 +193,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
       expiryYear: year,
       cardHolderName: _cardHolderController.text.trim(),
       cvv: _cvvController.text.trim(),
-      cardType: _detectedType,
+      cardType: _cubit.state.detectedType,
     );
 
     // Commit OS Autofill context so iOS Keychain or Android Google Autofill can save/update the card
@@ -370,148 +322,231 @@ class _CardScannerScreenState extends State<CardScannerScreen>
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Card Scanner & Details'),
-        actions: [
-          IconButton(
-            tooltip: 'Clear form',
-            icon: const Icon(Icons.refresh_rounded),
-            onPressed: _clearForm,
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // 1. Compact, Small-Sized Interactive 3D Card Preview with Scanning Effects
-              Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    maxWidth: 330,
-                    maxHeight: 184,
-                  ),
-                  child: RepaintBoundary(
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 350),
-                      switchInCurve: Curves.easeOutCubic,
-                      switchOutCurve: Curves.easeInCubic,
-                      child: _isScanningWithCamera
-                          ? _buildEmbeddedVisionCamera()
-                          : GestureDetector(
-                              key: const ValueKey('interactive_card_3d'),
-                              onTap: () => _flipCard(),
-                              child: RepaintBoundary(
-                                child: AnimatedBuilder(
-                                  animation: _flipAnimation,
-                                  builder: (context, child) {
-                                    final angle =
-                                        _flipAnimation.value * math.pi;
-                                    final isUnder = _flipAnimation.value > 0.5;
-                                    // Realistic 3D scale compression during rotation
-                                    final scale =
-                                        1.0 -
-                                        math.sin(
-                                              _flipAnimation.value * math.pi,
-                                            ) *
-                                            0.08;
+    return BlocProvider.value(
+      value: _cubit,
+      child: BlocListener<CardScannerCubit, CardScannerState>(
+        listener: (context, state) {
+          if (_cardNumberController.text != state.cardNumber) {
+            _cardNumberController.text = state.cardNumber;
+          }
+          if (state.cardHolder.isNotEmpty &&
+              _cardHolderController.text != state.cardHolder) {
+            _cardHolderController.text = state.cardHolder;
+          }
+          if (state.expiry.isNotEmpty &&
+              _expiryController.text != state.expiry) {
+            _expiryController.text = state.expiry;
+          }
+          if (state.cvv.isNotEmpty && _cvvController.text != state.cvv) {
+            _cvvController.text = state.cvv;
+          }
 
-                                    return Transform(
-                                      transform: Matrix4.identity()
-                                        ..setEntry(3, 2, 0.0014)
-                                        ..scaleByDouble(scale, scale, 1.0, 1.0)
-                                        ..rotateY(angle),
-                                      alignment: Alignment.center,
-                                      child: isUnder
-                                          ? Transform(
-                                              transform: Matrix4.identity()
-                                                ..rotateY(math.pi),
-                                              alignment: Alignment.center,
-                                              child: _buildCardBack(context),
-                                            )
-                                          : _buildCardFront(context),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 6),
-
-              // Flip Helper Hint
-              Center(
-                child: Text(
-                  _isScanningWithCamera
-                      ? 'Camera live viewfinder active • Align card inside'
-                      : _isCardFlipped
-                      ? 'Tap card to view front'
-                      : 'Tap card to view back & CVV',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colors.onSurfaceVariant.withValues(alpha: 0.75),
-                    fontStyle: FontStyle.italic,
-                    fontSize: 11.5,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 14),
-
-              // 2. Scan Card Action Button with Micro-Animation
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [colors.primary, colors.tertiary],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(
-                      color: colors.primary.withValues(alpha: 0.28),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
+          if (state.lastScannedMessage != null) {
+            _justScannedController.forward(from: 0);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    const Icon(Icons.check_circle_rounded, color: Colors.white),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(state.lastScannedMessage!),
                     ),
                   ],
                 ),
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    if (_isScanningWithCamera) {
-                      setState(() => _isScanningWithCamera = false);
-                    } else {
-                      _startScan();
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    foregroundColor: colors.onPrimary,
-                    padding: const EdgeInsets.symmetric(vertical: 13),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                  icon: _isScanningWithCamera
-                      ? const Icon(Icons.close_rounded, size: 20)
-                      : const Icon(Icons.document_scanner_rounded, size: 20),
-                  label: Text(
-                    _isScanningWithCamera
-                        ? 'Stop Camera Scanner'
-                        : 'Scan Debit / Credit Card',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                      letterSpacing: 0.3,
-                    ),
-                  ),
-                ),
+                backgroundColor: Colors.green.shade700,
+                behavior: SnackBarBehavior.floating,
               ),
+            );
+          }
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text('Card Scanner & Details'),
+            actions: [
+              IconButton(
+                tooltip: 'Clear form',
+                icon: const Icon(Icons.refresh_rounded),
+                onPressed: _clearForm,
+              ),
+            ],
+          ),
+          body: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // 1. Compact, Small-Sized Interactive 3D Card Preview with Scanning Effects
+                  Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        maxWidth: 330,
+                        maxHeight: 184,
+                      ),
+                      child: RepaintBoundary(
+                        child: BlocBuilder<CardScannerCubit, CardScannerState>(
+                          buildWhen: (prev, curr) =>
+                              prev.cardNumber != curr.cardNumber ||
+                              prev.cardHolder != curr.cardHolder ||
+                              prev.expiry != curr.expiry ||
+                              prev.cvv != curr.cvv ||
+                              prev.detectedType != curr.detectedType ||
+                              prev.isScanningWithCamera !=
+                                  curr.isScanningWithCamera,
+                          builder: (context, state) {
+                            return AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 350),
+                              switchInCurve: Curves.easeOutCubic,
+                              switchOutCurve: Curves.easeInCubic,
+                              child: state.isScanningWithCamera
+                                  ? _buildEmbeddedVisionCamera()
+                                  : GestureDetector(
+                                      key: const ValueKey('interactive_card_3d'),
+                                      onTap: () => _flipCard(),
+                                      child: RepaintBoundary(
+                                        child: AnimatedBuilder(
+                                          animation: _flipAnimation,
+                                          builder: (context, child) {
+                                            final angle =
+                                                _flipAnimation.value * math.pi;
+                                            final isUnder =
+                                                _flipAnimation.value > 0.5;
+                                            // Realistic 3D scale compression during rotation
+                                            final scale =
+                                                1.0 -
+                                                math.sin(
+                                                      _flipAnimation.value *
+                                                          math.pi,
+                                                    ) *
+                                                    0.08;
+
+                                            return Transform(
+                                              transform: Matrix4.identity()
+                                                ..setEntry(3, 2, 0.0014)
+                                                ..scaleByDouble(
+                                                  scale,
+                                                  scale,
+                                                  1.0,
+                                                  1.0,
+                                                )
+                                                ..rotateY(angle),
+                                              alignment: Alignment.center,
+                                              child: isUnder
+                                                  ? Transform(
+                                                      transform:
+                                                          Matrix4.identity()
+                                                            ..rotateY(math.pi),
+                                                      alignment:
+                                                          Alignment.center,
+                                                      child: _buildCardBack(
+                                                        context,
+                                                        state,
+                                                      ),
+                                                    )
+                                                  : _buildCardFront(
+                                                      context,
+                                                      state,
+                                                    ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 6),
+
+                  // Flip Helper Hint
+                  Center(
+                    child: BlocBuilder<CardScannerCubit, CardScannerState>(
+                      buildWhen: (p, c) =>
+                          p.isScanningWithCamera != c.isScanningWithCamera ||
+                          p.isCardFlipped != c.isCardFlipped,
+                      builder: (context, state) {
+                        return Text(
+                          state.isScanningWithCamera
+                              ? 'Camera live viewfinder active • Align card inside'
+                              : state.isCardFlipped
+                              ? 'Tap card to view front'
+                              : 'Tap card to view back & CVV',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color:
+                                colors.onSurfaceVariant.withValues(alpha: 0.75),
+                            fontStyle: FontStyle.italic,
+                            fontSize: 11.5,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  // 2. Scan Card Action Button with Micro-Animation
+                  BlocBuilder<CardScannerCubit, CardScannerState>(
+                    buildWhen: (p, c) =>
+                        p.isScanningWithCamera != c.isScanningWithCamera ||
+                        p.isScanning != c.isScanning,
+                    builder: (context, state) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [colors.primary, colors.tertiary],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(
+                              color: colors.primary.withValues(alpha: 0.28),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            if (state.isScanningWithCamera) {
+                              _cubit.stopCameraScan();
+                            } else {
+                              _startScan();
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            foregroundColor: colors.onPrimary,
+                            padding: const EdgeInsets.symmetric(vertical: 13),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          icon: state.isScanningWithCamera
+                              ? const Icon(Icons.close_rounded, size: 20)
+                              : const Icon(
+                                  Icons.document_scanner_rounded,
+                                  size: 20,
+                                ),
+                          label: Text(
+                            state.isScanningWithCamera
+                                ? 'Stop Camera Scanner'
+                                : 'Scan Debit / Credit Card',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
 
               const SizedBox(height: 14),
 
@@ -565,111 +600,126 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                               },
                             ),
                             const Spacer(),
-                            AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 250),
-                              child: _isLuhnValid
-                                  ? Container(
-                                      key: const ValueKey('valid_badge'),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 2.5,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.green.withValues(
-                                          alpha: 0.15,
-                                        ),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: const Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            Icons.check_circle_rounded,
-                                            size: 13,
-                                            color: Colors.green,
+                            BlocSelector<CardScannerCubit, CardScannerState, bool>(
+                              selector: (state) => state.isLuhnValid,
+                              builder: (context, isLuhnValid) {
+                                return AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 250),
+                                  child: isLuhnValid
+                                      ? Container(
+                                          key: const ValueKey('valid_badge'),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 2.5,
                                           ),
-                                          SizedBox(width: 4),
-                                          Text(
-                                            'Valid Checksum',
-                                            style: TextStyle(
-                                              color: Colors.green,
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.bold,
+                                          decoration: BoxDecoration(
+                                            color: Colors.green.withValues(
+                                              alpha: 0.15,
                                             ),
+                                            borderRadius:
+                                                BorderRadius.circular(10),
                                           ),
-                                        ],
-                                      ),
-                                    )
-                                  : const SizedBox.shrink(
-                                      key: ValueKey('empty_badge'),
-                                    ),
+                                          child: const Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.check_circle_rounded,
+                                                size: 13,
+                                                color: Colors.green,
+                                              ),
+                                              SizedBox(width: 4),
+                                              Text(
+                                                'Valid Checksum',
+                                                style: TextStyle(
+                                                  color: Colors.green,
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      : const SizedBox.shrink(
+                                          key: ValueKey('empty_badge'),
+                                        ),
+                                );
+                              },
                             ),
                           ],
                         ),
                         const SizedBox(height: 14),
 
                         // Card Number Field with Real-time Regex Brand Detection and Postfix Icon!
-                        TextFormField(
-                          controller: _cardNumberController,
-                          focusNode: _cardNumberFocus,
-                          keyboardType: TextInputType.number,
-                          textInputAction: TextInputAction.next,
-                          autofillHints: const [AutofillHints.creditCardNumber],
-                          contextMenuBuilder: _buildSafeContextMenu,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(19),
-                            _CardNumberFormatter(),
-                          ],
-                          decoration: InputDecoration(
-                            labelText: 'Card Number',
-                            hintText: '•••• •••• •••• ••••',
-                            prefixIcon: const Icon(Icons.pin_rounded),
-                            // Postfix icon showing real-time detected card brand!
-                            suffixIcon: Padding(
-                              padding: const EdgeInsets.only(right: 10),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  if (_isLuhnValid)
-                                    const Padding(
-                                      padding: EdgeInsets.only(right: 6),
-                                      child: Icon(
-                                        Icons.check_circle_rounded,
-                                        color: Colors.green,
-                                        size: 18,
+                        BlocBuilder<CardScannerCubit, CardScannerState>(
+                          buildWhen: (p, c) =>
+                              p.detectedType != c.detectedType ||
+                              p.isLuhnValid != c.isLuhnValid,
+                          builder: (context, state) {
+                            return TextFormField(
+                              controller: _cardNumberController,
+                              focusNode: _cardNumberFocus,
+                              keyboardType: TextInputType.number,
+                              textInputAction: TextInputAction.next,
+                              autofillHints: const [
+                                AutofillHints.creditCardNumber,
+                              ],
+                              contextMenuBuilder: _buildSafeContextMenu,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                                LengthLimitingTextInputFormatter(19),
+                                _CardNumberFormatter(),
+                              ],
+                              decoration: InputDecoration(
+                                labelText: 'Card Number',
+                                hintText: '•••• •••• •••• ••••',
+                                prefixIcon: const Icon(Icons.pin_rounded),
+                                suffixIcon: Padding(
+                                  padding: const EdgeInsets.only(right: 10),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (state.isLuhnValid)
+                                        const Padding(
+                                          padding: EdgeInsets.only(right: 6),
+                                          child: Icon(
+                                            Icons.check_circle_rounded,
+                                            color: Colors.green,
+                                            size: 18,
+                                          ),
+                                        ),
+                                      CardBrandIcon(
+                                        cardType: state.detectedType,
+                                        width: 40,
+                                        height: 26,
                                       ),
-                                    ),
-                                  CardBrandIcon(
-                                    cardType: _detectedType,
-                                    width: 40,
-                                    height: 26,
+                                    ],
                                   ),
-                                ],
+                                ),
+                                helperText: state.detectedType !=
+                                        CardType.unknown
+                                    ? 'Detected: ${state.detectedType.displayName}'
+                                    : 'Supports Visa, Mastercard, Amex, Discover, etc.',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                               ),
-                            ),
-                            helperText: _detectedType != CardType.unknown
-                                ? 'Detected: ${_detectedType.displayName}'
-                                : 'Supports Visa, Mastercard, Amex, Discover, etc.',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          validator: (value) {
-                            final clean = (value ?? '').replaceAll(
-                              RegExp(r'\D'),
-                              '',
+                              validator: (value) {
+                                final clean = (value ?? '').replaceAll(
+                                  RegExp(r'\D'),
+                                  '',
+                                );
+                                if (clean.isEmpty) {
+                                  return 'Please enter a card number';
+                                }
+                                if (clean.length < 13) {
+                                  return 'Card number is too short';
+                                }
+                                if (!CardValidator.validateLuhn(clean)) {
+                                  return 'Invalid card number checksum (Luhn check)';
+                                }
+                                return null;
+                              },
                             );
-                            if (clean.isEmpty) {
-                              return 'Please enter a card number';
-                            }
-                            if (clean.length < 13) {
-                              return 'Card number is too short';
-                            }
-                            if (!CardValidator.validateLuhn(clean)) {
-                              return 'Invalid card number checksum (Luhn check)';
-                            }
-                            return null;
                           },
                         ),
 
@@ -696,7 +746,6 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          onChanged: (_) => setState(() {}),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
                               return 'Please enter the cardholder name';
@@ -738,7 +787,6 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                onChanged: (_) => setState(() {}),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return 'Enter MM/YY';
@@ -763,59 +811,73 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                             // CVV Field
                             Expanded(
                               flex: 2,
-                              child: TextFormField(
-                                controller: _cvvController,
-                                focusNode: _cvvFocus,
-                                keyboardType: TextInputType.number,
-                                obscureText: _obscureCvv,
-                                textInputAction: TextInputAction.done,
-                                autofillHints: const [
-                                  AutofillHints.creditCardSecurityCode,
-                                ],
-                                contextMenuBuilder: _buildSafeContextMenu,
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.digitsOnly,
-                                  LengthLimitingTextInputFormatter(
-                                    _detectedType.cvvLength,
-                                  ),
-                                ],
-                                decoration: InputDecoration(
-                                  labelText: 'CVV',
-                                  hintText: _detectedType.cvvLength == 4
-                                      ? '1234'
-                                      : '123',
-                                  prefixIcon: const Icon(
-                                    Icons.lock_outline_rounded,
-                                  ),
-                                  suffixIcon: IconButton(
-                                    icon: Icon(
-                                      _obscureCvv
-                                          ? Icons.visibility_off_outlined
-                                          : Icons.visibility_outlined,
-                                      size: 18,
-                                    ),
-                                    onPressed: () {
-                                      setState(
-                                        () => _obscureCvv = !_obscureCvv,
+                              child: BlocSelector<CardScannerCubit,
+                                  CardScannerState, CardType>(
+                                selector: (state) => state.detectedType,
+                                builder: (context, detectedType) {
+                                  return ValueListenableBuilder<bool>(
+                                    valueListenable: _obscureCvv,
+                                    builder: (context, obscureCvv, _) {
+                                      return TextFormField(
+                                        controller: _cvvController,
+                                        focusNode: _cvvFocus,
+                                        keyboardType: TextInputType.number,
+                                        obscureText: obscureCvv,
+                                        textInputAction: TextInputAction.done,
+                                        autofillHints: const [
+                                          AutofillHints.creditCardSecurityCode,
+                                        ],
+                                        contextMenuBuilder:
+                                            _buildSafeContextMenu,
+                                        inputFormatters: [
+                                          FilteringTextInputFormatter
+                                              .digitsOnly,
+                                          LengthLimitingTextInputFormatter(
+                                            detectedType.cvvLength,
+                                          ),
+                                        ],
+                                        decoration: InputDecoration(
+                                          labelText: 'CVV',
+                                          hintText:
+                                              detectedType.cvvLength == 4
+                                                  ? '1234'
+                                                  : '123',
+                                          prefixIcon: const Icon(
+                                            Icons.lock_outline_rounded,
+                                          ),
+                                          suffixIcon: IconButton(
+                                            icon: Icon(
+                                              obscureCvv
+                                                  ? Icons
+                                                      .visibility_off_outlined
+                                                  : Icons.visibility_outlined,
+                                              size: 18,
+                                            ),
+                                            onPressed: () {
+                                              _obscureCvv.value =
+                                                  !_obscureCvv.value;
+                                            },
+                                          ),
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                        ),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return 'Required';
+                                          }
+                                          if (!CardValidator.validateCvv(
+                                            value,
+                                            detectedType,
+                                          )) {
+                                            return '${detectedType.cvvLength} digits';
+                                          }
+                                          return null;
+                                        },
                                       );
                                     },
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                onChanged: (_) => setState(() {}),
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Required';
-                                  }
-                                  if (!CardValidator.validateCvv(
-                                    value,
-                                    _detectedType,
-                                  )) {
-                                    return '${_detectedType.cvvLength} digits';
-                                  }
-                                  return null;
+                                  );
                                 },
                               ),
                             ),
@@ -857,21 +919,21 @@ class _CardScannerScreenState extends State<CardScannerScreen>
           ),
         ),
       ),
+        ),
+      ),
     );
   }
 
   // MARK: - Card Front View (Compact & Clean)
-  Widget _buildCardFront(BuildContext context) {
-    final gradientColors = _detectedType.gradientColors;
-    final formattedNumber = _cardNumberController.text.isEmpty
+  Widget _buildCardFront(BuildContext context, CardScannerState state) {
+    final gradientColors = state.detectedType.gradientColors;
+    final formattedNumber = state.cardNumber.isEmpty
         ? '•••• •••• •••• ••••'
-        : _cardNumberController.text;
-    final cardHolder = _cardHolderController.text.isEmpty
+        : state.cardNumber;
+    final cardHolder = state.cardHolder.isEmpty
         ? 'CARDHOLDER NAME'
-        : _cardHolderController.text.toUpperCase();
-    final expiry = _expiryController.text.isEmpty
-        ? 'MM/YY'
-        : _expiryController.text;
+        : state.cardHolder.toUpperCase();
+    final expiry = state.expiry.isEmpty ? 'MM/YY' : state.expiry;
 
     return AnimatedBuilder(
       animation: _justScannedController,
@@ -959,7 +1021,11 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                   ),
                   const Spacer(),
                   // Detected Brand Badge
-                  CardBrandIcon(cardType: _detectedType, width: 46, height: 28),
+                  CardBrandIcon(
+                    cardType: state.detectedType,
+                    width: 46,
+                    height: 28,
+                  ),
                 ],
               ),
 
@@ -1064,108 +1130,120 @@ class _CardScannerScreenState extends State<CardScannerScreen>
   }
 
   // MARK: - Card Back View (Compact & Clean)
-  Widget _buildCardBack(BuildContext context) {
-    final gradientColors = _detectedType.gradientColors;
-    final cvvText = _cvvController.text.isEmpty
-        ? '•••'
-        : _obscureCvv
-        ? '•' * _cvvController.text.length
-        : _cvvController.text;
+  Widget _buildCardBack(BuildContext context, CardScannerState state) {
+    final gradientColors = state.detectedType.gradientColors;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 400),
-      curve: Curves.easeInOutCubic,
-      height: 180,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: gradientColors,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: gradientColors.first.withValues(alpha: 0.38),
-            blurRadius: 14,
-            offset: const Offset(0, 6),
+    return ValueListenableBuilder<bool>(
+      valueListenable: _obscureCvv,
+      builder: (context, obscureCvv, _) {
+        final cvvText = state.cvv.isEmpty
+            ? '•••'
+            : obscureCvv
+            ? '•' * state.cvv.length
+            : state.cvv;
+
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOutCubic,
+          height: 180,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: gradientColors,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: gradientColors.first.withValues(alpha: 0.38),
+                blurRadius: 14,
+                offset: const Offset(0, 6),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 18),
-          // Magnetic Stripe
-          Container(
-            height: 38,
-            width: double.infinity,
-            color: const Color(0xFF161616),
-          ),
-          const SizedBox(height: 14),
-          // Signature Bar & CVV
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 32,
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    color: Colors.white,
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      _cardHolderController.text.toUpperCase(),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.black87,
-                        fontStyle: FontStyle.italic,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 10.5,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 18),
+              // Magnetic Stripe
+              Container(
+                height: 38,
+                width: double.infinity,
+                color: const Color(0xFF161616),
+              ),
+              const SizedBox(height: 14),
+              // Signature Bar & CVV
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 32,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        color: Colors.white,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          state.cardHolder.isEmpty
+                              ? 'CARDHOLDER'
+                              : state.cardHolder.toUpperCase(),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.black87,
+                            fontStyle: FontStyle.italic,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 10.5,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-                Container(
-                  height: 32,
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  color: Colors.amber.shade100,
-                  alignment: Alignment.center,
-                  child: Text(
-                    cvvText,
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontFamily: 'monospace',
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                      letterSpacing: 2,
+                    Container(
+                      height: 32,
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      color: Colors.amber.shade100,
+                      alignment: Alignment.center,
+                      child: Text(
+                        cvvText,
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontFamily: 'monospace',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          letterSpacing: 2,
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-          const Spacer(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Expanded(
-                  child: Text(
-                    'Authorized Signature • Not Transferable',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: Colors.white70, fontSize: 8),
-                  ),
+              ),
+              const Spacer(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Expanded(
+                      child: Text(
+                        'Authorized Signature • Not Transferable',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: Colors.white70, fontSize: 8),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    CardBrandIcon(
+                      cardType: state.detectedType,
+                      width: 36,
+                      height: 22,
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 8),
-                CardBrandIcon(cardType: _detectedType, width: 36, height: 22),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -1264,7 +1342,7 @@ class _CardScannerScreenState extends State<CardScannerScreen>
         _applyScannedDetails(scannedDetails);
       },
       onCancel: () {
-        setState(() => _isScanningWithCamera = false);
+        _cubit.stopCameraScan();
       },
       onNoCamera: () {
         getIt<IToastService>().showError(

@@ -77,8 +77,14 @@ class EmbeddedCardCamera extends StatefulWidget {
 class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
     with TickerProviderStateMixin, WidgetsBindingObserver {
   CameraController? _cameraController;
-  final _appleVision = apple.AppleVisionRecognizeTextController();
-  final _mlTextRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
+  apple.AppleVisionRecognizeTextController? _appleVision;
+  TextRecognizer? _mlTextRecognizer;
+
+  apple.AppleVisionRecognizeTextController get _appleVisionController =>
+      _appleVision ??= apple.AppleVisionRecognizeTextController();
+
+  TextRecognizer get _textRecognizer =>
+      _mlTextRecognizer ??= TextRecognizer(script: TextRecognitionScript.latin);
 
   late final AnimationController _laserController;
   late final Animation<double> _laserAnimation;
@@ -175,7 +181,7 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
     _successController.dispose();
     _cameraController?.dispose();
     _cameraController = null;
-    _mlTextRecognizer.close();
+    _mlTextRecognizer?.close();
     super.dispose();
   }
 
@@ -243,14 +249,6 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
       _isInitializing = true;
     });
 
-    if (kIsWeb) {
-      if (mounted) {
-        setState(() => _isInitializing = false);
-        widget.onNoCamera?.call();
-      }
-      return;
-    }
-
     try {
       final cameras = await availableCameras();
       if (cameras.isEmpty) {
@@ -273,7 +271,7 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
         selectedCamera,
         ResolutionPreset.high,
         enableAudio: false,
-        imageFormatGroup: Platform.isAndroid
+        imageFormatGroup: !kIsWeb && Platform.isAndroid
             ? ImageFormatGroup.nv21
             : ImageFormatGroup.bgra8888,
       );
@@ -285,14 +283,16 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
 
       setState(() => _isInitializing = false);
 
-      try {
-        await controller.startImageStream((CameraImage image) {
-          _processCameraImage(image, selectedCamera);
-        });
-      } catch (streamError) {
-        debugPrint(
-          'EmbeddedCardCamera: startImageStream not supported: $streamError',
-        );
+      if (!kIsWeb) {
+        try {
+          await controller.startImageStream((CameraImage image) {
+            _processCameraImage(image, selectedCamera);
+          });
+        } catch (streamError) {
+          debugPrint(
+            'EmbeddedCardCamera: startImageStream not supported: $streamError',
+          );
+        }
       }
     } catch (e) {
       debugPrint('EmbeddedCardCamera: initialization error: $e');
@@ -355,7 +355,7 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
             break;
         }
 
-        final results = await _appleVision.processImage(
+        final results = await _appleVisionController.processImage(
           apple.RecognizeTextData(
             automaticallyDetectsLanguage: false,
             languages: [const Locale('en', 'US')],
@@ -384,7 +384,7 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
           ),
         );
 
-        final textR = await _mlTextRecognizer.processImage(inputImage);
+        final textR = await _textRecognizer.processImage(inputImage);
         for (final block in textR.blocks) {
           for (final line in block.lines) {
             if (line.text.trim().isNotEmpty) rawLines.add(line.text.trim());
@@ -525,42 +525,43 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
                         child: IgnorePointer(
                           child: AnimatedBuilder(
                             animation: _laserAnimation,
-                            builder: (context, _) {
+                            builder: (context, child) {
                               return Align(
                                 alignment: Alignment(
                                   0,
                                   (_laserAnimation.value * 2) - 1,
                                 ),
-                                child: Container(
-                                  height: 3,
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        effectiveLaserColor.withValues(
-                                          alpha: 0.1,
-                                        ),
-                                        effectiveLaserColor,
-                                        Colors.white,
-                                        effectiveLaserColor,
-                                        effectiveLaserColor.withValues(
-                                          alpha: 0.1,
-                                        ),
-                                      ],
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: effectiveLaserColor.withValues(
-                                          alpha: 0.9,
-                                        ),
-                                        blurRadius: 8,
-                                        spreadRadius: 2,
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                                child: child,
                               );
                             },
+                            child: Container(
+                              height: 3,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    effectiveLaserColor.withValues(
+                                      alpha: 0.1,
+                                    ),
+                                    effectiveLaserColor,
+                                    Colors.white,
+                                    effectiveLaserColor,
+                                    effectiveLaserColor.withValues(
+                                      alpha: 0.1,
+                                    ),
+                                  ],
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: effectiveLaserColor.withValues(
+                                      alpha: 0.9,
+                                    ),
+                                    blurRadius: 8,
+                                    spreadRadius: 2,
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                       ),

@@ -34,6 +34,8 @@ class CardCameraOverlayScanner {
     Duration reverseTransitionDuration = const Duration(milliseconds: 320),
     ICardScannerService? scannerService,
     HeroFlightShuttleBuilder? flightShuttleBuilder,
+    Widget? shuttleChild,
+    IconData? shuttleIcon,
     ValueChanged<String>? onError,
   }) {
     FocusScope.of(context).unfocus();
@@ -63,8 +65,9 @@ class CardCameraOverlayScanner {
             detectionDelay: detectionDelay,
             scannerService: scannerService,
             onError: onError,
-            flightShuttleBuilder:
-                flightShuttleBuilder ?? buildHeroFlightShuttle,
+            flightShuttleBuilder: flightShuttleBuilder,
+            shuttleChild: shuttleChild,
+            shuttleIcon: shuttleIcon,
             onCardDetected: (details) {
               Navigator.of(overlayContext).pop(details);
             },
@@ -79,13 +82,18 @@ class CardCameraOverlayScanner {
 
   /// Default morphing flight shuttle builder between source button and camera card.
   /// Smoothly animates colors, elevation, border radius, and icon size.
+  ///
+  /// Optionally accepts [shuttleChild] or [shuttleIcon] to customize the widget/icon
+  /// flying mid-air (defaults to [Icons.camera_alt_rounded]).
   static Widget buildHeroFlightShuttle(
     BuildContext flightContext,
     Animation<double> animation,
     HeroFlightDirection flightDirection,
     BuildContext fromHeroContext,
-    BuildContext toHeroContext,
-  ) {
+    BuildContext toHeroContext, {
+    Widget? shuttleChild,
+    IconData? shuttleIcon,
+  }) {
     final isPush = flightDirection == HeroFlightDirection.push;
     final primaryColor = Theme.of(flightContext).colorScheme.primary;
     final containerColor = Theme.of(flightContext).colorScheme.primaryContainer;
@@ -95,6 +103,35 @@ class CardCameraOverlayScanner {
       builder: (context, child) {
         final progress = isPush ? animation.value : (1.0 - animation.value);
         final curvedProgress = Curves.easeInOutCubic.transform(progress);
+        final iconColor = Color.lerp(
+          Theme.of(flightContext).colorScheme.onPrimaryContainer,
+          primaryColor,
+          curvedProgress,
+        )!;
+
+        final Widget innerWidget;
+        if (shuttleChild != null) {
+          innerWidget = Center(
+            child: IconTheme.merge(
+              data: IconThemeData(
+                size: 20.0 + (12.0 * curvedProgress),
+                color: iconColor,
+              ),
+              child: Transform.scale(
+                scale: 1.0 + (0.2 * curvedProgress),
+                child: shuttleChild,
+              ),
+            ),
+          );
+        } else {
+          innerWidget = Center(
+            child: Icon(
+              shuttleIcon ?? Icons.camera_alt_rounded,
+              size: 16.0 + (16.0 * curvedProgress),
+              color: iconColor,
+            ),
+          );
+        }
 
         return Material(
           color: Color.lerp(containerColor, Colors.black, curvedProgress)!,
@@ -102,152 +139,30 @@ class CardCameraOverlayScanner {
           elevation: 2.0 + (18.0 * curvedProgress),
           shadowColor: Colors.black.withValues(alpha: 0.6),
           clipBehavior: Clip.antiAlias,
-          child: Center(
-            child: Icon(
-              Icons.camera_alt_rounded,
-              size: 16.0 + (16.0 * curvedProgress),
-              color: Color.lerp(
-                Theme.of(flightContext).colorScheme.onPrimaryContainer,
-                primaryColor,
-                curvedProgress,
-              )!,
-            ),
-          ),
+          child: innerWidget,
         );
       },
     );
   }
-}
 
-/// A compact, Hero-animated camera button that triggers [CardCameraOverlayScanner].
-class CardScannerHeroButton extends StatelessWidget {
-  /// Hero tag linking this button to the overlay viewfinder.
-  final Object heroTag;
-
-  /// Callback fired when card details are scanned and Luhn-verified.
-  final ValueChanged<CardDetails>? onCardDetected;
-
-  /// Laser and viewfinder accent color.
-  final Color? laserColor;
-
-  /// Optional custom child widget (e.g. [Icon], [Text], or custom button widget).
-  /// When provided, this widget is wrapped with the scanner tap handler, allowing full
-  /// styling freedom from the consuming application. If null, defaults to a standard camera [IconButton].
-  final Widget? child;
-
-  /// Custom backdrop scrim color for the overlay. Defaults to black with 72% opacity.
-  final Color? overlayColor;
-
-  /// Custom backdrop scrim color (alias for [overlayColor]).
-  final Color? barrierColor;
-
-  /// Guidance text displayed at the bottom of the camera viewfinder.
-  final String? guidanceText;
-
-  /// Guidance icon displayed at the bottom of the camera viewfinder.
-  final IconData? guidanceIcon;
-
-  /// Whether to show the bottom guidance badge inside the viewfinder.
-  final bool showGuidance;
-
-  /// Whether to display and animate the laser sweep line. Defaults to true.
-  final bool showLaser;
-
-  /// Whether to display decorative credit card graphics upon detection. Defaults to true.
-  final bool showCardDesign;
-
-  /// Whether to show the close overlay button below the viewfinder. Defaults to true.
-  final bool showCloseButton;
-
-  /// Optional custom widget for the close button. If provided, wrapped with dismiss handler.
-  final Widget? closeButton;
-
-  /// Delay duration between Luhn verification and dismiss handoff.
-  final Duration detectionDelay;
-
-  /// Optional scanner service instance (used for mock testing simulation).
-  final ICardScannerService? scannerService;
-
-  /// Custom hero flight shuttle builder. Defaults to [CardCameraOverlayScanner.buildHeroFlightShuttle].
-  final HeroFlightShuttleBuilder? flightShuttleBuilder;
-
-  /// Optional callback invoked when the user cancels or closes the overlay.
-  final VoidCallback? onCancel;
-
-  /// Optional callback invoked when camera error or no camera is detected.
-  final ValueChanged<String>? onError;
-
-  const CardScannerHeroButton({
-    super.key,
-    this.child,
-    this.heroTag = CardCameraOverlayScanner.defaultHeroTag,
-    this.onCardDetected,
-    this.laserColor,
-    this.overlayColor,
-    this.barrierColor,
-    this.guidanceText = 'Align card inside frame',
-    this.guidanceIcon = Icons.document_scanner_rounded,
-    this.showGuidance = true,
-    this.showLaser = true,
-    this.showCardDesign = true,
-    this.showCloseButton = true,
-    this.closeButton,
-    this.detectionDelay = const Duration(milliseconds: 1100),
-    this.scannerService,
-    this.flightShuttleBuilder,
-    this.onCancel,
-    this.onError,
-  });
-
-  Future<void> _handleTap(BuildContext context) async {
-    final colors = Theme.of(context).colorScheme;
-    final result = await CardCameraOverlayScanner.show(
-      context,
-      heroTag: heroTag,
-      laserColor: laserColor ?? colors.primary,
-      overlayColor: overlayColor,
-      barrierColor: barrierColor,
-      guidanceText: guidanceText,
-      guidanceIcon: guidanceIcon,
-      showGuidance: showGuidance,
-      showLaser: showLaser,
-      showCardDesign: showCardDesign,
-      showCloseButton: showCloseButton,
-      closeButton: closeButton,
-      detectionDelay: detectionDelay,
-      scannerService: scannerService,
-      flightShuttleBuilder: flightShuttleBuilder,
-      onError: onError,
-    );
-    if (result != null) {
-      onCardDetected?.call(result);
-    } else {
-      onCancel?.call();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
-    final Widget buttonWidget = child != null
-        ? InkResponse(
-            onTap: () => _handleTap(context),
-            highlightShape: BoxShape.circle,
-            child: child,
-          )
-        : IconButton(
-            icon: const Icon(Icons.camera_alt_rounded),
-            color: colors.primary,
-            onPressed: () => _handleTap(context),
-          );
-
-    return Hero(
-      tag: heroTag,
-      flightShuttleBuilder: flightShuttleBuilder ??
-          CardCameraOverlayScanner.buildHeroFlightShuttle,
-      child: buttonWidget,
-    );
+  /// Creates a [HeroFlightShuttleBuilder] configured with the specified [shuttleChild]
+  /// or [shuttleIcon].
+  static HeroFlightShuttleBuilder createHeroFlightShuttle({
+    Widget? shuttleChild,
+    IconData? shuttleIcon,
+  }) {
+    return (flightContext, animation, flightDirection, fromHeroContext,
+        toHeroContext) {
+      return buildHeroFlightShuttle(
+        flightContext,
+        animation,
+        flightDirection,
+        fromHeroContext,
+        toHeroContext,
+        shuttleChild: shuttleChild,
+        shuttleIcon: shuttleIcon,
+      );
+    };
   }
 }
 
@@ -289,6 +204,12 @@ class CardCameraOverlayView extends StatelessWidget {
   /// Custom flight shuttle builder.
   final HeroFlightShuttleBuilder? flightShuttleBuilder;
 
+  /// Optional custom child widget shown during the Hero transition flight.
+  final Widget? shuttleChild;
+
+  /// Optional custom icon displayed during the Hero transition flight.
+  final IconData? shuttleIcon;
+
   /// Optional callback invoked when camera error or no camera is detected.
   final ValueChanged<String>? onError;
 
@@ -312,6 +233,8 @@ class CardCameraOverlayView extends StatelessWidget {
     this.detectionDelay = const Duration(milliseconds: 1100),
     this.scannerService,
     this.flightShuttleBuilder,
+    this.shuttleChild,
+    this.shuttleIcon,
     this.onError,
     required this.onCardDetected,
     required this.onCancel,
@@ -341,7 +264,10 @@ class CardCameraOverlayView extends StatelessWidget {
                   Hero(
                     tag: heroTag,
                     flightShuttleBuilder: flightShuttleBuilder ??
-                        CardCameraOverlayScanner.buildHeroFlightShuttle,
+                        CardCameraOverlayScanner.createHeroFlightShuttle(
+                          shuttleChild: shuttleChild,
+                          shuttleIcon: shuttleIcon,
+                        ),
                     child: Material(
                       color: Colors.black,
                       borderRadius: BorderRadius.circular(20),
