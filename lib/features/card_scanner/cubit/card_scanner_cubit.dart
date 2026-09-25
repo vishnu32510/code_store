@@ -8,8 +8,8 @@ class CardScannerCubit extends Cubit<CardScannerState> {
   final ICardScannerService _scannerService;
 
   CardScannerCubit({ICardScannerService? scannerService})
-      : _scannerService = scannerService ?? CardScannerService(),
-        super(const CardScannerState());
+    : _scannerService = scannerService ?? CardScannerService(),
+      super(const CardScannerState());
 
   ICardScannerService get scannerService => _scannerService;
 
@@ -21,11 +21,13 @@ class CardScannerCubit extends Cubit<CardScannerState> {
     final isValid =
         cleanDigits.length >= 13 && CardValidator.validateLuhn(cleanDigits);
 
-    emit(state.copyWith(
-      cardNumber: rawNumber,
-      detectedType: detected,
-      isLuhnValid: isValid,
-    ));
+    emit(
+      state.copyWith(
+        cardNumber: rawNumber,
+        detectedType: detected,
+        isLuhnValid: isValid,
+      ),
+    );
   }
 
   /// Updates the cardholder name on the card preview.
@@ -78,21 +80,23 @@ class CardScannerCubit extends Cubit<CardScannerState> {
     final isValid =
         cleanDigits.length >= 13 && CardValidator.validateLuhn(cleanDigits);
 
-    emit(state.copyWith(
-      cardNumber: rawNumber,
-      cardHolder: details.cardHolderName.isNotEmpty
-          ? details.cardHolderName
-          : state.cardHolder,
-      expiry: details.formattedExpiry.isNotEmpty
-          ? details.formattedExpiry
-          : state.expiry,
-      cvv: details.cvv.isNotEmpty ? details.cvv : state.cvv,
-      detectedType: detected,
-      isLuhnValid: isValid,
-      isScanningWithCamera: false,
-      lastScannedMessage:
-          'Card details extracted successfully (${detected.displayName})',
-    ));
+    emit(
+      state.copyWith(
+        cardNumber: rawNumber,
+        cardHolder: details.cardHolderName.isNotEmpty
+            ? details.cardHolderName
+            : state.cardHolder,
+        expiry: details.formattedExpiry.isNotEmpty
+            ? details.formattedExpiry
+            : state.expiry,
+        cvv: details.cvv.isNotEmpty ? details.cvv : state.cvv,
+        detectedType: detected,
+        isLuhnValid: isValid,
+        isScanningWithCamera: false,
+        lastScannedMessage:
+            'Card details extracted successfully (${detected.displayName})',
+      ),
+    );
   }
 
   /// Applies preset dummy card data for testing.
@@ -106,16 +110,18 @@ class CardScannerCubit extends Cubit<CardScannerState> {
     final detected = CardValidator.detectType(cleanDigits);
     final isValid = CardValidator.validateLuhn(cleanDigits);
 
-    emit(state.copyWith(
-      cardNumber: number,
-      cardHolder: holder,
-      expiry: expiry,
-      cvv: cvv,
-      detectedType: detected,
-      isLuhnValid: isValid,
-      isScanningWithCamera: false,
-      lastScannedMessage: 'Filled preset: ${detected.displayName}',
-    ));
+    emit(
+      state.copyWith(
+        cardNumber: number,
+        cardHolder: holder,
+        expiry: expiry,
+        cvv: cvv,
+        detectedType: detected,
+        isLuhnValid: isValid,
+        isScanningWithCamera: false,
+        lastScannedMessage: 'Filled preset: ${detected.displayName}',
+      ),
+    );
   }
 
   /// Executes scanning through the registered scanner service.

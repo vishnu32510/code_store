@@ -83,16 +83,19 @@ void main() {
       expect(identical(cubit.state, stateBefore), isTrue);
     });
 
-    test('updateCardHolder, updateExpiry, and updateCvv modify respective fields', () {
-      cubit.updateCardHolder('JOHN DOE');
-      expect(cubit.state.cardHolder, 'JOHN DOE');
+    test(
+      'updateCardHolder, updateExpiry, and updateCvv modify respective fields',
+      () {
+        cubit.updateCardHolder('JOHN DOE');
+        expect(cubit.state.cardHolder, 'JOHN DOE');
 
-      cubit.updateExpiry('12/28');
-      expect(cubit.state.expiry, '12/28');
+        cubit.updateExpiry('12/28');
+        expect(cubit.state.expiry, '12/28');
 
-      cubit.updateCvv('123');
-      expect(cubit.state.cvv, '123');
-    });
+        cubit.updateCvv('123');
+        expect(cubit.state.cvv, '123');
+      },
+    );
 
     test('card flip toggling and setting orientation works', () {
       expect(cubit.state.isCardFlipped, isFalse);
@@ -156,27 +159,30 @@ void main() {
       expect(cubit.state, const CardScannerState());
     });
 
-    test('scanWithMockService fetches card from service and applies details', () async {
-      final mock = _FakeMockScannerService(
-        const CardScanResult(
-          success: true,
-          cardDetails: CardDetails(
-            cardNumber: '4012888888881881',
-            cardHolderName: 'ELENA ROSTOVA',
-            expiryMonth: 5,
-            expiryYear: 28,
-            cardType: CardType.visa,
+    test(
+      'scanWithMockService fetches card from service and applies details',
+      () async {
+        final mock = _FakeMockScannerService(
+          const CardScanResult(
+            success: true,
+            cardDetails: CardDetails(
+              cardNumber: '4012888888881881',
+              cardHolderName: 'ELENA ROSTOVA',
+              expiryMonth: 5,
+              expiryYear: 28,
+              cardType: CardType.visa,
+            ),
           ),
-        ),
-      );
+        );
 
-      final mockCubit = CardScannerCubit(scannerService: mock);
-      await mockCubit.scanWithMockService();
+        final mockCubit = CardScannerCubit(scannerService: mock);
+        await mockCubit.scanWithMockService();
 
-      expect(mockCubit.state.cardHolder, 'ELENA ROSTOVA');
-      expect(mockCubit.state.detectedType, CardType.visa);
-      expect(mockCubit.state.isScanning, isFalse);
-      mockCubit.close();
-    });
+        expect(mockCubit.state.cardHolder, 'ELENA ROSTOVA');
+        expect(mockCubit.state.detectedType, CardType.visa);
+        expect(mockCubit.state.isScanning, isFalse);
+        mockCubit.close();
+      },
+    );
   });
 }

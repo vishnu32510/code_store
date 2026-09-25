@@ -604,4 +604,84 @@ void main() {
       },
     );
   });
+
+  group('CardBrandIcon Custom Company Assets & Config', () {
+    tearDown(() {
+      CardBrandIconConfig.reset();
+    });
+
+    testWidgets(
+      'CardBrandIcon renders custom icon from customIcons map',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: CardBrandIcon(
+                cardType: CardType.visa,
+                customIcons: const {
+                  CardType.visa: Text('MY_COMPANY_VISA'),
+                },
+              ),
+            ),
+          ),
+        );
+
+        expect(find.text('MY_COMPANY_VISA'), findsOneWidget);
+      },
+    );
+
+    testWidgets('CardBrandIcon renders custom icon from iconBuilder', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: CardBrandIcon(
+              cardType: CardType.mastercard,
+              iconBuilder: (context, type) {
+                if (type == CardType.mastercard) {
+                  return const Text('MY_COMPANY_MASTERCARD');
+                }
+                return null;
+              },
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('MY_COMPANY_MASTERCARD'), findsOneWidget);
+    });
+
+    testWidgets(
+      'CardBrandIcon renders global custom icon from CardBrandIconConfig',
+      (tester) async {
+        CardBrandIconConfig.setGlobalIcons(const {
+          CardType.americanExpress: Text('GLOBAL_AMEX_LOGO'),
+        });
+
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: Scaffold(
+              body: CardBrandIcon(cardType: CardType.americanExpress),
+            ),
+          ),
+        );
+
+        expect(find.text('GLOBAL_AMEX_LOGO'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'CardBrandIcon falls back to built-in vector badge when no custom icon',
+      (tester) async {
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: Scaffold(body: CardBrandIcon(cardType: CardType.visa)),
+          ),
+        );
+
+        expect(find.text('VISA'), findsOneWidget);
+      },
+    );
+  });
 }

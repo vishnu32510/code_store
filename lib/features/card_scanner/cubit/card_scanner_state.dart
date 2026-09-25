@@ -74,15 +74,15 @@ class CardScannerState extends Equatable {
 
   @override
   List<Object?> get props => [
-        cardNumber,
-        cardHolder,
-        expiry,
-        cvv,
-        detectedType,
-        isLuhnValid,
-        isCardFlipped,
-        isScanningWithCamera,
-        isScanning,
-        lastScannedMessage,
-      ];
+    cardNumber,
+    cardHolder,
+    expiry,
+    cvv,
+    detectedType,
+    isLuhnValid,
+    isCardFlipped,
+    isScanningWithCamera,
+    isScanning,
+    lastScannedMessage,
+  ];
 }

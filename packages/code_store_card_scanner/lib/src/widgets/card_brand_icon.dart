@@ -2,8 +2,45 @@ import 'package:flutter/material.dart';
 
 import '../models/card_type.dart';
 
+/// Function signature for providing custom card brand icon widgets.
+typedef CardBrandIconBuilder = Widget? Function(
+  BuildContext context,
+  CardType cardType,
+);
+
+/// Global configuration allowing apps to customize card brand logos
+/// (e.g. providing company SVG or asset logos) across the entire application.
+class CardBrandIconConfig {
+  CardBrandIconConfig._();
+
+  static CardBrandIconBuilder? _globalBuilder;
+  static Map<CardType, Widget>? _globalIcons;
+
+  /// Sets a global custom builder used whenever a custom brand icon is needed.
+  static void setGlobalBuilder(CardBrandIconBuilder? builder) {
+    _globalBuilder = builder;
+  }
+
+  /// Sets global custom icon widgets for specific card types.
+  static void setGlobalIcons(Map<CardType, Widget>? icons) {
+    _globalIcons = icons != null ? Map.from(icons) : null;
+  }
+
+  /// Clears any globally configured builders and custom icons.
+  static void reset() {
+    _globalBuilder = null;
+    _globalIcons = null;
+  }
+
+  /// Returns the current global builder if set.
+  static CardBrandIconBuilder? get globalBuilder => _globalBuilder;
+
+  /// Returns the current global icons map if set.
+  static Map<CardType, Widget>? get globalIcons => _globalIcons;
+}
+
 /// Crisp, vector-rendered card brand badge suitable for input field suffix/postfix icons
-/// and card preview banners.
+/// and card preview banners. Supports custom company asset/SVG overrides.
 class CardBrandIcon extends StatelessWidget {
   const CardBrandIcon({
     super.key,
@@ -11,6 +48,8 @@ class CardBrandIcon extends StatelessWidget {
     this.width = 38,
     this.height = 24,
     this.animate = true,
+    this.iconBuilder,
+    this.customIcons,
   });
 
   /// The detected card brand type.
@@ -25,9 +64,30 @@ class CardBrandIcon extends StatelessWidget {
   /// Whether to smoothly animate transitions between card brands.
   final bool animate;
 
+  /// Optional widget builder for providing custom card brand logos.
+  /// Return `null` to use the built-in vector badge fallback for a given [cardType].
+  final CardBrandIconBuilder? iconBuilder;
+
+  /// Optional map of custom widgets per [CardType] (e.g. SvgPicture or Image.asset).
+  /// Falls back to [iconBuilder], [CardBrandIconConfig.globalIcons], [CardBrandIconConfig.globalBuilder],
+  /// or the built-in vector badge if not present.
+  final Map<CardType, Widget>? customIcons;
+
   @override
   Widget build(BuildContext context) {
-    final badge = _buildBrandBadge(context);
+    // 1. Resolve custom icon in priority order:
+    //    a) Local widget `customIcons` map
+    //    b) Local widget `iconBuilder`
+    //    c) Global `CardBrandIconConfig.globalIcons` map
+    //    d) Global `CardBrandIconConfig.globalBuilder`
+    Widget? customWidget = customIcons?[cardType] ??
+        iconBuilder?.call(context, cardType) ??
+        CardBrandIconConfig.globalIcons?[cardType] ??
+        CardBrandIconConfig.globalBuilder?.call(context, cardType);
+
+    final badge = customWidget != null
+        ? _buildCustomBadgeWrapper(customWidget)
+        : _buildBrandBadge(context);
 
     if (!animate) return badge;
 
@@ -45,6 +105,21 @@ class CardBrandIcon extends StatelessWidget {
         );
       },
       child: KeyedSubtree(key: ValueKey<CardType>(cardType), child: badge),
+    );
+  }
+
+  Widget _buildCustomBadgeWrapper(Widget customWidget) {
+    return Container(
+      width: width,
+      height: height,
+      alignment: Alignment.center,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(4),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: customWidget,
+        ),
+      ),
     );
   }
 

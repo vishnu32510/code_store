@@ -31,10 +31,7 @@ Future<void> main() async {
   await setupDI();
   runApp(
     const AuthenticationWrapper(
-      child: ThemeWrapper(
-        initialThemeId: 'system',
-        child: MyApp(),
-      ),
+      child: ThemeWrapper(initialThemeId: 'system', child: MyApp()),
     ),
   );
 }
