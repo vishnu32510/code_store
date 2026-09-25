@@ -125,13 +125,27 @@ void main() {
     test('validateCardNumber verifies both length and Luhn checksum', () {
       // 16-digit valid Visa
       expect(CardValidator.validateCardNumber('4532015112830366'), isTrue);
+      // Formatted card numbers with spaces
+      expect(
+        CardValidator.validateCardNumber('4532 0151 1283 0366'),
+        isTrue,
+      );
       // Valid Luhn but invalid length (11 digits) -> rejected
       expect(CardValidator.validateLuhn('49927398716'), isTrue);
       expect(CardValidator.validateCardNumber('49927398716'), isFalse);
       // 15-digit valid Amex
       expect(CardValidator.validateCardNumber('378282246310005'), isTrue);
-      // Empty string
+      expect(
+        CardValidator.validateCardNumber('3782 822463 10005'),
+        isTrue,
+      );
+      // 16-digit valid Mastercard
+      expect(CardValidator.validateCardNumber('5105105105105100'), isTrue);
+      // Checksum corrupted -> rejected
+      expect(CardValidator.validateCardNumber('4532015112830367'), isFalse);
+      // Empty or non-numeric strings
       expect(CardValidator.validateCardNumber(''), isFalse);
+      expect(CardValidator.validateCardNumber('   '), isFalse);
     });
   });
 
