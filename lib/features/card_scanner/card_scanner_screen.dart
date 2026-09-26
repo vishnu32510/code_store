@@ -1298,10 +1298,8 @@ class _CardScannerScreenState extends State<CardScannerScreen>
             const SizedBox(width: 5),
             Text(
               'Quick Test Presets (Simulator)',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                letterSpacing: 0.4,
-              ),
+              style: Theme.of(context).textTheme.bodySmall
+                  ?.copyWith(fontWeight: FontWeight.bold, letterSpacing: 0.4),
             ),
           ],
         ),
