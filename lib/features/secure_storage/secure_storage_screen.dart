@@ -179,6 +179,10 @@ class _SecureStorageScreenState extends State<SecureStorageScreen> {
                   controller: _valueController,
                   maxLines: 3,
                   textInputAction: TextInputAction.done,
+                  onSubmitted: (_) {
+                    Navigator.of(ctx).pop();
+                    _writeEntry(_keyController.text, _valueController.text);
+                  },
                   decoration: const InputDecoration(
                     labelText: 'Encrypted Value',
                     hintText: 'e.g. secret_value_123',
