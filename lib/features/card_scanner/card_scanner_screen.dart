@@ -891,6 +891,8 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                                                         ),
                                                   ),
                                                 ),
+                                                onFieldSubmitted: (_) =>
+                                                    _saveCardDetails(),
                                                 validator: (value) {
                                                   if (value == null ||
                                                       value.isEmpty) {
