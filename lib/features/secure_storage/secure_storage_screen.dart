@@ -184,6 +184,10 @@ class _SecureStorageScreenState extends State<SecureStorageScreen> {
                     hintText: 'e.g. secret_value_123',
                     border: OutlineInputBorder(),
                   ),
+                  onSubmitted: (_) {
+                    Navigator.of(ctx).pop();
+                    _writeEntry(_keyController.text, _valueController.text);
+                  },
                 ),
                 const SizedBox(height: 20),
                 SizedBox(
