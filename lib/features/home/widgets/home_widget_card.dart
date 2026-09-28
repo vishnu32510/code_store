@@ -166,6 +166,9 @@ class _HomeWidgetCardState extends State<HomeWidgetCard> {
             TextField(
               controller: _statusController,
               textInputAction: TextInputAction.done,
+              onSubmitted: (_) {
+                if (!_isSyncing) _syncData();
+              },
               decoration: const InputDecoration(
                 labelText: 'Status Badge (e.g. Active, Operational)',
                 border: OutlineInputBorder(),

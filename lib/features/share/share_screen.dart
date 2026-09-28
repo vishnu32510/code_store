@@ -81,6 +81,7 @@ class _ShareScreenState extends State<ShareScreen> {
           TextField(
             controller: _urlController,
             textInputAction: TextInputAction.done,
+            onSubmitted: (_) => _shareCustomMessage(),
             decoration: const InputDecoration(
               labelText: 'Link / URL (Optional)',
               border: OutlineInputBorder(),
