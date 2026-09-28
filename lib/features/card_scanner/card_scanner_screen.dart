@@ -847,8 +847,8 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                                                 obscureText: obscureCvv,
                                                 textInputAction:
                                                     TextInputAction.done,
-                                                onFieldSubmitted:
-                                                    (_) => _saveCardDetails(),
+                                                onFieldSubmitted: (_) =>
+                                                    _saveCardDetails(),
                                                 autofillHints: const [
                                                   AutofillHints
                                                       .creditCardSecurityCode,
