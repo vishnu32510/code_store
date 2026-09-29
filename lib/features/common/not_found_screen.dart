@@ -48,7 +48,7 @@ class NotFoundScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Route Not Found',
+                    'Page Not Found',
                     style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -56,8 +56,8 @@ class NotFoundScreen extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     uri != null && uri!.isNotEmpty
-                        ? 'The path "$uri" could not be resolved.'
-                        : 'The requested screen does not exist or has been moved.',
+                        ? 'The page at "$uri" could not be found.'
+                        : 'The requested page does not exist or has been moved.',
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: colors.onSurfaceVariant,
