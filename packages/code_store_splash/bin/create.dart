@@ -87,19 +87,22 @@ Options:
   stdout.writeln('');
 
   // 3. Execute flutter_native_splash:create
-  stdout.writeln('🚀 Compiling native Android XML drawables and iOS LaunchScreen...');
-  final result = Process.runSync(
-    'dart',
-    ['run', 'flutter_native_splash:create'],
-    runInShell: true,
+  stdout.writeln(
+    '🚀 Compiling native Android XML drawables and iOS LaunchScreen...',
   );
+  final result = Process.runSync('dart', [
+    'run',
+    'flutter_native_splash:create',
+  ], runInShell: true);
 
   if (result.stdout != null && result.stdout.toString().isNotEmpty) {
     stdout.write(result.stdout);
   }
 
   if (result.exitCode == 0) {
-    stdout.writeln('✨ [code_store_splash] Native splash screen setup complete!');
+    stdout.writeln(
+      '✨ [code_store_splash] Native splash screen setup complete!',
+    );
   } else {
     stderr.writeln('⚠️ Native compilation error: ${result.stderr}');
     exit(result.exitCode);
