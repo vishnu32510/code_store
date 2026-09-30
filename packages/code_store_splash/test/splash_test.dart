@@ -215,6 +215,21 @@ void main() {
       },
     );
 
+    test('fromConfig generates valid YAML directly from SplashConfig', () {
+      const config = SplashConfig(
+        logoAsset: 'assets/icon/app_logo.png',
+        backgroundColor: Color(0xFFFFFFFF),
+        darkBackgroundColor: Color(0xFF121212),
+        footerLogoAsset: 'assets/icon/branding.png',
+      );
+
+      final yaml = NativeSplashConfigHelper.fromConfig(config);
+      expect(yaml, contains('color: "#ffffff"'));
+      expect(yaml, contains('color_dark: "#121212"'));
+      expect(yaml, contains('image: assets/icon/app_logo.png'));
+      expect(yaml, contains('branding: assets/icon/branding.png'));
+    });
+
     test('CLI commands return expected string syntax', () {
       expect(
         NativeSplashConfigHelper.generateCliCommand,

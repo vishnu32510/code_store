@@ -89,14 +89,16 @@ class _SplashPreviewScreenState extends State<SplashPreviewScreen> {
   }
 
   void _showNativeYamlDialog() {
-    final yaml = NativeSplashConfigHelper.generateYaml(
-      colorHex: _isDarkMode ? '#121212' : '#ffffff',
-      colorDarkHex: '#121212',
-      imagePath: 'assets/icon/app_icon.png',
-      imageDarkPath: 'assets/icon/app_icon.png',
-      brandingPath: _enableFooter ? 'assets/icon/branding.png' : null,
-      brandingDarkPath: _enableFooter ? 'assets/icon/branding.png' : null,
+    final config = SplashConfig(
+      logoAsset: _isDarkMode
+          ? 'assets/icon/app_logo.png'
+          : 'assets/icon/app_logo_black.png',
+      backgroundColor: _isDarkMode ? const Color(0xFF121212) : Colors.white,
+      darkBackgroundColor: const Color(0xFF121212),
+      footerLogoAsset: _enableFooter ? 'assets/icon/branding.png' : null,
     );
+
+    final yaml = NativeSplashConfigHelper.fromConfig(config);
 
     showDialog<void>(
       context: context,

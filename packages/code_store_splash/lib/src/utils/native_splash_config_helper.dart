@@ -1,7 +1,37 @@
+import 'package:flutter/material.dart';
+
+import '../models/splash_config.dart';
+
 /// Utility generating native configuration snippets and YAML specifications
 /// for Android (launch_background.xml, Android 12 Splash API) and iOS (LaunchScreen.storyboard).
 class NativeSplashConfigHelper {
   NativeSplashConfigHelper._();
+
+  /// Automatically generates a complete `flutter_native_splash.yaml` string
+  /// directly from a unified [SplashConfig] instance.
+  static String fromConfig(
+    SplashConfig config, {
+    bool enableAndroid12 = true,
+    bool enableIos = true,
+    bool enableWeb = false,
+  }) {
+    String colorToHex(Color c) {
+      final hex = (c.toARGB32() & 0x00FFFFFF).toRadixString(16).padLeft(6, '0');
+      return '#$hex';
+    }
+
+    return generateYaml(
+      colorHex: colorToHex(config.backgroundColor),
+      colorDarkHex: config.darkBackgroundColor != null
+          ? colorToHex(config.darkBackgroundColor!)
+          : null,
+      imagePath: config.logoAsset,
+      brandingPath: config.footerLogoAsset,
+      enableAndroid12: enableAndroid12,
+      enableIos: enableIos,
+      enableWeb: enableWeb,
+    );
+  }
 
   /// Generates a complete `flutter_native_splash.yaml` string from parameters.
   static String generateYaml({
