@@ -353,7 +353,7 @@ class _BiometricsScreenState extends State<BiometricsScreen> {
             ),
             const SizedBox(height: 12),
             const Text(
-              'Trigger system Face ID, Touch ID, or Android BiometricPrompt sheets:',
+              'Trigger system Face ID, Touch ID, or Android biometric prompts:',
               style: TextStyle(fontSize: 13),
             ),
             const SizedBox(height: 16),

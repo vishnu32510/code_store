@@ -159,7 +159,7 @@ class AppDrawer extends StatelessWidget {
                     context,
                     icon: Icons.share_rounded,
                     title: 'Share & Referrals',
-                    subtitle: 'Native Share Sheet & Invites',
+                    subtitle: 'Native Sharing & Invites',
                     isSelected: false,
                     onTap: () {
                       Navigator.of(context).pop();
@@ -496,7 +496,7 @@ class AppDrawer extends StatelessWidget {
                       ),
                       icon: const Icon(Icons.fullscreen_rounded, size: 20),
                       label: const Text(
-                        'Sign In Page',
+                        'Go to Sign In',
                         style: TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ),
