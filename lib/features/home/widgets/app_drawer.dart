@@ -190,6 +190,18 @@ class AppDrawer extends StatelessWidget {
                       context.push(AppRoutes.cardScanner);
                     },
                   ),
+                  const SizedBox(height: 4),
+                  _buildDrawerItem(
+                    context,
+                    icon: Icons.auto_awesome_motion_rounded,
+                    title: 'Native Splash Screen',
+                    subtitle: 'Animated Logo, Footer & Chime Tunes',
+                    isSelected: false,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      context.push(AppRoutes.splashPreview);
+                    },
+                  ),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 8),
                     child: Divider(),

@@ -6,6 +6,7 @@ import FlutterMacOS
 import Foundation
 
 import apple_vision_recognize_text
+import audioplayers_darwin
 import cloud_firestore
 import connectivity_plus
 import device_info_plus
@@ -28,6 +29,7 @@ import url_launcher_macos
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   AppleVisionRecognizeTextPlugin.register(with: registry.registrar(forPlugin: "AppleVisionRecognizeTextPlugin"))
+  AudioplayersDarwinPlugin.register(with: registry.registrar(forPlugin: "AudioplayersDarwinPlugin"))
   FLTFirebaseFirestorePlugin.register(with: registry.registrar(forPlugin: "FLTFirebaseFirestorePlugin"))
   ConnectivityPlusPlugin.register(with: registry.registrar(forPlugin: "ConnectivityPlusPlugin"))
   DeviceInfoPlusMacosPlugin.register(with: registry.registrar(forPlugin: "DeviceInfoPlusMacosPlugin"))

@@ -1,6 +1,7 @@
 import 'package:code_store_analytics/code_store_analytics.dart';
 import 'package:code_store_auth/code_store_auth.dart';
 import 'package:code_store_core/code_store_core.dart';
+import 'package:code_store_splash/code_store_splash.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -18,6 +19,7 @@ import '../../features/secure_storage/secure_storage_screen.dart';
 import '../../features/share/share_screen.dart';
 import '../../features/dynamic_island/dynamic_island_screen.dart';
 import '../../features/card_scanner/card_scanner_screen.dart';
+import '../../features/splash/splash_preview_screen.dart';
 
 class AppRoutes {
   static const String dashboard = '/dashboard';
@@ -34,6 +36,8 @@ class AppRoutes {
   static const String share = '/share';
   static const String dynamicIsland = '/dynamic-island';
   static const String cardScanner = '/card-scanner';
+  static const String splash = '/splash';
+  static const String splashPreview = '/splash-preview';
 }
 
 class AppRouter {
@@ -48,11 +52,11 @@ class AppRouter {
 
   static final GoRouter router = GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: AppRoutes.dashboard,
+    initialLocation: AppRoutes.splash,
     observers: [getIt<FirebaseAnalyticsObserver>()],
     errorBuilder: (context, state) => NotFoundScreen(uri: state.uri.toString()),
     routes: <RouteBase>[
-      GoRoute(path: '/', redirect: (_, _) => AppRoutes.dashboard),
+      GoRoute(path: '/', redirect: (_, _) => AppRoutes.splash),
       GoRoute(
         path: AppRoutes.login,
         builder: (context, state) => const LoginScreen(),
@@ -100,6 +104,36 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.cardScanner,
         builder: (context, state) => const CardScannerScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.splash,
+        builder: (context, state) => NativeSplashView(
+          config: SplashConfig(
+            logoAsset: 'assets/icon/app_logo.png',
+            logoSize: 130,
+            animationType: SplashAnimationType.scale,
+            animationDuration: const Duration(milliseconds: 1200),
+            stayDuration: const Duration(milliseconds: 1800),
+            backgroundColor: const Color(0xFF121212),
+            darkBackgroundColor: const Color(0xFF121212),
+            footerLogoAsset: 'assets/icon/branding.png',
+            footerText: 'Powered by Nungu',
+            footerLogoHeight: 44,
+            audioConfig: const SplashAudioConfig(
+              assetPath: 'assets/audio/splash_chime.wav',
+              volume: 0.8,
+              delay: Duration(milliseconds: 200),
+              enabled: true,
+            ),
+            onFinished: () {
+              context.go(AppRoutes.dashboard);
+            },
+          ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.splashPreview,
+        builder: (context, state) => const SplashPreviewScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {

@@ -45,6 +45,8 @@ dependencies:
     path: packages/code_store_dynamic_island
   code_store_card_scanner:
     path: packages/code_store_card_scanner
+  code_store_splash:
+    path: packages/code_store_splash
 
   # State management (used directly in app feature code)
   bloc: ^9.2.1
@@ -74,6 +76,7 @@ dependencies:
 dev_dependencies:
   change_app_package_name: ^1.5.0
   flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.8
   flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
@@ -82,4 +85,5 @@ flutter:
   uses-material-design: true
   assets:
     - assets/icon/
+    - assets/audio/
     - .env
