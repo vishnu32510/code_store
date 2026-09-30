@@ -54,9 +54,12 @@ class SplashFooterLogo extends StatelessWidget {
       );
     }
 
+    final isDarkTheme = Theme.of(context).brightness == Brightness.dark;
     final defaultTextColor =
         textColor ??
-        Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
+        (isDarkTheme
+            ? Colors.white70
+            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6));
 
     return Column(
       mainAxisSize: MainAxisSize.min,

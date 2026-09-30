@@ -11,7 +11,9 @@ import 'dart:io';
 ///   dart run code_store_splash:create
 ///   dart run code_store_splash:create --color "#121212" --logo "assets/icon/app_logo.png" --branding "assets/icon/branding.png"
 void main(List<String> args) {
-  stdout.writeln('🎨 [code_store_splash] Setting up Native & Web Splash Screens...');
+  stdout.writeln(
+    '🎨 [code_store_splash] Setting up Native & Web Splash Screens...',
+  );
 
   String colorHex = '#121212';
   String? colorDarkHex = '#121212';
@@ -173,12 +175,21 @@ void _configureWebSplash({
   if (indexFile.existsSync()) {
     final brandingHtml = (brandingPath != null && brandingPath.isNotEmpty)
         ? '    <div id="splash-footer">\n'
-          '      <img src="splash_branding.png" alt="Branding">\n'
-          '      <span>$footerText</span>\n'
-          '    </div>'
+              '      <img src="splash_branding.png" alt="Branding">\n'
+              '      <span>$footerText</span>\n'
+              '    </div>'
         : '';
 
-    final splashStyle = '''
+    final isDarkBg =
+        !colorHex.toLowerCase().startsWith('#f') &&
+        !colorHex.toLowerCase().startsWith('#e') &&
+        colorHex.toLowerCase() != '#ffffff';
+    final textColorCss = isDarkBg
+        ? 'rgba(255, 255, 255, 0.75)'
+        : 'rgba(0, 0, 0, 0.6)';
+
+    final splashStyle =
+        '''
   <style id="splash-styles">
     html, body {
       background-color: $colorHex !important;
@@ -224,7 +235,7 @@ void _configureWebSplash({
       object-fit: contain;
     }
     #splash-footer span {
-      color: #9E9E9E;
+      color: $textColorCss;
       font-size: 13px;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       letter-spacing: 0.3px;
@@ -235,7 +246,8 @@ void _configureWebSplash({
     }
   </style>''';
 
-    final splashBody = '''
+    final splashBody =
+        '''
 <body style="background-color: $colorHex;">
   <div id="splash-loading">
     <img id="splash-logo" src="splash_logo.png" alt="Logo">
@@ -271,14 +283,13 @@ $brandingHtml
         '$splashBody\n  <script src="flutter_bootstrap.js"',
       );
     } else if (html.contains('<body')) {
-      html = html.replaceFirst(
-        RegExp(r'<body[^>]*>'),
-        splashBody,
-      );
+      html = html.replaceFirst(RegExp(r'<body[^>]*>'), splashBody);
     }
 
     indexFile.writeAsStringSync(html);
   }
 
-  stdout.writeln('✨ [Web] Instant HTML/CSS splash configured (zero white flash)!');
+  stdout.writeln(
+    '✨ [Web] Instant HTML/CSS splash configured (zero white flash)!',
+  );
 }

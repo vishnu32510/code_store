@@ -118,6 +118,8 @@ class AppRouter {
             darkBackgroundColor: const Color(0xFF121212),
             footerLogoAsset: 'assets/icon/branding.png',
             footerText: 'Powered by Nungu',
+            footerTextColor: Colors.white70,
+            darkFooterTextColor: Colors.white70,
             footerLogoHeight: 44,
             audioConfig: const SplashAudioConfig(
               assetPath: 'assets/audio/splash_chime.wav',

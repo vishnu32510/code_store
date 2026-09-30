@@ -40,6 +40,8 @@ class _SplashPreviewScreenState extends State<SplashPreviewScreen> {
       darkBackgroundColor: const Color(0xFF121212),
       footerLogoAsset: _enableFooter ? 'assets/icon/branding.png' : null,
       footerText: _enableFooter ? 'Powered by Nungu' : null,
+      footerTextColor: _isDarkMode ? Colors.white70 : Colors.black54,
+      darkFooterTextColor: Colors.white70,
       footerLogoHeight: 44,
       audioConfig: _enableAudio
           ? SplashAudioConfig(

@@ -63,6 +63,17 @@ class _NativeSplashViewState extends State<NativeSplashView> {
     super.dispose();
   }
 
+  bool _audioTriggered = false;
+
+  void _triggerAudioChime() {
+    if (_audioTriggered) return;
+    if (widget.config.audioConfig != null &&
+        widget.config.audioConfig!.enabled) {
+      _audioTriggered = true;
+      unawaited(_service.playChime(config: widget.config.audioConfig!));
+    }
+  }
+
   Future<void> _initializeSequence() async {
     // 1. Remove native OS splash screen once Flutter mounts:
     if (widget.config.removeNativeSplashOnMount) {
@@ -70,10 +81,7 @@ class _NativeSplashViewState extends State<NativeSplashView> {
     }
 
     // 2. Trigger audio chime if configured:
-    if (widget.config.audioConfig != null &&
-        widget.config.audioConfig!.enabled) {
-      unawaited(_service.playChime(config: widget.config.audioConfig!));
-    }
+    _triggerAudioChime();
 
     // 3. Run parallel async initialization and minimum stay timer:
     String? initializationError;
@@ -128,43 +136,65 @@ class _NativeSplashViewState extends State<NativeSplashView> {
         ? widget.config.darkBackgroundColor!
         : widget.config.backgroundColor;
 
-    return Scaffold(
-      backgroundColor: bgColor,
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          // Centered Main Logo (with or without animation):
-          Center(
-            child: AnimatedSplashLogo(
-              logoAsset: widget.config.logoAsset,
-              logoWidget: widget.config.logoWidget,
-              size: widget.config.logoSize,
-              animationType: widget.config.animationType,
-              duration: widget.config.animationDuration,
-            ),
-          ),
+    final isBgDark = bgColor.computeLuminance() < 0.5;
 
-          // Optional Footer Logo / Branding:
-          if (widget.config.hasFooter)
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: SafeArea(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    bottom: widget.config.footerBottomPadding,
-                  ),
-                  child: SplashFooterLogo(
-                    footerLogoAsset: widget.config.footerLogoAsset,
-                    footerLogoWidget: widget.config.footerLogoWidget,
-                    footerText: widget.config.footerText,
-                    footerLogoHeight: widget.config.footerLogoHeight,
+    final effectiveLogoAsset = (isDark && widget.config.darkLogoAsset != null)
+        ? widget.config.darkLogoAsset!
+        : widget.config.logoAsset;
+
+    final effectiveFooterLogoAsset =
+        (isDark && widget.config.darkFooterLogoAsset != null)
+        ? widget.config.darkFooterLogoAsset!
+        : widget.config.footerLogoAsset;
+
+    final effectiveFooterTextColor =
+        (isDark && widget.config.darkFooterTextColor != null)
+        ? widget.config.darkFooterTextColor
+        : (widget.config.footerTextColor ??
+              (isBgDark ? Colors.white70 : Colors.black54));
+
+    return Listener(
+      behavior: HitTestBehavior.translucent,
+      onPointerDown: (_) => _triggerAudioChime(),
+      child: Scaffold(
+        backgroundColor: bgColor,
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Centered Main Logo (with or without animation):
+            Center(
+              child: AnimatedSplashLogo(
+                logoAsset: effectiveLogoAsset,
+                logoWidget: widget.config.logoWidget,
+                size: widget.config.logoSize,
+                animationType: widget.config.animationType,
+                duration: widget.config.animationDuration,
+              ),
+            ),
+
+            // Optional Footer Logo / Branding:
+            if (widget.config.hasFooter)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: SafeArea(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      bottom: widget.config.footerBottomPadding,
+                    ),
+                    child: SplashFooterLogo(
+                      footerLogoAsset: effectiveFooterLogoAsset,
+                      footerLogoWidget: widget.config.footerLogoWidget,
+                      footerText: widget.config.footerText,
+                      footerLogoHeight: widget.config.footerLogoHeight,
+                      textColor: effectiveFooterTextColor,
+                    ),
                   ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
