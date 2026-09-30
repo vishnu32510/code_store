@@ -58,27 +58,39 @@ void main() async {
 
 ## 4. Native Platform Configuration (Android & iOS)
 
+### Option A: One-Line Automation via Package CLI (Recommended)
+Run the package executable directly to automatically generate `flutter_native_splash.yaml` and compile native drawables/storyboards in one step:
+
+```bash
+dart run code_store_splash:create
+```
+
+Optional flags:
+```bash
+dart run code_store_splash:create --color "#121212" --logo "assets/icon/app_logo.png" --branding "assets/icon/branding.png"
+```
+
+### Option B: Manual YAML Configuration
 Create `flutter_native_splash.yaml` in the project root:
 
 ```yaml
 flutter_native_splash:
-  color: "#ffffff"
+  color: "#121212"
   color_dark: "#121212"
-  image: assets/icon/app_icon.png
-  image_dark: assets/icon/app_icon.png
+  image: assets/icon/app_logo.png
+  image_dark: assets/icon/app_logo.png
   branding: assets/icon/branding.png # Optional footer logo
   branding_dark: assets/icon/branding.png
   android_12:
-    image: assets/icon/app_icon.png
-    icon_background_color: "#ffffff"
+    image: assets/icon/app_logo.png
+    icon_background_color: "#121212"
     branding: assets/icon/branding.png
   android: true
   ios: true
-  web: true
+  web: false
 ```
 
-Generate the native XML drawables and iOS storyboard:
-
+Then compile:
 ```bash
 dart run flutter_native_splash:create
 ```

@@ -208,10 +208,10 @@ void main() {
         expect(yaml, contains('flutter_native_splash:'));
         expect(yaml, contains('color: "#ffffff"'));
         expect(yaml, contains('color_dark: "#121212"'));
-        expect(yaml, contains('image: assets/icon/app_icon.png'));
-        expect(yaml, contains('branding: assets/icon/branding.png'));
+        expect(yaml, contains('image: "assets/icon/app_icon.png"'));
+        expect(yaml, contains('branding: "assets/icon/branding.png"'));
         expect(yaml, contains('android_12:'));
-        expect(yaml, contains('branding: assets/icon/branding.png'));
+        expect(yaml, contains('branding: "assets/icon/branding.png"'));
       },
     );
 
@@ -226,8 +226,8 @@ void main() {
       final yaml = NativeSplashConfigHelper.fromConfig(config);
       expect(yaml, contains('color: "#ffffff"'));
       expect(yaml, contains('color_dark: "#121212"'));
-      expect(yaml, contains('image: assets/icon/app_logo.png'));
-      expect(yaml, contains('branding: assets/icon/branding.png'));
+      expect(yaml, contains('image: "assets/icon/app_logo.png"'));
+      expect(yaml, contains('branding: "assets/icon/branding.png"'));
     });
 
     test('CLI commands return expected string syntax', () {

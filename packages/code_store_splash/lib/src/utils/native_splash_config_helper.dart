@@ -51,32 +51,34 @@ class NativeSplashConfigHelper {
     if (colorDarkHex != null && colorDarkHex.isNotEmpty) {
       buffer.writeln('  color_dark: "$colorDarkHex"');
     }
-    buffer.writeln('  image: $imagePath');
+    buffer.writeln('  image: "$imagePath"');
     if (imageDarkPath != null && imageDarkPath.isNotEmpty) {
-      buffer.writeln('  image_dark: $imageDarkPath');
+      buffer.writeln('  image_dark: "$imageDarkPath"');
     }
     if (brandingPath != null && brandingPath.isNotEmpty) {
-      buffer.writeln('  branding: $brandingPath');
+      buffer.writeln('  branding: "$brandingPath"');
     }
     if (brandingDarkPath != null && brandingDarkPath.isNotEmpty) {
-      buffer.writeln('  branding_dark: $brandingDarkPath');
+      buffer.writeln('  branding_dark: "$brandingDarkPath"');
     }
 
     if (enableAndroid12) {
       buffer.writeln('  android_12:');
-      buffer.writeln('    image: $imagePath');
-      buffer.writeln('    icon_background_color: "$colorHex"');
+      buffer.writeln('    image: "$imagePath"');
       if (imageDarkPath != null && imageDarkPath.isNotEmpty) {
-        buffer.writeln('    image_dark: $imageDarkPath');
+        buffer.writeln('    image_dark: "$imageDarkPath"');
       }
+      buffer.writeln('    color: "$colorHex"');
+      buffer.writeln('    icon_background_color: "$colorHex"');
       if (colorDarkHex != null && colorDarkHex.isNotEmpty) {
+        buffer.writeln('    color_dark: "$colorDarkHex"');
         buffer.writeln('    icon_background_color_dark: "$colorDarkHex"');
       }
       if (brandingPath != null && brandingPath.isNotEmpty) {
-        buffer.writeln('    branding: $brandingPath');
+        buffer.writeln('    branding: "$brandingPath"');
       }
       if (brandingDarkPath != null && brandingDarkPath.isNotEmpty) {
-        buffer.writeln('    branding_dark: $brandingDarkPath');
+        buffer.writeln('    branding_dark: "$brandingDarkPath"');
       }
     }
 

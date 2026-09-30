@@ -5,13 +5,15 @@ flutter_native_splash:
   image_dark: "assets/icon/app_logo.png"
   branding: "assets/icon/branding.png"
   branding_dark: "assets/icon/branding.png"
-
   android_12:
-    color: "#121212"
-    color_dark: "#121212"
     image: "assets/icon/app_logo.png"
     image_dark: "assets/icon/app_logo.png"
+    color: "#121212"
+    icon_background_color: "#121212"
+    color_dark: "#121212"
+    icon_background_color_dark: "#121212"
     branding: "assets/icon/branding.png"
     branding_dark: "assets/icon/branding.png"
-
+  android: true
+  ios: true
   web: false
