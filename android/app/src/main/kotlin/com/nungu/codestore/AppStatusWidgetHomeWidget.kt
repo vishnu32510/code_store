@@ -23,6 +23,7 @@ import androidx.glance.layout.padding
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
 import es.antonborri.home_widget.HomeWidgetGlanceState
 import es.antonborri.home_widget.HomeWidgetGlanceStateDefinition
 
@@ -52,7 +53,7 @@ class AppStatusWidgetHomeWidget : GlanceAppWidget() {
         Text(
           text = title,
           style = TextStyle(
-            color = Color.White,
+            color = ColorProvider(Color.White),
             fontSize = 13.sp,
             fontWeight = FontWeight.Bold
           )
@@ -67,7 +68,7 @@ class AppStatusWidgetHomeWidget : GlanceAppWidget() {
           Text(
             text = status,
             style = TextStyle(
-              color = Color(0xFF81C784),
+              color = ColorProvider(Color(0xFF81C784)),
               fontSize = 10.sp,
               fontWeight = FontWeight.Bold
             )
@@ -81,7 +82,7 @@ class AppStatusWidgetHomeWidget : GlanceAppWidget() {
       Text(
         text = message,
         style = TextStyle(
-          color = Color(0xFFB0B0C0),
+          color = ColorProvider(Color(0xFFB0B0C0)),
           fontSize = 12.sp
         )
       )
@@ -95,7 +96,7 @@ class AppStatusWidgetHomeWidget : GlanceAppWidget() {
         Text(
           text = "● Operational",
           style = TextStyle(
-            color = Color(0xFF81C784),
+            color = ColorProvider(Color(0xFF81C784)),
             fontSize = 10.sp
           )
         )

@@ -21,6 +21,7 @@ import androidx.glance.layout.padding
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
 import es.antonborri.home_widget.HomeWidgetGlanceState
 import es.antonborri.home_widget.HomeWidgetGlanceStateDefinition
 
@@ -48,18 +49,18 @@ class WeatherForecastWidgetHomeWidget : GlanceAppWidget() {
       ) {
         Text(
           text = title,
-          style = TextStyle(color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+          style = TextStyle(color = ColorProvider(Color.White), fontSize = 14.sp, fontWeight = FontWeight.Bold)
         )
       }
       Spacer(modifier = GlanceModifier.height(4.dp))
       Text(
         text = message,
-        style = TextStyle(color = Color(0xFFCCCCCC), fontSize = 12.sp)
+        style = TextStyle(color = ColorProvider(Color(0xFFCCCCCC)), fontSize = 12.sp)
       )
       Spacer(modifier = GlanceModifier.defaultWeight())
       Text(
         text = status,
-        style = TextStyle(color = Color(0xFF64B5F6), fontSize = 10.sp)
+        style = TextStyle(color = ColorProvider(Color(0xFF64B5F6)), fontSize = 10.sp)
       )
     }
   }
