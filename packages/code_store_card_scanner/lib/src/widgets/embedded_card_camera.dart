@@ -1,13 +1,8 @@
-import 'dart:io';
-
-import 'package:apple_vision_commons/apple_vision_commons.dart';
-import 'package:apple_vision_recognize_text/apple_vision_recognize_text.dart'
-    as apple;
 import 'package:camera/camera.dart';
+import 'package:code_store_card_scanner_platform_interface/code_store_card_scanner_platform_interface.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
 import '../models/card_details.dart';
 import '../utils/card_ocr_parser.dart';
@@ -73,18 +68,10 @@ class EmbeddedCardCamera extends StatefulWidget {
   @override
   State<EmbeddedCardCamera> createState() => _EmbeddedCardCameraState();
 }
-
 class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
     with TickerProviderStateMixin, WidgetsBindingObserver {
   CameraController? _cameraController;
-  apple.AppleVisionRecognizeTextController? _appleVision;
-  TextRecognizer? _mlTextRecognizer;
-
-  apple.AppleVisionRecognizeTextController get _appleVisionController =>
-      _appleVision ??= apple.AppleVisionRecognizeTextController();
-
-  TextRecognizer get _textRecognizer =>
-      _mlTextRecognizer ??= TextRecognizer(script: TextRecognitionScript.latin);
+  CardScannerPlatform get _scannerPlatform => CardScannerPlatform.instance;
 
   late final AnimationController _laserController;
   late final Animation<double> _laserAnimation;
@@ -181,7 +168,7 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
     _successController.dispose();
     _cameraController?.dispose();
     _cameraController = null;
-    _mlTextRecognizer?.close();
+    _scannerPlatform.dispose();
     super.dispose();
   }
 
@@ -271,7 +258,7 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
         selectedCamera,
         ResolutionPreset.high,
         enableAudio: false,
-        imageFormatGroup: !kIsWeb && Platform.isAndroid
+        imageFormatGroup: defaultTargetPlatform == TargetPlatform.android
             ? ImageFormatGroup.nv21
             : ImageFormatGroup.bgra8888,
       );
@@ -313,12 +300,6 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
     _isProcessingFrame = true;
 
     try {
-      final InputImageRotation rotation =
-          InputImageRotationValue.fromRawValue(description.sensorOrientation) ??
-              InputImageRotation.rotation0deg;
-
-      final List<String> rawLines = [];
-
       // Extract image bytes efficiently: zero-copy if single plane (iOS BGRA8888),
       // or fast contiguous buffer fill if multiple planes (Android NV21/YUV420).
       final Uint8List imageBytes;
@@ -338,59 +319,16 @@ class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
         imageBytes = combined;
       }
 
-      if (!kIsWeb && Platform.isIOS) {
-        final ImageOrientation appleOrient;
-        switch (rotation) {
-          case InputImageRotation.rotation0deg:
-            appleOrient = ImageOrientation.up;
-            break;
-          case InputImageRotation.rotation90deg:
-            appleOrient = ImageOrientation.right;
-            break;
-          case InputImageRotation.rotation180deg:
-            appleOrient = ImageOrientation.down;
-            break;
-          case InputImageRotation.rotation270deg:
-            appleOrient = ImageOrientation.left;
-            break;
-        }
-
-        final results = await _appleVisionController.processImage(
-          apple.RecognizeTextData(
-            automaticallyDetectsLanguage: false,
-            languages: [const Locale('en', 'US')],
-            recognitionLevel: apple.RecognitionLevel.accurate,
-            image: imageBytes,
-            orientation: appleOrient,
-            imageSize: Size(image.width.toDouble(), image.height.toDouble()),
-          ),
-        );
-
-        if (results != null) {
-          for (final item in results) {
-            for (final line in item.listText) {
-              if (line.trim().isNotEmpty) rawLines.add(line.trim());
-            }
-          }
-        }
-      } else {
-        final inputImage = InputImage.fromBytes(
+      final rawLines = await _scannerPlatform.processCameraFrame(
+        CardCameraFrame(
           bytes: imageBytes,
-          metadata: InputImageMetadata(
-            size: Size(image.width.toDouble(), image.height.toDouble()),
-            rotation: rotation,
-            format: InputImageFormat.nv21,
-            bytesPerRow: image.planes[0].bytesPerRow,
-          ),
-        );
-
-        final textR = await _textRecognizer.processImage(inputImage);
-        for (final block in textR.blocks) {
-          for (final line in block.lines) {
-            if (line.text.trim().isNotEmpty) rawLines.add(line.text.trim());
-          }
-        }
-      }
+          width: image.width,
+          height: image.height,
+          rotationDegrees: description.sensorOrientation,
+          bytesPerRow:
+              image.planes.isNotEmpty ? image.planes[0].bytesPerRow : null,
+        ),
+      );
 
       if (rawLines.isNotEmpty) {
         final parsed = CardOcrParser.parseRecognizedLines(rawLines);

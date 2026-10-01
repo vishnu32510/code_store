@@ -1,5 +1,5 @@
-name: code_store_card_scanner
-description: "Modular debit and credit card scanning, regex-based brand detection, and details form package for code_store."
+name: code_store_card_scanner_ios
+description: iOS implementation of the code_store_card_scanner plugin using native Apple Vision (SPM).
 version: 1.0.0
 publish_to: 'none'
 
@@ -8,22 +8,19 @@ environment:
   flutter: ">=3.0.0"
 
 flutter:
-  uses-material-design: true
   plugin:
+    implements: code_store_card_scanner
     platforms:
       ios:
-        default_package: code_store_card_scanner_ios
+        dartPluginClass: CardScannerIos
 
 dependencies:
   flutter:
     sdk: flutter
-  camera: ^0.12.1
-  get_it: ^9.2.1
-  meta: ^1.18.0
   code_store_card_scanner_platform_interface:
     path: ../code_store_card_scanner_platform_interface
-  code_store_card_scanner_ios:
-    path: ../code_store_card_scanner_ios
+  apple_vision_commons: ^0.0.3
+  apple_vision_recognize_text: ^0.1.0
 
 dev_dependencies:
   flutter_test:
