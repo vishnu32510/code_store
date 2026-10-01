@@ -37,14 +37,16 @@ void main() {
       expect(CardScannerPlatform.instance, isA<CardScannerPlatform>());
     });
 
-    test('default implementation returns empty list for processCameraFrame', () async {
+    test('default implementation returns empty list for processCameraFrame',
+        () async {
       final frame = CardCameraFrame(
         bytes: Uint8List(0),
         width: 100,
         height: 100,
         rotationDegrees: 0,
       );
-      final result = await CardScannerPlatform.instance.processCameraFrame(frame);
+      final result =
+          await CardScannerPlatform.instance.processCameraFrame(frame);
       expect(result, isEmpty);
     });
 
@@ -59,7 +61,8 @@ void main() {
         height: 100,
         rotationDegrees: 0,
       );
-      final lines = await CardScannerPlatform.instance.processCameraFrame(frame);
+      final lines =
+          await CardScannerPlatform.instance.processCameraFrame(frame);
       expect(lines, contains('4532 1234 5678 9012'));
     });
   });

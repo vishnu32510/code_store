@@ -68,6 +68,7 @@ class EmbeddedCardCamera extends StatefulWidget {
   @override
   State<EmbeddedCardCamera> createState() => _EmbeddedCardCameraState();
 }
+
 class _EmbeddedCardCameraState extends State<EmbeddedCardCamera>
     with TickerProviderStateMixin, WidgetsBindingObserver {
   CameraController? _cameraController;
