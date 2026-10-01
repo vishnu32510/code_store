@@ -262,13 +262,6 @@ packages:
       relative: true
     source: path
     version: "1.0.0"
-  code_store_card_scanner:
-    dependency: "direct main"
-    description:
-      path: "packages/code_store_card_scanner"
-      relative: true
-    source: path
-    version: "1.0.0"
   code_store_card_scanner_android:
     dependency: transitive
     description:
@@ -1065,6 +1058,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.0"
+  native_card_scanner:
+    dependency: "direct main"
+    description:
+      path: "packages/code_store_card_scanner"
+      relative: true
+    source: path
+    version: "1.0.0"
   nested:
     dependency: transitive
     description:

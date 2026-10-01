@@ -1,5 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:code_store_card_scanner/code_store_card_scanner.dart';
+import 'package:native_card_scanner/native_card_scanner.dart';
 
 import 'card_scanner_state.dart';
 

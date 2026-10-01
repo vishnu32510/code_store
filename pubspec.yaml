@@ -43,7 +43,7 @@ dependencies:
     path: packages/code_store_share
   code_store_dynamic_island:
     path: packages/code_store_dynamic_island
-  code_store_card_scanner:
+  native_card_scanner:
     path: packages/code_store_card_scanner
   code_store_splash:
     path: packages/code_store_splash

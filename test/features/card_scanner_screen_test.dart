@@ -1,4 +1,4 @@
-import 'package:code_store_card_scanner/code_store_card_scanner.dart';
+import 'package:native_card_scanner/native_card_scanner.dart';
 import 'package:code_store_core/code_store_core.dart';
 import 'package:code_store/features/card_scanner/card_scanner_screen.dart';
 import 'package:flutter/material.dart';

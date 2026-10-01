@@ -1,4 +1,4 @@
-import 'package:code_store_card_scanner/code_store_card_scanner.dart';
+import 'package:native_card_scanner/native_card_scanner.dart';
 import 'package:flutter/material.dart';
 
 void main() {

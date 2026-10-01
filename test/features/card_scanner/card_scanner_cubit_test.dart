@@ -1,6 +1,6 @@
 import 'package:code_store/features/card_scanner/cubit/card_scanner_cubit.dart';
 import 'package:code_store/features/card_scanner/cubit/card_scanner_state.dart';
-import 'package:code_store_card_scanner/code_store_card_scanner.dart';
+import 'package:native_card_scanner/native_card_scanner.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _FakeMockScannerService implements ICardScannerService {
