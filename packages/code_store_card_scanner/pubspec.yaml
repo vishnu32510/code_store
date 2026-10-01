@@ -1,7 +1,14 @@
 name: code_store_card_scanner
-description: "Modular debit and credit card scanning, regex-based brand detection, and details form package for code_store."
+description: Modular debit and credit card OCR scanning, real-time regex brand detection, and interactive 3D card preview for Flutter.
 version: 1.0.0
-publish_to: 'none'
+repository: https://github.com/vishnu32510/code_store/tree/main/packages/code_store_card_scanner
+issue_tracker: https://github.com/vishnu32510/code_store/issues
+topics:
+  - card-scanner
+  - credit-card
+  - ocr
+  - payment
+  - camera
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
