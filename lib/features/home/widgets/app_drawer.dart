@@ -490,26 +490,8 @@ class AppDrawer extends StatelessWidget {
                       ),
                       icon: const Icon(Icons.login_rounded, size: 20),
                       label: const Text(
-                        'Quick Sign In',
+                        'Sign In',
                         style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    OutlinedButton.icon(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        context.push(AppRoutes.login);
-                      },
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(44),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      icon: const Icon(Icons.fullscreen_rounded, size: 20),
-                      label: const Text(
-                        'Go to Sign In',
-                        style: TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],
