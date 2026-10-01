@@ -116,7 +116,15 @@ Options:
     exit(result.exitCode);
   }
 
-  // 4. Automatically configure Web splash screen (if web/ exists and enabled)
+  // 4. Automatically refine iOS LaunchScreen.storyboard (branding size, tagline, safe area)
+  _patchIosLaunchScreen(
+    brandingPath: brandingPath,
+    footerText: footerText,
+    brandingHeight: 44.0,
+    footerBottomPadding: 32.0,
+  );
+
+  // 5. Automatically configure Web splash screen (if web/ exists and enabled)
   if (enableWeb) {
     _configureWebSplash(
       colorHex: colorHex,
@@ -291,5 +299,71 @@ $brandingHtml
 
   stdout.writeln(
     '✨ [Web] Instant HTML/CSS splash configured (zero white flash)!',
+  );
+}
+
+/// Automatically patches `ios/Runner/Base.lproj/LaunchScreen.storyboard` to:
+/// 1. Constrain branding image to scaleAspectFit and fixed height (44pt) instead of giant raw points.
+/// 2. Add the footer branding tagline ("Powered by ...") matching Flutter's splash view.
+/// 3. Attach constraints to Safe Area bottom guide with proper padding so it's not cut off by home bar.
+void _patchIosLaunchScreen({
+  String? brandingPath,
+  String footerText = 'Powered by Nungu',
+  double brandingHeight = 44.0,
+  double footerBottomPadding = 32.0,
+}) {
+  final storyboardFile = File('ios/Runner/Base.lproj/LaunchScreen.storyboard');
+  if (!storyboardFile.existsSync()) return;
+
+  if (brandingPath == null || brandingPath.isEmpty) return;
+
+  stdout.writeln(
+    '🍎 Refining iOS LaunchScreen.storyboard branding & tagline...',
+  );
+
+  var content = storyboardFile.readAsStringSync();
+
+  // Replace BrandingImage definition with constrained scaleAspectFit and BrandingLabel
+  final brandingViewPattern = RegExp(
+    r'<imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="[^"]*" image="BrandingImage"[^>]*/>'
+    r'(\s*<label[^>]*id="BrandingLabel"[\s\S]*?</label>)?',
+  );
+
+  final updatedSubviews =
+      '''
+<imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" image="BrandingImage" translatesAutoresizingMaskIntoConstraints="NO" id="Uyq-Kz-ftE">
+                                <rect key="frame" x="165.5" y="556" width="${brandingHeight.toInt()}" height="${brandingHeight.toInt()}"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="${brandingHeight.toInt()}" id="BWidth44"/>
+                                    <constraint firstAttribute="height" constant="${brandingHeight.toInt()}" id="BHeight44"/>
+                                </constraints>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$footerText" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BrandingLabel">
+                                <rect key="frame" x="20" y="608" width="335" height="14.5"/>
+                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="12"/>
+                                <color key="textColor" red="0.8784313725490196" green="0.8784313725490196" blue="0.8784313725490196" alpha="0.75" colorSpace="custom" customColorSpace="sRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>''';
+
+  if (content.contains(brandingViewPattern)) {
+    content = content.replaceFirst(brandingViewPattern, updatedSubviews);
+  }
+
+  // Replace default bottom constraint
+  final oldConstraint = RegExp(
+    r'<constraint firstAttribute="bottom" secondItem="Uyq-Kz-ftE"[^>]*/>',
+  );
+  final updatedConstraints = '''
+<constraint firstItem="BrandingLabel" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="BLblCenterX"/>
+                            <constraint firstItem="BrandingLabel" firstAttribute="top" secondItem="Uyq-Kz-ftE" secondAttribute="bottom" constant="8" id="BLblTop"/>
+                            <constraint firstItem="xbc-2k-c8Z" firstAttribute="top" secondItem="BrandingLabel" secondAttribute="bottom" constant="${footerBottomPadding.toInt()}" id="BLblBottom"/>''';
+
+  if (content.contains(oldConstraint)) {
+    content = content.replaceFirst(oldConstraint, updatedConstraints);
+  }
+
+  storyboardFile.writeAsStringSync(content);
+  stdout.writeln(
+    '✨ [iOS] Pixel-perfect LaunchScreen branding and tagline configured!',
   );
 }

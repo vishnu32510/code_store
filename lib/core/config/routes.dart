@@ -1,8 +1,10 @@
 import 'package:code_store_analytics/code_store_analytics.dart';
 import 'package:code_store_auth/code_store_auth.dart';
+import 'package:code_store_biometrics/code_store_biometrics.dart';
 import 'package:code_store_core/code_store_core.dart';
 import 'package:code_store_splash/code_store_splash.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/biometrics/biometrics_screen.dart';
@@ -128,7 +130,7 @@ class AppRouter {
               enabled: true,
             ),
             onFinished: () {
-              context.go(AppRoutes.dashboard);
+              context.replace(AppRoutes.dashboard);
             },
           ),
         ),
@@ -139,7 +141,14 @@ class AppRouter {
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
-          return DashboardScreen(navigationShell: navigationShell);
+          return BiometricLockGate(
+            shouldLock: () {
+              final authState = context.read<AuthenticationBloc>().state;
+              return authState.status == AuthenticationStatus.authenticated &&
+                  authState.user.isNotEmpty;
+            },
+            child: DashboardScreen(navigationShell: navigationShell),
+          );
         },
         branches: [
           StatefulShellBranch(
