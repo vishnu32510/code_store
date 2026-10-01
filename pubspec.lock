@@ -29,10 +29,10 @@ packages:
     dependency: transitive
     description:
       name: apple_vision_recognize_text
-      sha256: b14e7cf8d9c41b0215100097587b4626fb855ababaabbafb6db7c34408eca5c3
+      sha256: "59feed02c1a25bb4613eda7ed4be87fd1c4124337e076f427c2c129337f73b8e"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.4"
+    version: "0.1.0"
   archive:
     dependency: transitive
     description:
