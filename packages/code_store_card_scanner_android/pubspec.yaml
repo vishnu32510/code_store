@@ -1,5 +1,5 @@
 name: code_store_card_scanner_android
-description: Android implementation of the code_store_card_scanner plugin using Google ML Kit.
+description: Android implementation of the code_store_card_scanner plugin using native Google Play Services ML Kit.
 version: 1.0.0
 publish_to: 'none'
 
@@ -12,14 +12,14 @@ flutter:
     implements: code_store_card_scanner
     platforms:
       android:
-        dartPluginClass: CardScannerAndroid
+        package: com.nungu.codestore.card_scanner_android
+        pluginClass: CardScannerAndroidPlugin
 
 dependencies:
   flutter:
     sdk: flutter
   code_store_card_scanner_platform_interface:
     path: ../code_store_card_scanner_platform_interface
-  google_mlkit_text_recognition: ^0.15.1
 
 dev_dependencies:
   flutter_test:

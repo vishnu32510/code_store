@@ -269,6 +269,13 @@ packages:
       relative: true
     source: path
     version: "1.0.0"
+  code_store_card_scanner_android:
+    dependency: transitive
+    description:
+      path: "packages/code_store_card_scanner_android"
+      relative: true
+    source: path
+    version: "1.0.0"
   code_store_card_scanner_ios:
     dependency: transitive
     description:

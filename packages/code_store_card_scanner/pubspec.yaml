@@ -13,6 +13,8 @@ flutter:
     platforms:
       ios:
         default_package: code_store_card_scanner_ios
+      android:
+        default_package: code_store_card_scanner_android
 
 dependencies:
   flutter:
@@ -24,6 +26,8 @@ dependencies:
     path: ../code_store_card_scanner_platform_interface
   code_store_card_scanner_ios:
     path: ../code_store_card_scanner_ios
+  code_store_card_scanner_android:
+    path: ../code_store_card_scanner_android
 
 dev_dependencies:
   flutter_test:
