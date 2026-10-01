@@ -1,3 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
   package="com.nungu.codestore.card_scanner_android">
+  <application>
+    <!-- Instructs Google Play Services to automatically pre-download the OCR model on app install -->
+    <meta-data
+        android:name="com.google.mlkit.vision.DEPENDENCIES"
+        android:value="ocr" />
+  </application>
 </manifest>
