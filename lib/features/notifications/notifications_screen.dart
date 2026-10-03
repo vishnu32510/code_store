@@ -85,9 +85,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         payload: '{"type": "test_notification", "id": $id}',
       );
       _toast.showSuccess(
-        kIsWeb
-            ? 'Web notification triggered (Browser + Toast)!'
-            : 'Local notification sent!',
+        kIsWeb ? 'Web notification triggered!' : 'Local notification sent!',
       );
     } catch (e) {
       _toast.showError('Error showing notification: $e');
