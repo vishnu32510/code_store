@@ -86,7 +86,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       );
       _toast.showSuccess(
         kIsWeb
-            ? 'Web notification triggered (Browser + Toast)!'
+            ? 'Web notification triggered!'
             : 'Local notification sent!',
       );
     } catch (e) {
