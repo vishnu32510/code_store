@@ -1,6 +1,7 @@
 name: code_store_card_scanner_ios
 description: iOS implementation of the code_store_card_scanner plugin using native Apple Vision via Swift Package Manager.
 version: 1.0.0
+publish_to: 'none'
 repository: https://github.com/vishnu32510/code_store/tree/main/packages/code_store_card_scanner_ios
 issue_tracker: https://github.com/vishnu32510/code_store/issues
 topics:
