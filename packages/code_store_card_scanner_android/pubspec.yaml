@@ -1,6 +1,7 @@
 name: code_store_card_scanner_android
 description: Android implementation of code_store_card_scanner using native Google Play Services ML Kit.
 version: 1.0.0
+publish_to: none
 repository: https://github.com/vishnu32510/code_store/tree/main/packages/code_store_card_scanner_android
 issue_tracker: https://github.com/vishnu32510/code_store/issues
 topics:
