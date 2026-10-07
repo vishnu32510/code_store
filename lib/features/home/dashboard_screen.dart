@@ -254,7 +254,7 @@ class DashboardProfileView extends StatelessWidget {
                   if (!isSignedIn) ...[
                     const SizedBox(height: 4),
                     const Text(
-                      'Sign in below to test authentication.',
+                      'Sign in to test authentication.',
                       style: TextStyle(color: Colors.white70, fontSize: 13),
                     ),
                   ],
@@ -359,7 +359,7 @@ class DashboardProfileView extends StatelessWidget {
                 ),
                 icon: const Icon(Icons.login_rounded),
                 label: const Text(
-                  'Quick Sign In',
+                  'Sign In',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
@@ -375,7 +375,7 @@ class DashboardProfileView extends StatelessWidget {
                 ),
                 icon: const Icon(Icons.fullscreen_rounded),
                 label: const Text(
-                  'Go to Sign In',
+                  'Open Sign In Page',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
