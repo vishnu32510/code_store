@@ -60,23 +60,23 @@ extension AppPermissionTypeExtension on AppPermissionType {
   String get defaultRationale {
     switch (this) {
       case AppPermissionType.camera:
-        return 'Camera access is required to take photos, scan codes, or use flashlight tools.';
+        return 'We need access to your camera so you can take photos, scan codes, or use the flashlight.';
       case AppPermissionType.photos:
-        return 'Photo Library access is required to select, preview, and save media.';
+        return 'We need access to your photo library so you can select and save images.';
       case AppPermissionType.locationWhenInUse:
-        return 'Location access is required to deliver localized features and services.';
+        return 'We need your location while you use the app to show you relevant local features.';
       case AppPermissionType.locationAlways:
-        return 'Background location access is required for real-time tracking and geofencing.';
+        return 'We need your background location to provide real-time tracking and location-based updates.';
       case AppPermissionType.microphone:
-        return 'Microphone access is required to record audio and voice messages.';
+        return 'We need access to your microphone so you can record audio and voice messages.';
       case AppPermissionType.storage:
-        return 'Storage access is required to read and write application files.';
+        return 'We need storage access to save and read files on your device.';
       case AppPermissionType.notification:
-        return 'Notification permissions are required to receive important alerts and updates.';
+        return 'Enable notifications to receive important alerts and updates.';
       case AppPermissionType.bluetooth:
-        return 'Bluetooth access is required to discover and connect with nearby devices.';
+        return 'We need Bluetooth access to connect with nearby devices.';
       case AppPermissionType.appTrackingTransparency:
-        return 'Tracking permission helps provide a more personalized app experience.';
+        return 'Allowing tracking helps us provide a more personalized experience for you.';
     }
   }
 
