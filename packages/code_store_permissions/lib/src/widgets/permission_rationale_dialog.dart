@@ -57,7 +57,7 @@ class PermissionRationaleDialog extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
 
-    final title = customTitle ?? '${permissionType.displayName} Permission';
+    final title = customTitle ?? '${permissionType.displayName} Access';
     final description = customRationale ?? permissionType.defaultRationale;
 
     return Dialog(
@@ -87,7 +87,7 @@ class PermissionRationaleDialog extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               isPermanentlyDenied
-                  ? '$description\n\nAccess was previously denied. Please enable it in Settings.'
+                  ? '$description\n\nTo use this feature, please allow access in your device Settings.'
                   : description,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: colors.onSurfaceVariant,
@@ -105,7 +105,7 @@ class PermissionRationaleDialog extends StatelessWidget {
                       Navigator.of(context).maybePop(false);
                     },
                     child: Text(
-                      'Not Now',
+                      'Cancel',
                       style: TextStyle(
                         color: colors.outline,
                         fontWeight: FontWeight.w600,
@@ -126,7 +126,7 @@ class PermissionRationaleDialog extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                     child: Text(
-                      isPermanentlyDenied ? 'Open Settings' : 'Continue',
+                      isPermanentlyDenied ? 'Open Settings' : 'Allow',
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),

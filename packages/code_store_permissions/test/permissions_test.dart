@@ -101,11 +101,11 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.text('Camera Permission'), findsOneWidget);
-      expect(find.text('Continue'), findsOneWidget);
-      expect(find.text('Not Now'), findsOneWidget);
+      expect(find.text('Camera Access'), findsOneWidget);
+      expect(find.text('Allow'), findsOneWidget);
+      expect(find.text('Cancel'), findsOneWidget);
 
-      await tester.tap(find.text('Continue'));
+      await tester.tap(find.text('Allow'));
       await tester.pump();
 
       expect(confirmed, true);
