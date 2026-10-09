@@ -359,7 +359,7 @@ class DashboardProfileView extends StatelessWidget {
                 ),
                 icon: const Icon(Icons.login_rounded),
                 label: const Text(
-                  'Quick Sign In',
+                  'Sign In',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
@@ -375,7 +375,7 @@ class DashboardProfileView extends StatelessWidget {
                 ),
                 icon: const Icon(Icons.fullscreen_rounded),
                 label: const Text(
-                  'Go to Sign In',
+                  'Sign In (Full Screen)',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
