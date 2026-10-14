@@ -250,7 +250,8 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
         ),
         const SizedBox(height: 8),
         Text(
-          widget.subtitle ?? 'Sign in to sync your preferences and securely access your data.',
+          widget.subtitle ??
+              'Sign in to sync your preferences and securely access your data.',
           style: theme.textTheme.bodyMedium?.copyWith(
             color: colors.onSurfaceVariant.withValues(alpha: 0.85),
             height: 1.4,
