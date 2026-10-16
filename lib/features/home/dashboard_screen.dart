@@ -254,7 +254,7 @@ class DashboardProfileView extends StatelessWidget {
                   if (!isSignedIn) ...[
                     const SizedBox(height: 4),
                     const Text(
-                      'Sign in below to test authentication.',
+                      'Sign in below to securely access your account.',
                       style: TextStyle(color: Colors.white70, fontSize: 13),
                     ),
                   ],
