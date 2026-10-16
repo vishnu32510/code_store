@@ -1,0 +1,7 @@
+Improve auth prompt clarity on dashboard
+
+User problem: The phrase "Sign in below to test authentication" exposed underlying technical implementation details to end users, potentially causing confusion.
+
+What changed: Replaced the prompt with a user-centric benefit statement: "Sign in below to securely access your account."
+
+Validation: Verified `flutter test` completes successfully.
