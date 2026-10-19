@@ -1,4 +1,3 @@
-import '../../core/config/routes.dart';
 import 'widgets/app_drawer.dart';
 
 import 'package:code_store_auth/code_store_auth.dart';
@@ -359,23 +358,7 @@ class DashboardProfileView extends StatelessWidget {
                 ),
                 icon: const Icon(Icons.login_rounded),
                 label: const Text(
-                  'Quick Sign In',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                key: const ValueKey('profile_fullscreen_login_button'),
-                onPressed: () => context.push(AppRoutes.login),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                icon: const Icon(Icons.fullscreen_rounded),
-                label: const Text(
-                  'Go to Sign In',
+                  'Sign In',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
