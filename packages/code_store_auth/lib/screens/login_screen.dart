@@ -114,7 +114,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Sign in to securely access your data and personalized features across all devices.',
+                          'Sign in or create an account to access your data across all your devices.',
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: colors.onSurfaceVariant.withValues(
                               alpha: 0.75,
