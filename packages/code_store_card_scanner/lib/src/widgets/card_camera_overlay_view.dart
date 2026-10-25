@@ -317,6 +317,7 @@ class CardCameraOverlayView extends StatelessWidget {
                           )
                         : IconButton(
                             key: const ValueKey('close_camera_overlay_button'),
+                            tooltip: 'Close camera',
                             onPressed: onCancel,
                             icon: const Icon(Icons.close_rounded),
                             color: Colors.white,

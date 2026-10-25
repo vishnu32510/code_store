@@ -873,6 +873,9 @@ class _CardScannerScreenState extends State<CardScannerScreen>
                                                     Icons.lock_outline_rounded,
                                                   ),
                                                   suffixIcon: IconButton(
+                                                    tooltip: obscureCvv
+                                                        ? 'Show CVV'
+                                                        : 'Hide CVV',
                                                     icon: Icon(
                                                       obscureCvv
                                                           ? Icons
