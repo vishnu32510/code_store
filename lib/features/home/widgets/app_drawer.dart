@@ -490,7 +490,7 @@ class AppDrawer extends StatelessWidget {
                       ),
                       icon: const Icon(Icons.login_rounded, size: 20),
                       label: const Text(
-                        'Quick Sign In',
+                        'Sign In (Popup)',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -508,7 +508,7 @@ class AppDrawer extends StatelessWidget {
                       ),
                       icon: const Icon(Icons.fullscreen_rounded, size: 20),
                       label: const Text(
-                        'Go to Sign In',
+                        'Sign In (Fullscreen)',
                         style: TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ),
