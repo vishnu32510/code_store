@@ -135,6 +135,7 @@ class CardScannerHeroButton extends StatelessWidget {
           )
         : IconButton(
             icon: const Icon(Icons.camera_alt_rounded),
+            tooltip: 'Scan card',
             color: colors.primary,
             onPressed: () => _handleTap(context),
           );
