@@ -305,7 +305,7 @@ class AppDrawer extends StatelessWidget {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          isSignedIn ? 'Signed In' : 'Guest',
+                          isSignedIn ? 'Signed In' : 'Guest User',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 11,
@@ -490,7 +490,7 @@ class AppDrawer extends StatelessWidget {
                       ),
                       icon: const Icon(Icons.login_rounded, size: 20),
                       label: const Text(
-                        'Quick Sign In',
+                        'Sign In',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -508,7 +508,7 @@ class AppDrawer extends StatelessWidget {
                       ),
                       icon: const Icon(Icons.fullscreen_rounded, size: 20),
                       label: const Text(
-                        'Go to Sign In',
+                        'More Sign In Options',
                         style: TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ),
