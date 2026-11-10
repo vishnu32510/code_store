@@ -216,7 +216,9 @@ class DashboardProfileView extends StatelessWidget {
         final isSignedIn =
             auth.status == AuthenticationStatus.authenticated &&
             auth.user.isNotEmpty;
-        final displayName = isSignedIn && email.isNotEmpty ? email : 'Guest User';
+        final displayName = isSignedIn && email.isNotEmpty
+            ? email
+            : 'Guest User';
 
         return ListView(
           padding: const EdgeInsets.all(24),
