@@ -216,7 +216,7 @@ class DashboardProfileView extends StatelessWidget {
         final isSignedIn =
             auth.status == AuthenticationStatus.authenticated &&
             auth.user.isNotEmpty;
-        final displayName = isSignedIn && email.isNotEmpty ? email : 'Guest';
+        final displayName = isSignedIn && email.isNotEmpty ? email : 'Guest User';
 
         return ListView(
           padding: const EdgeInsets.all(24),
@@ -254,7 +254,7 @@ class DashboardProfileView extends StatelessWidget {
                   if (!isSignedIn) ...[
                     const SizedBox(height: 4),
                     const Text(
-                      'Sign in below to test authentication.',
+                      'Sign in below to save your progress and sync data.',
                       style: TextStyle(color: Colors.white70, fontSize: 13),
                     ),
                   ],
@@ -359,7 +359,7 @@ class DashboardProfileView extends StatelessWidget {
                 ),
                 icon: const Icon(Icons.login_rounded),
                 label: const Text(
-                  'Quick Sign In',
+                  'Sign In',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
@@ -375,7 +375,7 @@ class DashboardProfileView extends StatelessWidget {
                 ),
                 icon: const Icon(Icons.fullscreen_rounded),
                 label: const Text(
-                  'Go to Sign In',
+                  'More Sign In Options',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
